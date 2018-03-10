@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rxstream E3Xx
-# Generated: Thu Mar  1 20:41:00 2018
+# Generated: Thu Mar  1 20:49:07 2018
 ##################################################
 
 from gnuradio import eng_notation
@@ -35,7 +35,6 @@ class rxstream_e3xx(gr.top_block):
         self.server_port = server_port = 30000
         self.server_address = server_address = "192.168.10.184"
         self.samp_rate = samp_rate = 50e3
-        self.audio_samp_rate = audio_samp_rate = 48e3
 
         ##################################################
         # Blocks
@@ -96,12 +95,6 @@ class rxstream_e3xx(gr.top_block):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
-
-    def get_audio_samp_rate(self):
-        return self.audio_samp_rate
-
-    def set_audio_samp_rate(self, audio_samp_rate):
-        self.audio_samp_rate = audio_samp_rate
 
 
 def argument_parser():

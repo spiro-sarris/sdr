@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rxstream Host
-# Generated: Thu Mar  1 20:31:46 2018
+# Generated: Thu Mar  1 20:51:02 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -58,10 +58,8 @@ class rxstream_host(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 48000
         self.rx_gain = rx_gain = 50
         self.freq = freq = 2420000000
-        self.audio_gain = audio_gain = 0.5
 
         ##################################################
         # Blocks
@@ -118,9 +116,6 @@ class rxstream_host(gr.top_block, Qt.QWidget):
         
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self._audio_gain_range = Range(0, 1, 0.1, 0.5, 100)
-        self._audio_gain_win = RangeWidget(self._audio_gain_range, self.set_audio_gain, 'Audio Gain', "counter_slider", float)
-        self.top_layout.addWidget(self._audio_gain_win)
 
         ##################################################
         # Connections
@@ -131,12 +126,6 @@ class rxstream_host(gr.top_block, Qt.QWidget):
         self.settings = Qt.QSettings("GNU Radio", "rxstream_host")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
-
-    def get_samp_rate(self):
-        return self.samp_rate
-
-    def set_samp_rate(self, samp_rate):
-        self.samp_rate = samp_rate
 
     def get_rx_gain(self):
         return self.rx_gain
@@ -152,12 +141,6 @@ class rxstream_host(gr.top_block, Qt.QWidget):
         self.freq = freq
         self.xmlrpc_client.set_freq(self.freq)
         self.qtgui_freq_sink_x_0.set_frequency_range(self.freq, 1e6)
-
-    def get_audio_gain(self):
-        return self.audio_gain
-
-    def set_audio_gain(self, audio_gain):
-        self.audio_gain = audio_gain
 
 
 def main(top_block_cls=rxstream_host, options=None):
