@@ -5,7 +5,7 @@
 # Title: UHD FFT
 # Author: Example
 # Description: UHD FFT Waveform Plotter
-# Generated: Fri Mar  2 14:49:33 2018
+# Generated: Tue Jun  5 11:10:53 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -20,11 +20,11 @@ if __name__ == '__main__':
 
 from PyQt4 import Qt
 from PyQt4.QtCore import QObject, pyqtSlot
-from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
 from gnuradio import qtgui
+from gnuradio import zeromq
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from gnuradio.qtgui import Range, RangeWidget
@@ -32,13 +32,11 @@ from optparse import OptionParser
 import numpy
 import sip
 import sys
-import threading
-import time
 
 
 class uhd_fft(gr.top_block, Qt.QWidget):
 
-    def __init__(self, antenna='RX2', args='', fft_size=1024, freq=2.45e9, gain=20, samp_rate=1e6, spec='', stream_args='', update_rate=.1, wire_format=''):
+    def __init__(self, antenna='RX2', args='', fft_size=1024, freq=2420000000, gain=20, samp_rate=100e3, spec='', stream_args='', update_rate=.1, wire_format=''):
         gr.top_block.__init__(self, "UHD FFT")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("UHD FFT")
@@ -78,11 +76,10 @@ class uhd_fft(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.freq_c = freq_c = freq
         self.uhd_version_info = uhd_version_info = 'uhd.get_version_string()'
         self.samp_rate_ = samp_rate_ = samp_rate
         self.gain_ = gain_ = gain
-        self.current_freq_c = current_freq_c = freq_c
+        self.freq_c = freq_c = freq
         self.ant = ant = antenna
 
         ##################################################
@@ -95,13 +92,6 @@ class uhd_fft(gr.top_block, Qt.QWidget):
         self._samp_rate__line_edit.returnPressed.connect(
         	lambda: self.set_samp_rate_(eng_notation.str_to_num(str(self._samp_rate__line_edit.text().toAscii()))))
         self.top_grid_layout.addWidget(self._samp_rate__tool_bar, 3,2,1,2)
-        self._freq_c_tool_bar = Qt.QToolBar(self)
-        self._freq_c_tool_bar.addWidget(Qt.QLabel('RX Tune Frequency'+": "))
-        self._freq_c_line_edit = Qt.QLineEdit(str(self.freq_c))
-        self._freq_c_tool_bar.addWidget(self._freq_c_line_edit)
-        self._freq_c_line_edit.returnPressed.connect(
-        	lambda: self.set_freq_c(eng_notation.str_to_num(str(self._freq_c_line_edit.text().toAscii()))))
-        self.top_grid_layout.addWidget(self._freq_c_tool_bar, 3,0,1,2)
         self.display = Qt.QTabWidget()
         self.display_widget_0 = Qt.QWidget()
         self.display_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.display_widget_0)
@@ -119,6 +109,7 @@ class uhd_fft(gr.top_block, Qt.QWidget):
         self.display_layout_2.addLayout(self.display_grid_layout_2)
         self.display.addTab(self.display_widget_2, 'Scope')
         self.top_grid_layout.addWidget(self.display, 0,0,1,4)
+        self.zeromq_pull_source_0_0_0 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9999', 100, False, -1)
         self._uhd_version_info_tool_bar = Qt.QToolBar(self)
         
         if None:
@@ -263,19 +254,13 @@ class uhd_fft(gr.top_block, Qt.QWidget):
         self._gain__range = Range(0, 31.5, .5, gain, 200)
         self._gain__win = RangeWidget(self._gain__range, self.set_gain_, 'RX Gain', "counter_slider", float)
         self.top_grid_layout.addWidget(self._gain__win, 2,0,1,4)
-        
-        def _current_freq_c_probe():
-            while True:
-                val = self.uhd_usrp_source_0.get_sensor('lo_locked')
-                try:
-                    self.set_current_freq_c(val)
-                except AttributeError:
-                    pass
-                time.sleep(1.0 / (10))
-        _current_freq_c_thread = threading.Thread(target=_current_freq_c_probe)
-        _current_freq_c_thread.daemon = True
-        _current_freq_c_thread.start()
-            
+        self._freq_c_tool_bar = Qt.QToolBar(self)
+        self._freq_c_tool_bar.addWidget(Qt.QLabel('RX Tune Frequency'+": "))
+        self._freq_c_line_edit = Qt.QLineEdit(str(self.freq_c))
+        self._freq_c_tool_bar.addWidget(self._freq_c_line_edit)
+        self._freq_c_line_edit.returnPressed.connect(
+        	lambda: self.set_freq_c(eng_notation.str_to_num(str(self._freq_c_line_edit.text().toAscii()))))
+        self.top_grid_layout.addWidget(self._freq_c_tool_bar, 3,0,1,2)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self._ant_options = ('RX2', 'TX/RX', 'J1', 'J2', )
         self._ant_labels = ('RX2', 'TX/RX', 'J1', 'J2', )
@@ -289,16 +274,15 @@ class uhd_fft(gr.top_block, Qt.QWidget):
         self._ant_combo_box.currentIndexChanged.connect(
         	lambda i: self.set_ant(self._ant_options[i]))
         self.top_grid_layout.addWidget(self._ant_tool_bar, 4,2,1,2)
-        self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, float(freq_c), 1, 0)
 
         ##################################################
         # Connections
         ##################################################
         self.msg_connect((self.qtgui_freq_sink_x_0, 'freq'), (self.qtgui_freq_sink_x_0, 'freq'))    
-        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_throttle_0, 0))    
         self.connect((self.blocks_throttle_0, 0), (self.qtgui_freq_sink_x_0, 0))    
         self.connect((self.blocks_throttle_0, 0), (self.qtgui_time_sink_x_0, 0))    
         self.connect((self.blocks_throttle_0, 0), (self.qtgui_waterfall_sink_x_0, 0))    
+        self.connect((self.zeromq_pull_source_0_0_0, 0), (self.blocks_throttle_0, 0))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "uhd_fft")
@@ -329,9 +313,9 @@ class uhd_fft(gr.top_block, Qt.QWidget):
 
     def set_freq(self, freq):
         self.freq = freq
-        self.set_freq_c(self.freq)
         self.qtgui_waterfall_sink_x_0.set_frequency_range(self.freq, self.samp_rate_)
         self.qtgui_freq_sink_x_0.set_frequency_range(self.freq, self.samp_rate_)
+        self.set_freq_c(self.freq)
 
     def get_gain(self):
         return self.gain
@@ -347,7 +331,6 @@ class uhd_fft(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.set_samp_rate_(self.samp_rate)
         self.blocks_throttle_0.set_sample_rate(self.samp_rate)
-        self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
 
     def get_spec(self):
         return self.spec
@@ -376,15 +359,6 @@ class uhd_fft(gr.top_block, Qt.QWidget):
     def set_wire_format(self, wire_format):
         self.wire_format = wire_format
 
-    def get_freq_c(self):
-        return self.freq_c
-
-    def set_freq_c(self, freq_c):
-        self.freq_c = freq_c
-        Qt.QMetaObject.invokeMethod(self._freq_c_line_edit, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.freq_c)))
-        self.set_current_freq_c(self.freq_c)
-        self.analog_sig_source_x_0.set_frequency(float(self.freq_c))
-
     def get_uhd_version_info(self):
         return self.uhd_version_info
 
@@ -408,11 +382,12 @@ class uhd_fft(gr.top_block, Qt.QWidget):
     def set_gain_(self, gain_):
         self.gain_ = gain_
 
-    def get_current_freq_c(self):
-        return self.current_freq_c
+    def get_freq_c(self):
+        return self.freq_c
 
-    def set_current_freq_c(self, current_freq_c):
-        self.current_freq_c = current_freq_c
+    def set_freq_c(self, freq_c):
+        self.freq_c = freq_c
+        Qt.QMetaObject.invokeMethod(self._freq_c_line_edit, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.freq_c)))
 
     def get_ant(self):
         return self.ant
@@ -435,13 +410,13 @@ def argument_parser():
         "", "--fft-size", dest="fft_size", type="intx", default=1024,
         help="Set Set number of FFT bins [default=%default]")
     parser.add_option(
-        "-f", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(2.45e9),
+        "-f", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(2420000000),
         help="Set Default Frequency [default=%default]")
     parser.add_option(
         "-g", "--gain", dest="gain", type="eng_float", default=eng_notation.num_to_str(20),
         help="Set Set gain in dB (default is midpoint) [default=%default]")
     parser.add_option(
-        "-s", "--samp-rate", dest="samp_rate", type="eng_float", default=eng_notation.num_to_str(1e6),
+        "-s", "--samp-rate", dest="samp_rate", type="eng_float", default=eng_notation.num_to_str(100e3),
         help="Set Sample Rate [default=%default]")
     parser.add_option(
         "", "--spec", dest="spec", type="string", default='',

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rxstream E3Xx
-# Generated: Thu Mar  1 20:49:07 2018
+# Generated: Tue Jun  5 11:17:46 2018
 ##################################################
 
 from gnuradio import eng_notation
@@ -20,7 +20,7 @@ import time
 
 class rxstream_e3xx(gr.top_block):
 
-    def __init__(self, freq=2420000000, rx_gain=50):
+    def __init__(self, freq=915000000, rx_gain=50):
         gr.top_block.__init__(self, "Rxstream E3Xx")
 
         ##################################################
@@ -34,7 +34,7 @@ class rxstream_e3xx(gr.top_block):
         ##################################################
         self.server_port = server_port = 30000
         self.server_address = server_address = "192.168.10.184"
-        self.samp_rate = samp_rate = 50e3
+        self.samp_rate = samp_rate = 100e3
 
         ##################################################
         # Blocks
@@ -52,6 +52,7 @@ class rxstream_e3xx(gr.top_block):
         		channels=range(1),
         	),
         )
+        self.uhd_usrp_source_0.set_subdev_spec('A:B', 0)
         self.uhd_usrp_source_0.set_samp_rate(samp_rate)
         self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(freq,10e6), 0)
         self.uhd_usrp_source_0.set_gain(rx_gain, 0)
@@ -68,6 +69,7 @@ class rxstream_e3xx(gr.top_block):
     def set_freq(self, freq):
         self.freq = freq
         self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq,10e6), 0)
+        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq,10e6), 1)
 
     def get_rx_gain(self):
         return self.rx_gain
@@ -100,7 +102,7 @@ class rxstream_e3xx(gr.top_block):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
-        "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(2420000000),
+        "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(915000000),
         help="Set freq [default=%default]")
     parser.add_option(
         "", "--rx-gain", dest="rx_gain", type="eng_float", default=eng_notation.num_to_str(50),
