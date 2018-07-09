@@ -3,9 +3,10 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rxstream E3Xx
-# Generated: Mon Jul  9 15:12:49 2018
+# Generated: Mon Jul  9 18:16:49 2018
 ##################################################
 
+from gnuradio import analog
 from gnuradio import eng_notation
 from gnuradio import gr
 from gnuradio import uhd
@@ -20,7 +21,7 @@ import time
 
 class rxstream_e3xx(gr.top_block):
 
-    def __init__(self, freq=915000000, rx_gain=50):
+    def __init__(self, freq=915000000, rx_gain=50, tx_gain=10):
         gr.top_block.__init__(self, "Rxstream E3Xx")
 
         ##################################################
@@ -28,18 +29,20 @@ class rxstream_e3xx(gr.top_block):
         ##################################################
         self.freq = freq
         self.rx_gain = rx_gain
+        self.tx_gain = tx_gain
 
         ##################################################
         # Variables
         ##################################################
+        self.tuning_lo_offset = tuning_lo_offset = 50e3
         self.server_port = server_port = 30000
         self.server_address = server_address = "192.168.10.184"
-        self.samp_rate = samp_rate = 500e3
+        self.samp_rate = samp_rate = 200e3
 
         ##################################################
         # Blocks
         ##################################################
-        self.zeromq_push_sink_0_0_0 = zeromq.push_sink(gr.sizeof_gr_complex, 1, 'tcp://*:9999', 100, False, -1)
+        self.zeromq_push_sink_0 = zeromq.push_sink(gr.sizeof_gr_complex, 1, 'tcp://*:9999', 100, False, -1)
         self.xmlrpc_server_0 = SimpleXMLRPCServer.SimpleXMLRPCServer((str(server_address), int(server_port)), allow_none=True)
         self.xmlrpc_server_0.register_instance(self)
         self.xmlrpc_server_0_thread = threading.Thread(target=self.xmlrpc_server_0.serve_forever)
@@ -54,22 +57,39 @@ class rxstream_e3xx(gr.top_block):
         )
         self.uhd_usrp_source_0.set_subdev_spec('A:B', 0)
         self.uhd_usrp_source_0.set_samp_rate(samp_rate)
-        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(freq,10e6), 0)
+        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(freq,tuning_lo_offset), 0)
         self.uhd_usrp_source_0.set_gain(rx_gain, 0)
         self.uhd_usrp_source_0.set_antenna('RX2', 0)
+        self.uhd_usrp_source_0.set_bandwidth(10000, 0)
+        self.uhd_usrp_sink_0 = uhd.usrp_sink(
+        	",".join(("", "")),
+        	uhd.stream_args(
+        		cpu_format="fc32",
+        		channels=range(1),
+        	),
+        )
+        self.uhd_usrp_sink_0.set_subdev_spec('A:A', 0)
+        self.uhd_usrp_sink_0.set_samp_rate(samp_rate)
+        self.uhd_usrp_sink_0.set_center_freq(uhd.tune_request(freq,tuning_lo_offset), 0)
+        self.uhd_usrp_sink_0.set_gain(tx_gain, 0)
+        self.uhd_usrp_sink_0.set_antenna('TX/RX', 0)
+        self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_CONST_WAVE, 0, 1, 0)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.uhd_usrp_source_0, 0), (self.zeromq_push_sink_0_0_0, 0))    
+        self.connect((self.analog_sig_source_x_0, 0), (self.uhd_usrp_sink_0, 0))    
+        self.connect((self.uhd_usrp_source_0, 0), (self.zeromq_push_sink_0, 0))    
 
     def get_freq(self):
         return self.freq
 
     def set_freq(self, freq):
         self.freq = freq
-        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq,10e6), 0)
-        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq,10e6), 1)
+        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq,self.tuning_lo_offset), 0)
+        self.uhd_usrp_source_0.set_center_freq(self.freq, 1)
+        self.uhd_usrp_sink_0.set_center_freq(uhd.tune_request(self.freq,self.tuning_lo_offset), 0)
+        self.uhd_usrp_sink_0.set_center_freq(uhd.tune_request(self.freq,10e6), 1)
 
     def get_rx_gain(self):
         return self.rx_gain
@@ -78,6 +98,24 @@ class rxstream_e3xx(gr.top_block):
         self.rx_gain = rx_gain
         self.uhd_usrp_source_0.set_gain(self.rx_gain, 0)
         	
+        self.uhd_usrp_source_0.set_gain(self.rx_gain, 1)
+        	
+
+    def get_tx_gain(self):
+        return self.tx_gain
+
+    def set_tx_gain(self, tx_gain):
+        self.tx_gain = tx_gain
+        self.uhd_usrp_sink_0.set_gain(self.tx_gain, 0)
+        	
+
+    def get_tuning_lo_offset(self):
+        return self.tuning_lo_offset
+
+    def set_tuning_lo_offset(self, tuning_lo_offset):
+        self.tuning_lo_offset = tuning_lo_offset
+        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq,self.tuning_lo_offset), 0)
+        self.uhd_usrp_sink_0.set_center_freq(uhd.tune_request(self.freq,self.tuning_lo_offset), 0)
 
     def get_server_port(self):
         return self.server_port
@@ -97,6 +135,8 @@ class rxstream_e3xx(gr.top_block):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
+        self.uhd_usrp_sink_0.set_samp_rate(self.samp_rate)
+        self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
 
 
 def argument_parser():
@@ -107,6 +147,9 @@ def argument_parser():
     parser.add_option(
         "", "--rx-gain", dest="rx_gain", type="eng_float", default=eng_notation.num_to_str(50),
         help="Set rx_gain [default=%default]")
+    parser.add_option(
+        "", "--tx-gain", dest="tx_gain", type="eng_float", default=eng_notation.num_to_str(10),
+        help="Set tx_gain [default=%default]")
     return parser
 
 
@@ -114,7 +157,7 @@ def main(top_block_cls=rxstream_e3xx, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 
-    tb = top_block_cls(freq=options.freq, rx_gain=options.rx_gain)
+    tb = top_block_cls(freq=options.freq, rx_gain=options.rx_gain, tx_gain=options.tx_gain)
     tb.start()
     try:
         raw_input('Press Enter to quit: ')
