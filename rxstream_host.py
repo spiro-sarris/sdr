@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rxstream Host
-# Generated: Mon Jul  9 18:21:14 2018
+# Generated: Mon Jul  9 19:26:39 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -77,10 +77,10 @@ class rxstream_host(gr.top_block, Qt.QWidget):
         self.xmlrpc_client = xmlrpclib.Server('http://192.168.10.184:30000')
         self._tx_gain_range = Range(0, 30, 1, 10, 200)
         self._tx_gain_win = RangeWidget(self._tx_gain_range, self.set_tx_gain, 'TX Gain', "counter_slider", float)
-        self.top_layout.addWidget(self._tx_gain_win)
+        self.top_grid_layout.addWidget(self._tx_gain_win, 2,0,1,1)
         self._rx_gain_range = Range(0, 70, 1, 50, 200)
         self._rx_gain_win = RangeWidget(self._rx_gain_range, self.set_rx_gain, 'RX Gain', "counter_slider", float)
-        self.top_grid_layout.addWidget(self._rx_gain_win, 1,0,1,2)
+        self.top_grid_layout.addWidget(self._rx_gain_win, 3,0,1,1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
         	2048, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -123,10 +123,10 @@ class rxstream_host(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
         
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win, 4,0,1,1)
         self._freq_range = Range(400000000, 2500000000, 100e3, 915000000, 200)
         self._freq_win = RangeWidget(self._freq_range, self.set_freq, 'Frequency (Hz)', "counter_slider", float)
-        self.top_grid_layout.addWidget(self._freq_win, 0,0,1,2)
+        self.top_grid_layout.addWidget(self._freq_win, 1,0,1,1)
 
         ##################################################
         # Connections
