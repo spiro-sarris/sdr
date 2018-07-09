@@ -1,0 +1,223 @@
+Follow this guide roughly, but make some modifications to end up with independent install of UHD and gnuradio on E312 which does not depend on sshfs to run.
+
+https://kb.ettus.com/Software_Development_on_the_E310_and_E312
+Ignore all the PyBombs instructions.  Starting at "preparing from source"
+Ceate a directory to keep everything in my user account  
+
+$ mkdir ~/prefix
+
+Download SDK file from Ettus. Install SDK with .sh 
+
+$ sh ./oecore-x86_64-armv7ahf-vfp-neon-toolchain-nodistro.0.sh
+
+choose ~/prefix to install path
+
+$ cd ~/prefix
+$ source ./environment-setup-armv7ahf-vfp-neon-oe-linux-gnueabi
+
+This is just to confirm it worked.
+
+$ echo $CC
+
+ arm-oe-linux-gnueabi-gcc  -march=armv7-a -mfloat-abi=hard -mfpu=neon --sysroot=~/prefix/e300/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+
+$ mkdir ~/prefix/src/
+$ cd ~/prefix/src/
+$ git clone https://github.com/EttusResearch/uhd.git
+$ git checkout maint
+$ cd uhd/host
+$ mkdir build
+$ cd build
+ 
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../host/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_E300=ON ..
+
+$ make -j4
+
+Setup an sshfs mount from e3 file system on host so I can install to that location.  Mount "/" on e3 and "make install" will wipe out the factory default version of UHD that is installed in /usr/* 
+$ mkdir ~/mnte3
+$ sshfs root@e3:/ ~/mnte3
+$ make install DESTDIR=~/mnte3
+
+==================== gnuradio ============================================================
+$ mkdir ~/prefix/src/
+$ cd ~/prefix/src/
+$ git clone https://github.com/????
+$ git checkout ????
+$ cd ???
+$ mkdir build-arm
+$ cd build-arm
+
+Build gnuradio from source using new UHD
+have to install uhd also to the directory where gnuradio build wants to find it becahse I was unable to convince cmake to look in any other place.
+$ cd ~/prefix
+$ source ./environment-setup-armv7ahf-vfp-neon-oe-linux-gnueabi
+$ cd ~/prefix/src/uhd/host/build/
+$ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+$ mkdir ~/prefix/src/gnuradio/build-arm
+$ cd ~/prefix/src/gnuradio/build-arm/
+$ cmake -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/o~/
+// make -j4 could be used to speed up build, but terminal output is confusing with multiple jobs dumping text to the screen at the same time. If errors occur, use "make -j1" so the output makes sense in time order
+
+Install to e312 local - this will wipe out the original 3.7.9 gnuradio
+$ sshfs root@e3s:/ ~/mnte3
+$ cd ~/prefix/src/gnuradio/build-arm/
+$ make install DESTDIR=~/mnte3
+
+Check details on USRP hardware
+$ uhd_usrp_probe
+
+Likely, the old fpga image 14.0 will still be installed on e312 at path /usr/share/uhd/images/usrp_e310_fpga_sg3.bit.  This needs to be replaced with 16.x.  If the e312 has internet access, simply run:
+
+$ /usr/lib/uhd/utils/uhd_images_downloader.py
+
+This will download, unzip, and install the correct fpga image to local storage.  If the e312 does not have internet access, use the host computer to download the .tar.gz or the .zip file from http://files.ettus.com/binaries/images/ .  md5 checksup is provided for the .zip version becuase that is used by uhd_images_downloader.py.  
+
+Copy the relevant e3x files from hoset computer to e3xx device.
+$ ls -l *e3*
+-rw-r--r-- 1 ssarris ssarris 4045664 Jan 30 11:52 usrp_e310_fpga.bit
+-rw-r--r-- 1 ssarris ssarris 4045664 Jan 30 11:52 usrp_e310_fpga_sg3.bit
+-rw-r--r-- 1 ssarris ssarris 4045664 Jan 30 11:52 usrp_e3xx_fpga_idle.bit
+-rw-r--r-- 1 ssarris ssarris 4045664 Jan 30 11:52 usrp_e3xx_fpga_idle_sg3.bit
+
+$ scp *e3* root@e3s:/usr/share/uhd/images
+
+Confirm that it worked by checking hardware with uhd_usrp_probe
+
+$ uhd_usrp_probe 
+linux; GNU C++ version 4.9.2; Boost_105700; UHD_003.010.003.000-0-gef157678
+
+-- Loading FPGA image: /usr/share/uhd/images/usrp_e310_fpga_sg3.bit... done
+-- Initializing core control...
+-- Performing register loopback test... pass
+-- Performing register loopback test... pass
+-- Performing register loopback test... pass
+-- Performing CODEC loopback test... pass
+-- Performing CODEC loopback test... pass
+-- Setting time source to internal
+-- Asking for clock rate 16 MHz
+-- Actually got clock rate 16 MHz
+-- Performing timer loopback test... pass
+-- Performing timer loopback test... pass
+  _____________________________________________________
+ /
+|       Device: E-Series Device
+|     _____________________________________________________
+|    /
+|   |       Mboard: E3XX
+|   |   product: 30675
+|   |   revision: 6
+|   |   serial: 312EDFA
+|   |   mac-addr: 00:80:2f:17:d1:2a
+|   |   FPGA Version: 16.0
+|   |   
+|   |   Time sources:  none, internal, external
+|   |   Clock sources: internal
+|   |   Sensors: temp, ref_locked
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX DSP: 0
+|   |   |   
+|   |   |   Freq range: -8.000 to 8.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX DSP: 1
+|   |   |   
+|   |   |   Freq range: -8.000 to 8.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX Dboard: A
+|   |   |   ID: E310 MIMO XCVR (0x0110)
+|   |   |   Serial: 312D66B
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Frontend: A
+|   |   |   |   Name: FE-RX2
+|   |   |   |   Antennas: TX/RX, RX2
+|   |   |   |   Sensors: temp, rssi, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 76.0 step 1.0 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Frontend: B
+|   |   |   |   Name: FE-RX1
+|   |   |   |   Antennas: TX/RX, RX2
+|   |   |   |   Sensors: temp, rssi, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 76.0 step 1.0 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Codec: A
+|   |   |   |   Name: E3x0 RX dual ADC
+|   |   |   |   Gain Elements: None
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX DSP: 0
+|   |   |   
+|   |   |   Freq range: -8.000 to 8.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX DSP: 1
+|   |   |   
+|   |   |   Freq range: -8.000 to 8.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX Dboard: A
+|   |   |   ID: E310 MIMO XCVR (0x0110)
+|   |   |   Serial: 312D66B
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Frontend: A
+|   |   |   |   Name: FE-TX2
+|   |   |   |   Antennas: TX/RX
+|   |   |   |   Sensors: temp, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 89.8 step 0.2 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Frontend: B
+|   |   |   |   Name: FE-TX1
+|   |   |   |   Antennas: TX/RX
+|   |   |   |   Sensors: temp, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 89.8 step 0.2 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Codec: A
+|   |   |   |   Name: E3x0 TX dual DAC
+|   |   |   |   Gain Elements: None
+
+Test that all of TX channels can work by observing LEDs.  No sense in using the "Antenna" parameter because we can't transmit out of an "RX2" port. have to use ch0 and ch1 from subdev spec list of daughterboards, and it will be the TX selection
+
+Use only TRX-A as default when default is A:A A:B
+$ /usr/bin/uhd_siggen -f 902000000 --const
+
+Use only TRX-B by forcing subdev spec to ignore A:A 
+$ /usr/bin/uhd_siggen -f 902000000 --const --spec "A:B"
+
+Use both TX channels.
+$ /usr/bin/uhd_siggen -f 902000000 --const --spec "A:A A:B" -c "0,1" \\
+
+Test the RX channels:
+Default selection of RX2-A (no subdev spec, channel selection, or ant selection)
+$ /usr/lib/uhd/examples/rx_ascii_art_dft --freq 903000000 --rate 10000 --ref-lvl -30 --dyn-rng 100
+
+Use TRX-A without subdev spec. Default using channel 0 on daughterboard A.
+$ ./rx_ascii_art_dft --freq 903000000 --rate 10000 --ref-lvl -30 --dyn-rng 100 --ant "TX/RX"
+
+Use RX2-B.  Requires subdev spec to motherboard B and antenna selection to RX2
+./rx_ascii_art_dft --freq 903000000 --rate 10000 --ref-lvl -30 --dyn-rng 100 --ant "RX2" --subdev "A:B"
+
+Use TRX-B.  Requires subdev spec to motherboard B and antenna selection to TX/RX
+./rx_ascii_art_dft --freq 903000000 --rate 10000 --ref-lvl -30 --dyn-rng 100 --ant "TX/RX" --subdev "A:B"

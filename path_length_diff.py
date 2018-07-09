@@ -5,7 +5,7 @@
 # Title: Path Length Difference
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Sun Jul  8 19:09:48 2018
+# Generated: Sun Jul  8 19:37:54 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -70,6 +70,23 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         ##################################################
         # Blocks
         ##################################################
+        self.display = Qt.QTabWidget()
+        self.display_widget_0 = Qt.QWidget()
+        self.display_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.display_widget_0)
+        self.display_grid_layout_0 = Qt.QGridLayout()
+        self.display_layout_0.addLayout(self.display_grid_layout_0)
+        self.display.addTab(self.display_widget_0, 'Time')
+        self.display_widget_1 = Qt.QWidget()
+        self.display_layout_1 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.display_widget_1)
+        self.display_grid_layout_1 = Qt.QGridLayout()
+        self.display_layout_1.addLayout(self.display_grid_layout_1)
+        self.display.addTab(self.display_widget_1, 'Amplitude')
+        self.display_widget_2 = Qt.QWidget()
+        self.display_layout_2 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.display_widget_2)
+        self.display_grid_layout_2 = Qt.QGridLayout()
+        self.display_layout_2.addLayout(self.display_grid_layout_2)
+        self.display.addTab(self.display_widget_2, 'Phase')
+        self.top_grid_layout.addWidget(self.display, 0,0,1,4)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_f(
         	int(samp_rate/wf_freq), #size
         	samp_rate, #samp_rate
@@ -84,7 +101,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_0.enable_tags(-1, True)
         self.qtgui_time_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
         self.qtgui_time_sink_x_0.enable_autoscale(False)
-        self.qtgui_time_sink_x_0.enable_grid(False)
+        self.qtgui_time_sink_x_0.enable_grid(True)
         self.qtgui_time_sink_x_0.enable_axis_labels(True)
         self.qtgui_time_sink_x_0.enable_control_panel(False)
         
@@ -116,7 +133,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0.set_line_alpha(i, alphas[i])
         
         self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_time_sink_x_0_win)
+        self.display_grid_layout_0.addWidget(self._qtgui_time_sink_x_0_win, 0,0,1,4)
         self.qtgui_number_sink_1 = qtgui.number_sink(
             gr.sizeof_float,
             0,
@@ -179,13 +196,53 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.qtgui_number_sink_0.enable_autoscale(False)
         self._qtgui_number_sink_0_win = sip.wrapinstance(self.qtgui_number_sink_0.pyqwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_number_sink_0_win)
+        self.qtgui_const_sink_x_0 = qtgui.const_sink_c(
+        	1024, #size
+        	"", #name
+        	1 #number of inputs
+        )
+        self.qtgui_const_sink_x_0.set_update_time(0.10)
+        self.qtgui_const_sink_x_0.set_y_axis(-2, 2)
+        self.qtgui_const_sink_x_0.set_x_axis(-2, 2)
+        self.qtgui_const_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, "")
+        self.qtgui_const_sink_x_0.enable_autoscale(False)
+        self.qtgui_const_sink_x_0.enable_grid(True)
+        self.qtgui_const_sink_x_0.enable_axis_labels(True)
+        
+        if not True:
+          self.qtgui_const_sink_x_0.disable_legend()
+        
+        labels = ['', '', '', '', '',
+                  '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        colors = ["blue", "red", "red", "red", "red",
+                  "red", "red", "red", "red", "red"]
+        styles = [0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0]
+        markers = [0, 0, 0, 0, 0,
+                   0, 0, 0, 0, 0]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+                  1.0, 1.0, 1.0, 1.0, 1.0]
+        for i in xrange(1):
+            if len(labels[i]) == 0:
+                self.qtgui_const_sink_x_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_const_sink_x_0.set_line_label(i, labels[i])
+            self.qtgui_const_sink_x_0.set_line_width(i, widths[i])
+            self.qtgui_const_sink_x_0.set_line_color(i, colors[i])
+            self.qtgui_const_sink_x_0.set_line_style(i, styles[i])
+            self.qtgui_const_sink_x_0.set_line_marker(i, markers[i])
+            self.qtgui_const_sink_x_0.set_line_alpha(i, alphas[i])
+        
+        self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.pyqwidget(), Qt.QWidget)
+        self.display_grid_layout_2.addWidget(self._qtgui_const_sink_x_0_win, 0,0,1,4)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
-        self.blocks_sub_xx_0 = blocks.sub_ff(1)
+        self.blocks_divide_xx_1 = blocks.divide_cc(1)
         self.blocks_divide_xx_0 = blocks.divide_ff(1)
-        self.blocks_delay_0 = blocks.delay(gr.sizeof_gr_complex*1, int(samp_rate/wf_freq/4))
+        self.blocks_delay_0 = blocks.delay(gr.sizeof_gr_complex*1, int(samp_rate/wf_freq/2))
         self.blocks_complex_to_real_0_0 = blocks.complex_to_real(1)
         self.blocks_complex_to_real_0 = blocks.complex_to_real(1)
-        self.blocks_complex_to_arg_0_0 = blocks.complex_to_arg(1)
         self.blocks_complex_to_arg_0 = blocks.complex_to_arg(1)
         self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, wf_freq, 1, 0)
         self.analog_const_source_x_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, wave_number)
@@ -195,18 +252,18 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         ##################################################
         self.connect((self.analog_const_source_x_0, 0), (self.blocks_divide_xx_0, 1))    
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_throttle_0, 0))    
-        self.connect((self.blocks_complex_to_arg_0, 0), (self.blocks_sub_xx_0, 0))    
-        self.connect((self.blocks_complex_to_arg_0_0, 0), (self.blocks_sub_xx_0, 1))    
+        self.connect((self.blocks_complex_to_arg_0, 0), (self.blocks_divide_xx_0, 0))    
+        self.connect((self.blocks_complex_to_arg_0, 0), (self.qtgui_number_sink_0, 0))    
         self.connect((self.blocks_complex_to_real_0, 0), (self.qtgui_time_sink_x_0, 1))    
         self.connect((self.blocks_complex_to_real_0_0, 0), (self.qtgui_time_sink_x_0, 0))    
-        self.connect((self.blocks_delay_0, 0), (self.blocks_complex_to_arg_0_0, 0))    
         self.connect((self.blocks_delay_0, 0), (self.blocks_complex_to_real_0, 0))    
+        self.connect((self.blocks_delay_0, 0), (self.blocks_divide_xx_1, 1))    
         self.connect((self.blocks_divide_xx_0, 0), (self.qtgui_number_sink_1, 0))    
-        self.connect((self.blocks_sub_xx_0, 0), (self.blocks_divide_xx_0, 0))    
-        self.connect((self.blocks_sub_xx_0, 0), (self.qtgui_number_sink_0, 0))    
-        self.connect((self.blocks_throttle_0, 0), (self.blocks_complex_to_arg_0, 0))    
+        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_complex_to_arg_0, 0))    
+        self.connect((self.blocks_divide_xx_1, 0), (self.qtgui_const_sink_x_0, 0))    
         self.connect((self.blocks_throttle_0, 0), (self.blocks_complex_to_real_0_0, 0))    
         self.connect((self.blocks_throttle_0, 0), (self.blocks_delay_0, 0))    
+        self.connect((self.blocks_throttle_0, 0), (self.blocks_divide_xx_1, 0))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "path_length_diff")
@@ -219,7 +276,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
     def set_wf_freq(self, wf_freq):
         self.wf_freq = wf_freq
         self.set_wavelength(self.speed_of_light/self.wf_freq)
-        self.blocks_delay_0.set_dly(int(self.samp_rate/self.wf_freq/4))
+        self.blocks_delay_0.set_dly(int(self.samp_rate/self.wf_freq/2))
         self.analog_sig_source_x_0.set_frequency(self.wf_freq)
 
     def get_speed_of_light(self):
@@ -256,7 +313,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
         self.blocks_throttle_0.set_sample_rate(self.samp_rate)
-        self.blocks_delay_0.set_dly(int(self.samp_rate/self.wf_freq/4))
+        self.blocks_delay_0.set_dly(int(self.samp_rate/self.wf_freq/2))
         self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
 
 
