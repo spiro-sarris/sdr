@@ -30,7 +30,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(104, 11)</value>
+      <value>(8, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -93,7 +93,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(448, 16)</value>
+      <value>(8, 240)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -105,7 +105,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>200e3</value>
+      <value>100e3</value>
     </param>
   </block>
   <block>
@@ -120,7 +120,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(848, 16)</value>
+      <value>(8, 344)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -147,7 +147,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(848, 120)</value>
+      <value>(8, 448)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -174,7 +174,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(112, 152)</value>
+      <value>(8, 136)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -186,7 +186,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>50e3</value>
+      <value>60e3</value>
     </param>
   </block>
   <block>
@@ -217,7 +217,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(360, 824)</value>
+      <value>(744, 80)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -253,6 +253,61 @@
     </param>
   </block>
   <block>
+    <key>blocks_null_source</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>bus_conns</key>
+      <value>[[0,],]</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(960, 556)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_null_source_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_outputs</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -268,7 +323,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(640, 20)</value>
+      <value>(368, 28)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -292,7 +347,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>915000000</value>
+      <value>100e6</value>
     </param>
   </block>
   <block>
@@ -311,7 +366,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(640, 156)</value>
+      <value>(368, 284)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -335,7 +390,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>50</value>
+      <value>30</value>
     </param>
   </block>
   <block>
@@ -354,7 +409,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(472, 156)</value>
+      <value>(368, 156)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -378,7 +433,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>10</value>
+      <value>30</value>
     </param>
   </block>
   <block>
@@ -1053,7 +1108,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(912, 792)</value>
+      <value>(1112, 52)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1216,7 +1271,7 @@
     </param>
     <param>
       <key>bw0</key>
-      <value>10000</value>
+      <value>0</value>
     </param>
     <param>
       <key>center_freq0</key>
@@ -1612,11 +1667,11 @@
     </param>
     <param>
       <key>bw1</key>
-      <value>10000</value>
+      <value>0</value>
     </param>
     <param>
       <key>center_freq1</key>
-      <value>freq</value>
+      <value>uhd.tune_request(freq,tuning_lo_offset)</value>
     </param>
     <param>
       <key>dc_offs_enb1</key>
@@ -2388,7 +2443,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(240, 404)</value>
+      <value>(744, 316)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2563,7 +2618,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(848, 232)</value>
+      <value>(368, 416)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2598,11 +2653,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(912, 444)</value>
+      <value>(1208, 524)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2653,11 +2708,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(912, 588)</value>
+      <value>(1208, 396)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2695,8 +2750,14 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>uhd_usrp_source_0</source_block_id>
+    <source_block_id>blocks_null_source_0</source_block_id>
     <sink_block_id>zeromq_push_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>uhd_usrp_source_0</source_block_id>
+    <sink_block_id>zeromq_push_sink_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -5,7 +5,7 @@
 # Title: Path Length Difference
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Mon Jul  9 19:59:13 2018
+# Generated: Tue Jul 10 19:32:32 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -63,60 +63,112 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.wf_freq = wf_freq = 915e6
-        self.velocity_factor = velocity_factor = 0.7
+        self.velocity_factor = velocity_factor = 0.69
         self.speed_of_light = speed_of_light = 299792458
-        self.wavelength = wavelength = speed_of_light/wf_freq/velocity_factor
+        self.rf_freq = rf_freq = 100e6
+        self.wavelength = wavelength = speed_of_light/rf_freq/velocity_factor
         self.wave_number = wave_number = np.pi/wavelength
-        self.tx_gain = tx_gain = 10
-        self.samp_rate = samp_rate = 200e3
-        self.rx_gain = rx_gain = 50
-        self.freq = freq = 915000000
+        self.meters_per_radian = meters_per_radian = 1/wave_number
+        self.variable_qtgui_label_3 = variable_qtgui_label_3 = rf_freq/1e6
+        self.variable_qtgui_label_2 = variable_qtgui_label_2 = meters_per_radian
+        self.variable_qtgui_label_1 = variable_qtgui_label_1 = wavelength
+        self.variable_qtgui_label_0 = variable_qtgui_label_0 = velocity_factor
+        self.tx_gain = tx_gain = 30
+        self.samp_rate = samp_rate = 100e3
+        self.rx_gain = rx_gain = 30
         self.client_address = client_address = "192.168.10.184"
 
         ##################################################
         # Blocks
         ##################################################
-        self.display = Qt.QTabWidget()
-        self.display_widget_0 = Qt.QWidget()
-        self.display_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.display_widget_0)
-        self.display_grid_layout_0 = Qt.QGridLayout()
-        self.display_layout_0.addLayout(self.display_grid_layout_0)
-        self.display.addTab(self.display_widget_0, 'Amplitude')
-        self.display_widget_1 = Qt.QWidget()
-        self.display_layout_1 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.display_widget_1)
-        self.display_grid_layout_1 = Qt.QGridLayout()
-        self.display_layout_1.addLayout(self.display_grid_layout_1)
-        self.display.addTab(self.display_widget_1, 'Phase')
-        self.top_grid_layout.addWidget(self.display, 0,0,1,4)
+        self.tabs = Qt.QTabWidget()
+        self.tabs_widget_0 = Qt.QWidget()
+        self.tabs_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_0)
+        self.tabs_grid_layout_0 = Qt.QGridLayout()
+        self.tabs_layout_0.addLayout(self.tabs_grid_layout_0)
+        self.tabs.addTab(self.tabs_widget_0, 'Magnitude')
+        self.tabs_widget_1 = Qt.QWidget()
+        self.tabs_layout_1 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_1)
+        self.tabs_grid_layout_1 = Qt.QGridLayout()
+        self.tabs_layout_1.addLayout(self.tabs_grid_layout_1)
+        self.tabs.addTab(self.tabs_widget_1, 'Phase')
+        self.top_grid_layout.addWidget(self.tabs, 0,0,1,4)
+        self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9998', 100, False, -1)
         self.zeromq_pull_source_0 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9999', 100, False, -1)
         self.xmlrpc_client1 = xmlrpclib.Server('http://192.168.10.184:30000')
         self.xmlrpc_client0 = xmlrpclib.Server('http://192.168.10.184:30000')
-        self.xmlrpc_client = xmlrpclib.Server('http://192.168.10.184:30000')
-        self._tx_gain_range = Range(0, 30, 1, 10, 200)
-        self._tx_gain_win = RangeWidget(self._tx_gain_range, self.set_tx_gain, 'TX Gain', "slider", float)
-        self.display_grid_layout_0.addWidget(self._tx_gain_win, 2,0,1,1)
-        self._rx_gain_range = Range(0, 70, 1, 50, 200)
-        self._rx_gain_win = RangeWidget(self._rx_gain_range, self.set_rx_gain, 'RX Gain', "slider", float)
-        self.display_grid_layout_0.addWidget(self._rx_gain_win, 3,0,1,1)
+        self._variable_qtgui_label_3_tool_bar = Qt.QToolBar(self)
+        
+        if None:
+          self._variable_qtgui_label_3_formatter = None
+        else:
+          self._variable_qtgui_label_3_formatter = lambda x: x
+        
+        self._variable_qtgui_label_3_tool_bar.addWidget(Qt.QLabel('RF Frequency (MHz)'+": "))
+        self._variable_qtgui_label_3_label = Qt.QLabel(str(self._variable_qtgui_label_3_formatter(self.variable_qtgui_label_3)))
+        self._variable_qtgui_label_3_tool_bar.addWidget(self._variable_qtgui_label_3_label)
+        self.top_grid_layout.addWidget(self._variable_qtgui_label_3_tool_bar, 1,0,1,1)
+          
+        self._variable_qtgui_label_2_tool_bar = Qt.QToolBar(self)
+        
+        if None:
+          self._variable_qtgui_label_2_formatter = None
+        else:
+          self._variable_qtgui_label_2_formatter = lambda x: x
+        
+        self._variable_qtgui_label_2_tool_bar.addWidget(Qt.QLabel('Meters Per Radian of Phase in Cable'+": "))
+        self._variable_qtgui_label_2_label = Qt.QLabel(str(self._variable_qtgui_label_2_formatter(self.variable_qtgui_label_2)))
+        self._variable_qtgui_label_2_tool_bar.addWidget(self._variable_qtgui_label_2_label)
+        self.top_grid_layout.addWidget(self._variable_qtgui_label_2_tool_bar, 4,0,1,1)
+          
+        self._variable_qtgui_label_1_tool_bar = Qt.QToolBar(self)
+        
+        if None:
+          self._variable_qtgui_label_1_formatter = None
+        else:
+          self._variable_qtgui_label_1_formatter = lambda x: x
+        
+        self._variable_qtgui_label_1_tool_bar.addWidget(Qt.QLabel('Wavelength (m)'+": "))
+        self._variable_qtgui_label_1_label = Qt.QLabel(str(self._variable_qtgui_label_1_formatter(self.variable_qtgui_label_1)))
+        self._variable_qtgui_label_1_tool_bar.addWidget(self._variable_qtgui_label_1_label)
+        self.top_grid_layout.addWidget(self._variable_qtgui_label_1_tool_bar, 3,0,1,1)
+          
+        self._variable_qtgui_label_0_tool_bar = Qt.QToolBar(self)
+        
+        if None:
+          self._variable_qtgui_label_0_formatter = None
+        else:
+          self._variable_qtgui_label_0_formatter = lambda x: x
+        
+        self._variable_qtgui_label_0_tool_bar.addWidget(Qt.QLabel('Velocity Factor of Cable'+": "))
+        self._variable_qtgui_label_0_label = Qt.QLabel(str(self._variable_qtgui_label_0_formatter(self.variable_qtgui_label_0)))
+        self._variable_qtgui_label_0_tool_bar.addWidget(self._variable_qtgui_label_0_label)
+        self.top_grid_layout.addWidget(self._variable_qtgui_label_0_tool_bar, 2,0,1,1)
+          
+        self._tx_gain_range = Range(0, 40, 1, 30, 50)
+        self._tx_gain_win = RangeWidget(self._tx_gain_range, self.set_tx_gain, 'TX Gain', "counter_slider", float)
+        self.tabs_grid_layout_0.addWidget(self._tx_gain_win, 1,0,1,1)
+        self._rx_gain_range = Range(0, 30, 1, 30, 100)
+        self._rx_gain_win = RangeWidget(self._rx_gain_range, self.set_rx_gain, 'RX Gain', "counter_slider", float)
+        self.tabs_grid_layout_0.addWidget(self._rx_gain_win, 1,1,1,1)
         self.qtgui_number_sink_1 = qtgui.number_sink(
             gr.sizeof_float,
             0,
             qtgui.NUM_GRAPH_NONE,
-            1
+            3
         )
-        self.qtgui_number_sink_1.set_update_time(0.10)
-        self.qtgui_number_sink_1.set_title("Length Difference (m)")
+        self.qtgui_number_sink_1.set_update_time(0.20)
+        self.qtgui_number_sink_1.set_title("Length (m)")
         
-        labels = ['', '', '', '', '',
+        labels = ['REF - A', 'REF - B', 'A - B', '', '',
                   '', '', '', '', '']
-        units = ['', '', '', '', '',
+        units = ['m', 'm', 'm', '', '',
                  '', '', '', '', '']
         colors = [("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"),
                   ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black")]
         factor = [1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
-        for i in xrange(1):
+        for i in xrange(3):
             self.qtgui_number_sink_1.set_min(i, -1)
             self.qtgui_number_sink_1.set_max(i, 1)
             self.qtgui_number_sink_1.set_color(i, colors[i][0], colors[i][1])
@@ -129,25 +181,56 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         
         self.qtgui_number_sink_1.enable_autoscale(False)
         self._qtgui_number_sink_1_win = sip.wrapinstance(self.qtgui_number_sink_1.pyqwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_number_sink_1_win)
-        self.qtgui_number_sink_0_0 = qtgui.number_sink(
+        self.tabs_grid_layout_1.addWidget(self._qtgui_number_sink_1_win, 2,0,1,1)
+        self.qtgui_number_sink_0_0_0 = qtgui.number_sink(
             gr.sizeof_float,
             0,
             qtgui.NUM_GRAPH_NONE,
-            1
+            3
         )
-        self.qtgui_number_sink_0_0.set_update_time(0.2)
-        self.qtgui_number_sink_0_0.set_title("Magnitude Difference (dB)")
+        self.qtgui_number_sink_0_0_0.set_update_time(0.2)
+        self.qtgui_number_sink_0_0_0.set_title("Magnitude Difference (dB)")
         
-        labels = ['', '', '', '', '',
+        labels = ['REF - A', 'REF - B', 'A - B', '', '',
                   '', '', '', '', '']
-        units = ['', '', '', '', '',
+        units = ['dB', 'dB', 'dB', '', '',
                  '', '', '', '', '']
         colors = [("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"),
                   ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black")]
         factor = [1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
-        for i in xrange(1):
+        for i in xrange(3):
+            self.qtgui_number_sink_0_0_0.set_min(i, -1)
+            self.qtgui_number_sink_0_0_0.set_max(i, 1)
+            self.qtgui_number_sink_0_0_0.set_color(i, colors[i][0], colors[i][1])
+            if len(labels[i]) == 0:
+                self.qtgui_number_sink_0_0_0.set_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_number_sink_0_0_0.set_label(i, labels[i])
+            self.qtgui_number_sink_0_0_0.set_unit(i, units[i])
+            self.qtgui_number_sink_0_0_0.set_factor(i, factor[i])
+        
+        self.qtgui_number_sink_0_0_0.enable_autoscale(False)
+        self._qtgui_number_sink_0_0_0_win = sip.wrapinstance(self.qtgui_number_sink_0_0_0.pyqwidget(), Qt.QWidget)
+        self.tabs_grid_layout_0.addWidget(self._qtgui_number_sink_0_0_0_win, 4,0,1,2)
+        self.qtgui_number_sink_0_0 = qtgui.number_sink(
+            gr.sizeof_float,
+            0,
+            qtgui.NUM_GRAPH_NONE,
+            3
+        )
+        self.qtgui_number_sink_0_0.set_update_time(0.2)
+        self.qtgui_number_sink_0_0.set_title("Magnitude (dB)")
+        
+        labels = ['REF', 'RXA', 'RXB', '', '',
+                  '', '', '', '', '']
+        units = ['dB', 'dB', 'dB', '', '',
+                 '', '', '', '', '']
+        colors = [("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"),
+                  ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black")]
+        factor = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        for i in xrange(3):
             self.qtgui_number_sink_0_0.set_min(i, -1)
             self.qtgui_number_sink_0_0.set_max(i, 1)
             self.qtgui_number_sink_0_0.set_color(i, colors[i][0], colors[i][1])
@@ -160,25 +243,25 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         
         self.qtgui_number_sink_0_0.enable_autoscale(False)
         self._qtgui_number_sink_0_0_win = sip.wrapinstance(self.qtgui_number_sink_0_0.pyqwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_number_sink_0_0_win)
+        self.tabs_grid_layout_0.addWidget(self._qtgui_number_sink_0_0_win, 3,0,1,2)
         self.qtgui_number_sink_0 = qtgui.number_sink(
             gr.sizeof_float,
             0,
             qtgui.NUM_GRAPH_NONE,
-            1
+            3
         )
         self.qtgui_number_sink_0.set_update_time(0.2)
         self.qtgui_number_sink_0.set_title("Phase Difference (rad)")
         
-        labels = ['', '', '', '', '',
+        labels = ['REF - A', 'REF - B', 'A - B', '', '',
                   '', '', '', '', '']
-        units = ['', '', '', '', '',
+        units = ['rad', 'rad', 'rad', '', '',
                  '', '', '', '', '']
         colors = [("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"),
                   ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black")]
         factor = [1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
-        for i in xrange(1):
+        for i in xrange(3):
             self.qtgui_number_sink_0.set_min(i, -1)
             self.qtgui_number_sink_0.set_max(i, 1)
             self.qtgui_number_sink_0.set_color(i, colors[i][0], colors[i][1])
@@ -191,17 +274,17 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         
         self.qtgui_number_sink_0.enable_autoscale(False)
         self._qtgui_number_sink_0_win = sip.wrapinstance(self.qtgui_number_sink_0.pyqwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_number_sink_0_win)
+        self.tabs_grid_layout_1.addWidget(self._qtgui_number_sink_0_win, 1,0,1,1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
         	1024, #size
         	firdes.WIN_HAMMING, #wintype
-        	0, #fc
+        	rf_freq, #fc
         	samp_rate, #bw
         	"", #name
-        	2 #number of inputs
+        	3 #number of inputs
         )
         self.qtgui_freq_sink_x_0.set_update_time(0.20)
-        self.qtgui_freq_sink_x_0.set_y_axis(-140, 0)
+        self.qtgui_freq_sink_x_0.set_y_axis(-140, -20)
         self.qtgui_freq_sink_x_0.set_y_label('Amplitude', 'dB')
         self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
         self.qtgui_freq_sink_x_0.enable_autoscale(False)
@@ -216,15 +299,15 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         if "complex" == "float" or "complex" == "msg_float":
           self.qtgui_freq_sink_x_0.set_plot_pos_half(not True)
         
-        labels = ['', '', '', '', '',
+        labels = ['REF', 'RXA', 'RXB', '', '',
                   '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
+        widths = [1, 2, 2, 1, 1,
                   1, 1, 1, 1, 1]
         colors = ["blue", "red", "green", "black", "cyan",
                   "magenta", "yellow", "dark red", "dark green", "dark blue"]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
-        for i in xrange(2):
+        for i in xrange(3):
             if len(labels[i]) == 0:
                 self.qtgui_freq_sink_x_0.set_line_label(i, "Data {0}".format(i))
             else:
@@ -234,13 +317,13 @@ class path_length_diff(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
         
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.display_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_win, 4,0,1,1)
+        self.tabs_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_win, 0,0,1,2)
         self.qtgui_const_sink_x_0 = qtgui.const_sink_c(
         	1024, #size
         	"", #name
-        	1 #number of inputs
+        	3 #number of inputs
         )
-        self.qtgui_const_sink_x_0.set_update_time(0.10)
+        self.qtgui_const_sink_x_0.set_update_time(0.20)
         self.qtgui_const_sink_x_0.set_y_axis(-2, 2)
         self.qtgui_const_sink_x_0.set_x_axis(-2, 2)
         self.qtgui_const_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, "")
@@ -251,7 +334,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         if not True:
           self.qtgui_const_sink_x_0.disable_legend()
         
-        labels = ['', '', '', '', '',
+        labels = ['REF - A', 'REF - B', 'A - B', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
@@ -263,7 +346,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
                    0, 0, 0, 0, 0]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
-        for i in xrange(1):
+        for i in xrange(3):
             if len(labels[i]) == 0:
                 self.qtgui_const_sink_x_0.set_line_label(i, "Data {0}".format(i))
             else:
@@ -275,60 +358,122 @@ class path_length_diff(gr.top_block, Qt.QWidget):
             self.qtgui_const_sink_x_0.set_line_alpha(i, alphas[i])
         
         self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.display_grid_layout_1.addWidget(self._qtgui_const_sink_x_0_win, 0,0,1,4)
-        self._freq_range = Range(400000000, 2500000000, 100e3, 915000000, 200)
-        self._freq_win = RangeWidget(self._freq_range, self.set_freq, 'Frequency (Hz)', "slider", float)
-        self.display_grid_layout_0.addWidget(self._freq_win, 1,0,1,1)
+        self.tabs_grid_layout_1.addWidget(self._qtgui_const_sink_x_0_win, 0,0,1,1)
+        self.blocks_nlog10_ff_0_2 = blocks.nlog10_ff(1, 1, 0)
+        self.blocks_nlog10_ff_0_1_0 = blocks.nlog10_ff(1, 1, 0)
+        self.blocks_nlog10_ff_0_1 = blocks.nlog10_ff(1, 1, 0)
+        self.blocks_nlog10_ff_0_0_0 = blocks.nlog10_ff(1, 1, 0)
+        self.blocks_nlog10_ff_0_0 = blocks.nlog10_ff(1, 1, 0)
         self.blocks_nlog10_ff_0 = blocks.nlog10_ff(1, 1, 0)
+        self.blocks_multiply_const_vxx_1_1 = blocks.multiply_const_vff((meters_per_radian, ))
+        self.blocks_multiply_const_vxx_1_0 = blocks.multiply_const_vff((meters_per_radian, ))
+        self.blocks_multiply_const_vxx_1 = blocks.multiply_const_vff((meters_per_radian, ))
+        self.blocks_multiply_const_vxx_0_2 = blocks.multiply_const_vff((20, ))
+        self.blocks_multiply_const_vxx_0_1_0 = blocks.multiply_const_vff((20, ))
+        self.blocks_multiply_const_vxx_0_1 = blocks.multiply_const_vff((20, ))
+        self.blocks_multiply_const_vxx_0_0_0 = blocks.multiply_const_vff((20, ))
+        self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_vff((20, ))
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((20, ))
+        self.blocks_divide_xx_1_1 = blocks.divide_cc(1)
+        self.blocks_divide_xx_1_0 = blocks.divide_cc(1)
         self.blocks_divide_xx_1 = blocks.divide_cc(1)
-        self.blocks_divide_xx_0 = blocks.divide_ff(1)
-        self.blocks_complex_to_magphase_0 = blocks.complex_to_magphase(1)
-        self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_CONST_WAVE, 0, 1, 0)
-        self.analog_const_source_x_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, wave_number)
+        self.blocks_complex_to_mag_0_4 = blocks.complex_to_mag(1)
+        self.blocks_complex_to_mag_0_3 = blocks.complex_to_mag(1)
+        self.blocks_complex_to_mag_0_2 = blocks.complex_to_mag(1)
+        self.blocks_complex_to_mag_0_1 = blocks.complex_to_mag(1)
+        self.blocks_complex_to_mag_0_0 = blocks.complex_to_mag(1)
+        self.blocks_complex_to_mag_0 = blocks.complex_to_mag(1)
+        self.blocks_complex_to_arg_0_1 = blocks.complex_to_arg(1)
+        self.blocks_complex_to_arg_0_0 = blocks.complex_to_arg(1)
+        self.blocks_complex_to_arg_0 = blocks.complex_to_arg(1)
+        self.blocks_add_const_vxx_0_1 = blocks.add_const_vff((np.pi, ))
+        self.blocks_add_const_vxx_0_0 = blocks.add_const_vff((np.pi, ))
+        self.blocks_add_const_vxx_0 = blocks.add_const_vff((np.pi, ))
+        self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_CONST_WAVE, 0, .1, 0)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_const_source_x_0, 0), (self.blocks_divide_xx_0, 1))    
-        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_divide_xx_1, 1))    
-        self.connect((self.analog_sig_source_x_0, 0), (self.qtgui_freq_sink_x_0, 1))    
-        self.connect((self.blocks_complex_to_magphase_0, 1), (self.blocks_divide_xx_0, 0))    
-        self.connect((self.blocks_complex_to_magphase_0, 0), (self.blocks_nlog10_ff_0, 0))    
-        self.connect((self.blocks_complex_to_magphase_0, 1), (self.qtgui_number_sink_0, 0))    
-        self.connect((self.blocks_divide_xx_0, 0), (self.qtgui_number_sink_1, 0))    
-        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_complex_to_magphase_0, 0))    
+        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_complex_to_mag_0_4, 0))    
+        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_divide_xx_1, 0))    
+        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_divide_xx_1_0, 0))    
+        self.connect((self.analog_sig_source_x_0, 0), (self.qtgui_freq_sink_x_0, 0))    
+        self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_multiply_const_vxx_1_1, 0))    
+        self.connect((self.blocks_add_const_vxx_0_0, 0), (self.blocks_multiply_const_vxx_1_0, 0))    
+        self.connect((self.blocks_add_const_vxx_0_1, 0), (self.blocks_multiply_const_vxx_1, 0))    
+        self.connect((self.blocks_complex_to_arg_0, 0), (self.blocks_add_const_vxx_0_1, 0))    
+        self.connect((self.blocks_complex_to_arg_0, 0), (self.qtgui_number_sink_0, 0))    
+        self.connect((self.blocks_complex_to_arg_0_0, 0), (self.blocks_add_const_vxx_0, 0))    
+        self.connect((self.blocks_complex_to_arg_0_0, 0), (self.qtgui_number_sink_0, 2))    
+        self.connect((self.blocks_complex_to_arg_0_1, 0), (self.blocks_add_const_vxx_0_0, 0))    
+        self.connect((self.blocks_complex_to_arg_0_1, 0), (self.qtgui_number_sink_0, 1))    
+        self.connect((self.blocks_complex_to_mag_0, 0), (self.blocks_nlog10_ff_0_1_0, 0))    
+        self.connect((self.blocks_complex_to_mag_0_0, 0), (self.blocks_nlog10_ff_0_0_0, 0))    
+        self.connect((self.blocks_complex_to_mag_0_1, 0), (self.blocks_nlog10_ff_0_2, 0))    
+        self.connect((self.blocks_complex_to_mag_0_2, 0), (self.blocks_nlog10_ff_0_0, 0))    
+        self.connect((self.blocks_complex_to_mag_0_3, 0), (self.blocks_nlog10_ff_0_1, 0))    
+        self.connect((self.blocks_complex_to_mag_0_4, 0), (self.blocks_nlog10_ff_0, 0))    
+        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_complex_to_arg_0, 0))    
+        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_complex_to_mag_0_1, 0))    
         self.connect((self.blocks_divide_xx_1, 0), (self.qtgui_const_sink_x_0, 0))    
+        self.connect((self.blocks_divide_xx_1_0, 0), (self.blocks_complex_to_arg_0_1, 0))    
+        self.connect((self.blocks_divide_xx_1_0, 0), (self.blocks_complex_to_mag_0_0, 0))    
+        self.connect((self.blocks_divide_xx_1_0, 0), (self.qtgui_const_sink_x_0, 1))    
+        self.connect((self.blocks_divide_xx_1_1, 0), (self.blocks_complex_to_arg_0_0, 0))    
+        self.connect((self.blocks_divide_xx_1_1, 0), (self.blocks_complex_to_mag_0, 0))    
+        self.connect((self.blocks_divide_xx_1_1, 0), (self.qtgui_const_sink_x_0, 2))    
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_number_sink_0_0, 0))    
+        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.qtgui_number_sink_0_0, 1))    
+        self.connect((self.blocks_multiply_const_vxx_0_0_0, 0), (self.qtgui_number_sink_0_0_0, 1))    
+        self.connect((self.blocks_multiply_const_vxx_0_1, 0), (self.qtgui_number_sink_0_0, 2))    
+        self.connect((self.blocks_multiply_const_vxx_0_1_0, 0), (self.qtgui_number_sink_0_0_0, 2))    
+        self.connect((self.blocks_multiply_const_vxx_0_2, 0), (self.qtgui_number_sink_0_0_0, 0))    
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.qtgui_number_sink_1, 0))    
+        self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.qtgui_number_sink_1, 1))    
+        self.connect((self.blocks_multiply_const_vxx_1_1, 0), (self.qtgui_number_sink_1, 2))    
         self.connect((self.blocks_nlog10_ff_0, 0), (self.blocks_multiply_const_vxx_0, 0))    
-        self.connect((self.zeromq_pull_source_0, 0), (self.blocks_divide_xx_1, 0))    
-        self.connect((self.zeromq_pull_source_0, 0), (self.qtgui_freq_sink_x_0, 0))    
+        self.connect((self.blocks_nlog10_ff_0_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))    
+        self.connect((self.blocks_nlog10_ff_0_0_0, 0), (self.blocks_multiply_const_vxx_0_0_0, 0))    
+        self.connect((self.blocks_nlog10_ff_0_1, 0), (self.blocks_multiply_const_vxx_0_1, 0))    
+        self.connect((self.blocks_nlog10_ff_0_1_0, 0), (self.blocks_multiply_const_vxx_0_1_0, 0))    
+        self.connect((self.blocks_nlog10_ff_0_2, 0), (self.blocks_multiply_const_vxx_0_2, 0))    
+        self.connect((self.zeromq_pull_source_0, 0), (self.blocks_complex_to_mag_0_3, 0))    
+        self.connect((self.zeromq_pull_source_0, 0), (self.blocks_divide_xx_1_0, 1))    
+        self.connect((self.zeromq_pull_source_0, 0), (self.blocks_divide_xx_1_1, 1))    
+        self.connect((self.zeromq_pull_source_0, 0), (self.qtgui_freq_sink_x_0, 2))    
+        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_complex_to_mag_0_2, 0))    
+        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_divide_xx_1, 1))    
+        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_divide_xx_1_1, 0))    
+        self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_freq_sink_x_0, 1))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "path_length_diff")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
-    def get_wf_freq(self):
-        return self.wf_freq
-
-    def set_wf_freq(self, wf_freq):
-        self.wf_freq = wf_freq
-        self.set_wavelength(self.speed_of_light/self.wf_freq/self.velocity_factor)
-
     def get_velocity_factor(self):
         return self.velocity_factor
 
     def set_velocity_factor(self, velocity_factor):
         self.velocity_factor = velocity_factor
-        self.set_wavelength(self.speed_of_light/self.wf_freq/self.velocity_factor)
+        self.set_wavelength(self.speed_of_light/self.rf_freq/self.velocity_factor)
+        self.set_variable_qtgui_label_0(self._variable_qtgui_label_0_formatter(self.velocity_factor))
 
     def get_speed_of_light(self):
         return self.speed_of_light
 
     def set_speed_of_light(self, speed_of_light):
         self.speed_of_light = speed_of_light
-        self.set_wavelength(self.speed_of_light/self.wf_freq/self.velocity_factor)
+        self.set_wavelength(self.speed_of_light/self.rf_freq/self.velocity_factor)
+
+    def get_rf_freq(self):
+        return self.rf_freq
+
+    def set_rf_freq(self, rf_freq):
+        self.rf_freq = rf_freq
+        self.set_wavelength(self.speed_of_light/self.rf_freq/self.velocity_factor)
+        self.set_variable_qtgui_label_3(self._variable_qtgui_label_3_formatter(self.rf_freq/1e6))
+        self.qtgui_freq_sink_x_0.set_frequency_range(self.rf_freq, self.samp_rate)
 
     def get_wavelength(self):
         return self.wavelength
@@ -336,13 +481,52 @@ class path_length_diff(gr.top_block, Qt.QWidget):
     def set_wavelength(self, wavelength):
         self.wavelength = wavelength
         self.set_wave_number(np.pi/self.wavelength)
+        self.set_variable_qtgui_label_1(self._variable_qtgui_label_1_formatter(self.wavelength))
 
     def get_wave_number(self):
         return self.wave_number
 
     def set_wave_number(self, wave_number):
         self.wave_number = wave_number
-        self.analog_const_source_x_0.set_offset(self.wave_number)
+        self.set_meters_per_radian(1/self.wave_number)
+
+    def get_meters_per_radian(self):
+        return self.meters_per_radian
+
+    def set_meters_per_radian(self, meters_per_radian):
+        self.meters_per_radian = meters_per_radian
+        self.set_variable_qtgui_label_2(self._variable_qtgui_label_2_formatter(self.meters_per_radian))
+        self.blocks_multiply_const_vxx_1_1.set_k((self.meters_per_radian, ))
+        self.blocks_multiply_const_vxx_1_0.set_k((self.meters_per_radian, ))
+        self.blocks_multiply_const_vxx_1.set_k((self.meters_per_radian, ))
+
+    def get_variable_qtgui_label_3(self):
+        return self.variable_qtgui_label_3
+
+    def set_variable_qtgui_label_3(self, variable_qtgui_label_3):
+        self.variable_qtgui_label_3 = variable_qtgui_label_3
+        Qt.QMetaObject.invokeMethod(self._variable_qtgui_label_3_label, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.variable_qtgui_label_3)))
+
+    def get_variable_qtgui_label_2(self):
+        return self.variable_qtgui_label_2
+
+    def set_variable_qtgui_label_2(self, variable_qtgui_label_2):
+        self.variable_qtgui_label_2 = variable_qtgui_label_2
+        Qt.QMetaObject.invokeMethod(self._variable_qtgui_label_2_label, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.variable_qtgui_label_2)))
+
+    def get_variable_qtgui_label_1(self):
+        return self.variable_qtgui_label_1
+
+    def set_variable_qtgui_label_1(self, variable_qtgui_label_1):
+        self.variable_qtgui_label_1 = variable_qtgui_label_1
+        Qt.QMetaObject.invokeMethod(self._variable_qtgui_label_1_label, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.variable_qtgui_label_1)))
+
+    def get_variable_qtgui_label_0(self):
+        return self.variable_qtgui_label_0
+
+    def set_variable_qtgui_label_0(self, variable_qtgui_label_0):
+        self.variable_qtgui_label_0 = variable_qtgui_label_0
+        Qt.QMetaObject.invokeMethod(self._variable_qtgui_label_0_label, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.variable_qtgui_label_0)))
 
     def get_tx_gain(self):
         return self.tx_gain
@@ -356,7 +540,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(self.rf_freq, self.samp_rate)
         self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
 
     def get_rx_gain(self):
@@ -365,13 +549,6 @@ class path_length_diff(gr.top_block, Qt.QWidget):
     def set_rx_gain(self, rx_gain):
         self.rx_gain = rx_gain
         self.xmlrpc_client0.set_rx_gain(self.rx_gain)
-
-    def get_freq(self):
-        return self.freq
-
-    def set_freq(self, freq):
-        self.freq = freq
-        self.xmlrpc_client.set_freq(self.freq)
 
     def get_client_address(self):
         return self.client_address

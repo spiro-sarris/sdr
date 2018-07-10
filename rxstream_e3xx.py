@@ -3,10 +3,11 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rxstream E3Xx
-# Generated: Mon Jul  9 18:16:49 2018
+# Generated: Tue Jul 10 19:00:26 2018
 ##################################################
 
 from gnuradio import analog
+from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
 from gnuradio import uhd
@@ -21,7 +22,7 @@ import time
 
 class rxstream_e3xx(gr.top_block):
 
-    def __init__(self, freq=915000000, rx_gain=50, tx_gain=10):
+    def __init__(self, freq=100e6, rx_gain=30, tx_gain=30):
         gr.top_block.__init__(self, "Rxstream E3Xx")
 
         ##################################################
@@ -34,14 +35,15 @@ class rxstream_e3xx(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.tuning_lo_offset = tuning_lo_offset = 50e3
+        self.tuning_lo_offset = tuning_lo_offset = 60e3
         self.server_port = server_port = 30000
         self.server_address = server_address = "192.168.10.184"
-        self.samp_rate = samp_rate = 200e3
+        self.samp_rate = samp_rate = 100e3
 
         ##################################################
         # Blocks
         ##################################################
+        self.zeromq_push_sink_1 = zeromq.push_sink(gr.sizeof_gr_complex, 1, 'tcp://*:9998', 100, False, -1)
         self.zeromq_push_sink_0 = zeromq.push_sink(gr.sizeof_gr_complex, 1, 'tcp://*:9999', 100, False, -1)
         self.xmlrpc_server_0 = SimpleXMLRPCServer.SimpleXMLRPCServer((str(server_address), int(server_port)), allow_none=True)
         self.xmlrpc_server_0.register_instance(self)
@@ -60,7 +62,6 @@ class rxstream_e3xx(gr.top_block):
         self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(freq,tuning_lo_offset), 0)
         self.uhd_usrp_source_0.set_gain(rx_gain, 0)
         self.uhd_usrp_source_0.set_antenna('RX2', 0)
-        self.uhd_usrp_source_0.set_bandwidth(10000, 0)
         self.uhd_usrp_sink_0 = uhd.usrp_sink(
         	",".join(("", "")),
         	uhd.stream_args(
@@ -73,13 +74,15 @@ class rxstream_e3xx(gr.top_block):
         self.uhd_usrp_sink_0.set_center_freq(uhd.tune_request(freq,tuning_lo_offset), 0)
         self.uhd_usrp_sink_0.set_gain(tx_gain, 0)
         self.uhd_usrp_sink_0.set_antenna('TX/RX', 0)
+        self.blocks_null_source_0 = blocks.null_source(gr.sizeof_gr_complex*1)
         self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_CONST_WAVE, 0, 1, 0)
 
         ##################################################
         # Connections
         ##################################################
         self.connect((self.analog_sig_source_x_0, 0), (self.uhd_usrp_sink_0, 0))    
-        self.connect((self.uhd_usrp_source_0, 0), (self.zeromq_push_sink_0, 0))    
+        self.connect((self.blocks_null_source_0, 0), (self.zeromq_push_sink_0, 0))    
+        self.connect((self.uhd_usrp_source_0, 0), (self.zeromq_push_sink_1, 0))    
 
     def get_freq(self):
         return self.freq
@@ -87,7 +90,7 @@ class rxstream_e3xx(gr.top_block):
     def set_freq(self, freq):
         self.freq = freq
         self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq,self.tuning_lo_offset), 0)
-        self.uhd_usrp_source_0.set_center_freq(self.freq, 1)
+        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq,self.tuning_lo_offset), 1)
         self.uhd_usrp_sink_0.set_center_freq(uhd.tune_request(self.freq,self.tuning_lo_offset), 0)
         self.uhd_usrp_sink_0.set_center_freq(uhd.tune_request(self.freq,10e6), 1)
 
@@ -115,6 +118,7 @@ class rxstream_e3xx(gr.top_block):
     def set_tuning_lo_offset(self, tuning_lo_offset):
         self.tuning_lo_offset = tuning_lo_offset
         self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq,self.tuning_lo_offset), 0)
+        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq,self.tuning_lo_offset), 1)
         self.uhd_usrp_sink_0.set_center_freq(uhd.tune_request(self.freq,self.tuning_lo_offset), 0)
 
     def get_server_port(self):
@@ -142,13 +146,13 @@ class rxstream_e3xx(gr.top_block):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
-        "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(915000000),
+        "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(100e6),
         help="Set freq [default=%default]")
     parser.add_option(
-        "", "--rx-gain", dest="rx_gain", type="eng_float", default=eng_notation.num_to_str(50),
+        "", "--rx-gain", dest="rx_gain", type="eng_float", default=eng_notation.num_to_str(30),
         help="Set rx_gain [default=%default]")
     parser.add_option(
-        "", "--tx-gain", dest="tx_gain", type="eng_float", default=eng_notation.num_to_str(10),
+        "", "--tx-gain", dest="tx_gain", type="eng_float", default=eng_notation.num_to_str(30),
         help="Set tx_gain [default=%default]")
     return parser
 
