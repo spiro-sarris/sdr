@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rxstream E3Xx
-# Generated: Tue Jul 10 19:00:26 2018
+# Generated: Tue Jul 10 20:40:02 2018
 ##################################################
 
 from gnuradio import analog
@@ -43,6 +43,7 @@ class rxstream_e3xx(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
+        self.zeromq_push_sink_2 = zeromq.push_sink(gr.sizeof_gr_complex, 1, 'tcp://*:9997', 100, False, -1)
         self.zeromq_push_sink_1 = zeromq.push_sink(gr.sizeof_gr_complex, 1, 'tcp://*:9998', 100, False, -1)
         self.zeromq_push_sink_0 = zeromq.push_sink(gr.sizeof_gr_complex, 1, 'tcp://*:9999', 100, False, -1)
         self.xmlrpc_server_0 = SimpleXMLRPCServer.SimpleXMLRPCServer((str(server_address), int(server_port)), allow_none=True)
@@ -75,12 +76,15 @@ class rxstream_e3xx(gr.top_block):
         self.uhd_usrp_sink_0.set_gain(tx_gain, 0)
         self.uhd_usrp_sink_0.set_antenna('TX/RX', 0)
         self.blocks_null_source_0 = blocks.null_source(gr.sizeof_gr_complex*1)
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc((0.1, ))
         self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_CONST_WAVE, 0, 1, 0)
 
         ##################################################
         # Connections
         ##################################################
+        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_const_vxx_0, 0))    
         self.connect((self.analog_sig_source_x_0, 0), (self.uhd_usrp_sink_0, 0))    
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.zeromq_push_sink_2, 0))    
         self.connect((self.blocks_null_source_0, 0), (self.zeromq_push_sink_0, 0))    
         self.connect((self.uhd_usrp_source_0, 0), (self.zeromq_push_sink_1, 0))    
 

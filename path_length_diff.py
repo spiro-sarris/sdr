@@ -5,7 +5,7 @@
 # Title: Path Length Difference
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Tue Jul 10 19:32:32 2018
+# Generated: Tue Jul 10 21:18:56 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -19,7 +19,6 @@ if __name__ == '__main__':
             print "Warning: failed to XInitThreads()"
 
 from PyQt4 import Qt
-from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
@@ -66,8 +65,8 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.velocity_factor = velocity_factor = 0.69
         self.speed_of_light = speed_of_light = 299792458
         self.rf_freq = rf_freq = 100e6
-        self.wavelength = wavelength = speed_of_light/rf_freq/velocity_factor
-        self.wave_number = wave_number = np.pi/wavelength
+        self.wavelength = wavelength = velocity_factor*speed_of_light/rf_freq
+        self.wave_number = wave_number = 2*np.pi/wavelength
         self.meters_per_radian = meters_per_radian = 1/wave_number
         self.variable_qtgui_label_3 = variable_qtgui_label_3 = rf_freq/1e6
         self.variable_qtgui_label_2 = variable_qtgui_label_2 = meters_per_radian
@@ -93,6 +92,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.tabs_layout_1.addLayout(self.tabs_grid_layout_1)
         self.tabs.addTab(self.tabs_widget_1, 'Phase')
         self.top_grid_layout.addWidget(self.tabs, 0,0,1,4)
+        self.zeromq_pull_source_2 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9997', 100, False, -1)
         self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9998', 100, False, -1)
         self.zeromq_pull_source_0 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9999', 100, False, -1)
         self.xmlrpc_client1 = xmlrpclib.Server('http://192.168.10.184:30000')
@@ -128,7 +128,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         else:
           self._variable_qtgui_label_1_formatter = lambda x: x
         
-        self._variable_qtgui_label_1_tool_bar.addWidget(Qt.QLabel('Wavelength (m)'+": "))
+        self._variable_qtgui_label_1_tool_bar.addWidget(Qt.QLabel('Wavelength in Cable (m)'+": "))
         self._variable_qtgui_label_1_label = Qt.QLabel(str(self._variable_qtgui_label_1_formatter(self.variable_qtgui_label_1)))
         self._variable_qtgui_label_1_tool_bar.addWidget(self._variable_qtgui_label_1_label)
         self.top_grid_layout.addWidget(self._variable_qtgui_label_1_tool_bar, 3,0,1,1)
@@ -276,7 +276,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self._qtgui_number_sink_0_win = sip.wrapinstance(self.qtgui_number_sink_0.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_1.addWidget(self._qtgui_number_sink_0_win, 1,0,1,1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
-        	1024, #size
+        	512, #size
         	firdes.WIN_HAMMING, #wintype
         	rf_freq, #fc
         	samp_rate, #bw
@@ -324,8 +324,8 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         	3 #number of inputs
         )
         self.qtgui_const_sink_x_0.set_update_time(0.20)
-        self.qtgui_const_sink_x_0.set_y_axis(-2, 2)
-        self.qtgui_const_sink_x_0.set_x_axis(-2, 2)
+        self.qtgui_const_sink_x_0.set_y_axis(-4, 4)
+        self.qtgui_const_sink_x_0.set_x_axis(-4, 4)
         self.qtgui_const_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, "")
         self.qtgui_const_sink_x_0.enable_autoscale(False)
         self.qtgui_const_sink_x_0.enable_grid(True)
@@ -359,6 +359,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         
         self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_1.addWidget(self._qtgui_const_sink_x_0_win, 0,0,1,1)
+        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_nlog10_ff_0_2 = blocks.nlog10_ff(1, 1, 0)
         self.blocks_nlog10_ff_0_1_0 = blocks.nlog10_ff(1, 1, 0)
         self.blocks_nlog10_ff_0_1 = blocks.nlog10_ff(1, 1, 0)
@@ -389,15 +390,10 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.blocks_add_const_vxx_0_1 = blocks.add_const_vff((np.pi, ))
         self.blocks_add_const_vxx_0_0 = blocks.add_const_vff((np.pi, ))
         self.blocks_add_const_vxx_0 = blocks.add_const_vff((np.pi, ))
-        self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_CONST_WAVE, 0, .1, 0)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_complex_to_mag_0_4, 0))    
-        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_divide_xx_1, 0))    
-        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_divide_xx_1_0, 0))    
-        self.connect((self.analog_sig_source_x_0, 0), (self.qtgui_freq_sink_x_0, 0))    
         self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_multiply_const_vxx_1_1, 0))    
         self.connect((self.blocks_add_const_vxx_0_0, 0), (self.blocks_multiply_const_vxx_1_0, 0))    
         self.connect((self.blocks_add_const_vxx_0_1, 0), (self.blocks_multiply_const_vxx_1, 0))    
@@ -437,6 +433,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_nlog10_ff_0_1, 0), (self.blocks_multiply_const_vxx_0_1, 0))    
         self.connect((self.blocks_nlog10_ff_0_1_0, 0), (self.blocks_multiply_const_vxx_0_1_0, 0))    
         self.connect((self.blocks_nlog10_ff_0_2, 0), (self.blocks_multiply_const_vxx_0_2, 0))    
+        self.connect((self.blocks_throttle_0, 0), (self.qtgui_freq_sink_x_0, 0))    
         self.connect((self.zeromq_pull_source_0, 0), (self.blocks_complex_to_mag_0_3, 0))    
         self.connect((self.zeromq_pull_source_0, 0), (self.blocks_divide_xx_1_0, 1))    
         self.connect((self.zeromq_pull_source_0, 0), (self.blocks_divide_xx_1_1, 1))    
@@ -445,6 +442,10 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.connect((self.zeromq_pull_source_1, 0), (self.blocks_divide_xx_1, 1))    
         self.connect((self.zeromq_pull_source_1, 0), (self.blocks_divide_xx_1_1, 0))    
         self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_freq_sink_x_0, 1))    
+        self.connect((self.zeromq_pull_source_2, 0), (self.blocks_complex_to_mag_0_4, 0))    
+        self.connect((self.zeromq_pull_source_2, 0), (self.blocks_divide_xx_1, 0))    
+        self.connect((self.zeromq_pull_source_2, 0), (self.blocks_divide_xx_1_0, 0))    
+        self.connect((self.zeromq_pull_source_2, 0), (self.blocks_throttle_0, 0))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "path_length_diff")
@@ -456,7 +457,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
 
     def set_velocity_factor(self, velocity_factor):
         self.velocity_factor = velocity_factor
-        self.set_wavelength(self.speed_of_light/self.rf_freq/self.velocity_factor)
+        self.set_wavelength(self.velocity_factor*self.speed_of_light/self.rf_freq)
         self.set_variable_qtgui_label_0(self._variable_qtgui_label_0_formatter(self.velocity_factor))
 
     def get_speed_of_light(self):
@@ -464,14 +465,14 @@ class path_length_diff(gr.top_block, Qt.QWidget):
 
     def set_speed_of_light(self, speed_of_light):
         self.speed_of_light = speed_of_light
-        self.set_wavelength(self.speed_of_light/self.rf_freq/self.velocity_factor)
+        self.set_wavelength(self.velocity_factor*self.speed_of_light/self.rf_freq)
 
     def get_rf_freq(self):
         return self.rf_freq
 
     def set_rf_freq(self, rf_freq):
         self.rf_freq = rf_freq
-        self.set_wavelength(self.speed_of_light/self.rf_freq/self.velocity_factor)
+        self.set_wavelength(self.velocity_factor*self.speed_of_light/self.rf_freq)
         self.set_variable_qtgui_label_3(self._variable_qtgui_label_3_formatter(self.rf_freq/1e6))
         self.qtgui_freq_sink_x_0.set_frequency_range(self.rf_freq, self.samp_rate)
 
@@ -480,7 +481,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
 
     def set_wavelength(self, wavelength):
         self.wavelength = wavelength
-        self.set_wave_number(np.pi/self.wavelength)
+        self.set_wave_number(2*np.pi/self.wavelength)
         self.set_variable_qtgui_label_1(self._variable_qtgui_label_1_formatter(self.wavelength))
 
     def get_wave_number(self):
@@ -541,7 +542,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.qtgui_freq_sink_x_0.set_frequency_range(self.rf_freq, self.samp_rate)
-        self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
+        self.blocks_throttle_0.set_sample_rate(self.samp_rate)
 
     def get_rx_gain(self):
         return self.rx_gain
