@@ -5,7 +5,7 @@
 # Title: Path Length Difference
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Tue Jul 10 21:18:56 2018
+# Generated: Tue Jul 10 23:48:57 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -18,7 +18,12 @@ if __name__ == '__main__':
         except:
             print "Warning: failed to XInitThreads()"
 
+import os
+import sys
+sys.path.append(os.environ.get('GRC_HIER_PATH', os.path.expanduser('~/.grc_gnuradio')))
+
 from PyQt4 import Qt
+from fft_bin_select import fft_bin_select  # grc-generated hier_block
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
@@ -28,9 +33,9 @@ from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from gnuradio.qtgui import Range, RangeWidget
 from optparse import OptionParser
+from to_mag_db import to_mag_db  # grc-generated hier_block
 import numpy as np
 import sip
-import sys
 import xmlrpclib
 
 
@@ -75,6 +80,8 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.tx_gain = tx_gain = 30
         self.samp_rate = samp_rate = 100e3
         self.rx_gain = rx_gain = 30
+        self.gui_update_sec = gui_update_sec = 0.2
+        self.fft_size = fft_size = 64
         self.client_address = client_address = "192.168.10.184"
 
         ##################################################
@@ -91,7 +98,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.tabs_grid_layout_1 = Qt.QGridLayout()
         self.tabs_layout_1.addLayout(self.tabs_grid_layout_1)
         self.tabs.addTab(self.tabs_widget_1, 'Phase')
-        self.top_grid_layout.addWidget(self.tabs, 0,0,1,4)
+        self.top_grid_layout.addWidget(self.tabs, 0,0,1,2)
         self.zeromq_pull_source_2 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9997', 100, False, -1)
         self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9998', 100, False, -1)
         self.zeromq_pull_source_0 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9999', 100, False, -1)
@@ -148,6 +155,12 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self._tx_gain_range = Range(0, 40, 1, 30, 50)
         self._tx_gain_win = RangeWidget(self._tx_gain_range, self.set_tx_gain, 'TX Gain', "counter_slider", float)
         self.tabs_grid_layout_0.addWidget(self._tx_gain_win, 1,0,1,1)
+        self.to_mag_db_0_4 = to_mag_db()
+        self.to_mag_db_0_3 = to_mag_db()
+        self.to_mag_db_0_2 = to_mag_db()
+        self.to_mag_db_0_1 = to_mag_db()
+        self.to_mag_db_0_0 = to_mag_db()
+        self.to_mag_db_0 = to_mag_db()
         self._rx_gain_range = Range(0, 30, 1, 30, 100)
         self._rx_gain_win = RangeWidget(self._rx_gain_range, self.set_rx_gain, 'RX Gain', "counter_slider", float)
         self.tabs_grid_layout_0.addWidget(self._rx_gain_win, 1,1,1,1)
@@ -157,7 +170,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
             qtgui.NUM_GRAPH_NONE,
             3
         )
-        self.qtgui_number_sink_1.set_update_time(0.20)
+        self.qtgui_number_sink_1.set_update_time(gui_update_sec)
         self.qtgui_number_sink_1.set_title("Length (m)")
         
         labels = ['REF - A', 'REF - B', 'A - B', '', '',
@@ -188,7 +201,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
             qtgui.NUM_GRAPH_NONE,
             3
         )
-        self.qtgui_number_sink_0_0_0.set_update_time(0.2)
+        self.qtgui_number_sink_0_0_0.set_update_time(gui_update_sec)
         self.qtgui_number_sink_0_0_0.set_title("Magnitude Difference (dB)")
         
         labels = ['REF - A', 'REF - B', 'A - B', '', '',
@@ -219,7 +232,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
             qtgui.NUM_GRAPH_NONE,
             3
         )
-        self.qtgui_number_sink_0_0.set_update_time(0.2)
+        self.qtgui_number_sink_0_0.set_update_time(gui_update_sec)
         self.qtgui_number_sink_0_0.set_title("Magnitude (dB)")
         
         labels = ['REF', 'RXA', 'RXB', '', '',
@@ -250,7 +263,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
             qtgui.NUM_GRAPH_NONE,
             3
         )
-        self.qtgui_number_sink_0.set_update_time(0.2)
+        self.qtgui_number_sink_0.set_update_time(gui_update_sec)
         self.qtgui_number_sink_0.set_title("Phase Difference (rad)")
         
         labels = ['REF - A', 'REF - B', 'A - B', '', '',
@@ -276,14 +289,14 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self._qtgui_number_sink_0_win = sip.wrapinstance(self.qtgui_number_sink_0.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_1.addWidget(self._qtgui_number_sink_0_win, 1,0,1,1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
-        	512, #size
-        	firdes.WIN_HAMMING, #wintype
+        	1024, #size
+        	firdes.WIN_HANN, #wintype
         	rf_freq, #fc
         	samp_rate, #bw
         	"", #name
         	3 #number of inputs
         )
-        self.qtgui_freq_sink_x_0.set_update_time(0.20)
+        self.qtgui_freq_sink_x_0.set_update_time(gui_update_sec)
         self.qtgui_freq_sink_x_0.set_y_axis(-140, -20)
         self.qtgui_freq_sink_x_0.set_y_label('Amplitude', 'dB')
         self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
@@ -323,7 +336,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         	"", #name
         	3 #number of inputs
         )
-        self.qtgui_const_sink_x_0.set_update_time(0.20)
+        self.qtgui_const_sink_x_0.set_update_time(gui_update_sec)
         self.qtgui_const_sink_x_0.set_y_axis(-4, 4)
         self.qtgui_const_sink_x_0.set_x_axis(-4, 4)
         self.qtgui_const_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, "")
@@ -359,31 +372,25 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         
         self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_1.addWidget(self._qtgui_const_sink_x_0_win, 0,0,1,1)
+        self.fft_bin_select_0_1 = fft_bin_select(
+            fft_size=64,
+            nskip=1,
+        )
+        self.fft_bin_select_0_0 = fft_bin_select(
+            fft_size=64,
+            nskip=1,
+        )
+        self.fft_bin_select_0 = fft_bin_select(
+            fft_size=64,
+            nskip=1,
+        )
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
-        self.blocks_nlog10_ff_0_2 = blocks.nlog10_ff(1, 1, 0)
-        self.blocks_nlog10_ff_0_1_0 = blocks.nlog10_ff(1, 1, 0)
-        self.blocks_nlog10_ff_0_1 = blocks.nlog10_ff(1, 1, 0)
-        self.blocks_nlog10_ff_0_0_0 = blocks.nlog10_ff(1, 1, 0)
-        self.blocks_nlog10_ff_0_0 = blocks.nlog10_ff(1, 1, 0)
-        self.blocks_nlog10_ff_0 = blocks.nlog10_ff(1, 1, 0)
         self.blocks_multiply_const_vxx_1_1 = blocks.multiply_const_vff((meters_per_radian, ))
         self.blocks_multiply_const_vxx_1_0 = blocks.multiply_const_vff((meters_per_radian, ))
         self.blocks_multiply_const_vxx_1 = blocks.multiply_const_vff((meters_per_radian, ))
-        self.blocks_multiply_const_vxx_0_2 = blocks.multiply_const_vff((20, ))
-        self.blocks_multiply_const_vxx_0_1_0 = blocks.multiply_const_vff((20, ))
-        self.blocks_multiply_const_vxx_0_1 = blocks.multiply_const_vff((20, ))
-        self.blocks_multiply_const_vxx_0_0_0 = blocks.multiply_const_vff((20, ))
-        self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_vff((20, ))
-        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((20, ))
         self.blocks_divide_xx_1_1 = blocks.divide_cc(1)
         self.blocks_divide_xx_1_0 = blocks.divide_cc(1)
         self.blocks_divide_xx_1 = blocks.divide_cc(1)
-        self.blocks_complex_to_mag_0_4 = blocks.complex_to_mag(1)
-        self.blocks_complex_to_mag_0_3 = blocks.complex_to_mag(1)
-        self.blocks_complex_to_mag_0_2 = blocks.complex_to_mag(1)
-        self.blocks_complex_to_mag_0_1 = blocks.complex_to_mag(1)
-        self.blocks_complex_to_mag_0_0 = blocks.complex_to_mag(1)
-        self.blocks_complex_to_mag_0 = blocks.complex_to_mag(1)
         self.blocks_complex_to_arg_0_1 = blocks.complex_to_arg(1)
         self.blocks_complex_to_arg_0_0 = blocks.complex_to_arg(1)
         self.blocks_complex_to_arg_0 = blocks.complex_to_arg(1)
@@ -403,49 +410,40 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_complex_to_arg_0_0, 0), (self.qtgui_number_sink_0, 2))    
         self.connect((self.blocks_complex_to_arg_0_1, 0), (self.blocks_add_const_vxx_0_0, 0))    
         self.connect((self.blocks_complex_to_arg_0_1, 0), (self.qtgui_number_sink_0, 1))    
-        self.connect((self.blocks_complex_to_mag_0, 0), (self.blocks_nlog10_ff_0_1_0, 0))    
-        self.connect((self.blocks_complex_to_mag_0_0, 0), (self.blocks_nlog10_ff_0_0_0, 0))    
-        self.connect((self.blocks_complex_to_mag_0_1, 0), (self.blocks_nlog10_ff_0_2, 0))    
-        self.connect((self.blocks_complex_to_mag_0_2, 0), (self.blocks_nlog10_ff_0_0, 0))    
-        self.connect((self.blocks_complex_to_mag_0_3, 0), (self.blocks_nlog10_ff_0_1, 0))    
-        self.connect((self.blocks_complex_to_mag_0_4, 0), (self.blocks_nlog10_ff_0, 0))    
         self.connect((self.blocks_divide_xx_1, 0), (self.blocks_complex_to_arg_0, 0))    
-        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_complex_to_mag_0_1, 0))    
         self.connect((self.blocks_divide_xx_1, 0), (self.qtgui_const_sink_x_0, 0))    
+        self.connect((self.blocks_divide_xx_1, 0), (self.to_mag_db_0_3, 0))    
         self.connect((self.blocks_divide_xx_1_0, 0), (self.blocks_complex_to_arg_0_1, 0))    
-        self.connect((self.blocks_divide_xx_1_0, 0), (self.blocks_complex_to_mag_0_0, 0))    
         self.connect((self.blocks_divide_xx_1_0, 0), (self.qtgui_const_sink_x_0, 1))    
+        self.connect((self.blocks_divide_xx_1_0, 0), (self.to_mag_db_0_2, 0))    
         self.connect((self.blocks_divide_xx_1_1, 0), (self.blocks_complex_to_arg_0_0, 0))    
-        self.connect((self.blocks_divide_xx_1_1, 0), (self.blocks_complex_to_mag_0, 0))    
         self.connect((self.blocks_divide_xx_1_1, 0), (self.qtgui_const_sink_x_0, 2))    
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_number_sink_0_0, 0))    
-        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.qtgui_number_sink_0_0, 1))    
-        self.connect((self.blocks_multiply_const_vxx_0_0_0, 0), (self.qtgui_number_sink_0_0_0, 1))    
-        self.connect((self.blocks_multiply_const_vxx_0_1, 0), (self.qtgui_number_sink_0_0, 2))    
-        self.connect((self.blocks_multiply_const_vxx_0_1_0, 0), (self.qtgui_number_sink_0_0_0, 2))    
-        self.connect((self.blocks_multiply_const_vxx_0_2, 0), (self.qtgui_number_sink_0_0_0, 0))    
+        self.connect((self.blocks_divide_xx_1_1, 0), (self.to_mag_db_0_4, 0))    
         self.connect((self.blocks_multiply_const_vxx_1, 0), (self.qtgui_number_sink_1, 0))    
         self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.qtgui_number_sink_1, 1))    
         self.connect((self.blocks_multiply_const_vxx_1_1, 0), (self.qtgui_number_sink_1, 2))    
-        self.connect((self.blocks_nlog10_ff_0, 0), (self.blocks_multiply_const_vxx_0, 0))    
-        self.connect((self.blocks_nlog10_ff_0_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))    
-        self.connect((self.blocks_nlog10_ff_0_0_0, 0), (self.blocks_multiply_const_vxx_0_0_0, 0))    
-        self.connect((self.blocks_nlog10_ff_0_1, 0), (self.blocks_multiply_const_vxx_0_1, 0))    
-        self.connect((self.blocks_nlog10_ff_0_1_0, 0), (self.blocks_multiply_const_vxx_0_1_0, 0))    
-        self.connect((self.blocks_nlog10_ff_0_2, 0), (self.blocks_multiply_const_vxx_0_2, 0))    
         self.connect((self.blocks_throttle_0, 0), (self.qtgui_freq_sink_x_0, 0))    
-        self.connect((self.zeromq_pull_source_0, 0), (self.blocks_complex_to_mag_0_3, 0))    
-        self.connect((self.zeromq_pull_source_0, 0), (self.blocks_divide_xx_1_0, 1))    
-        self.connect((self.zeromq_pull_source_0, 0), (self.blocks_divide_xx_1_1, 1))    
+        self.connect((self.fft_bin_select_0, 0), (self.blocks_divide_xx_1, 0))    
+        self.connect((self.fft_bin_select_0, 0), (self.blocks_divide_xx_1_0, 0))    
+        self.connect((self.fft_bin_select_0, 0), (self.to_mag_db_0, 0))    
+        self.connect((self.fft_bin_select_0_0, 0), (self.blocks_divide_xx_1, 1))    
+        self.connect((self.fft_bin_select_0_0, 0), (self.blocks_divide_xx_1_1, 0))    
+        self.connect((self.fft_bin_select_0_0, 0), (self.to_mag_db_0_0, 0))    
+        self.connect((self.fft_bin_select_0_1, 0), (self.blocks_divide_xx_1_0, 1))    
+        self.connect((self.fft_bin_select_0_1, 0), (self.blocks_divide_xx_1_1, 1))    
+        self.connect((self.fft_bin_select_0_1, 0), (self.to_mag_db_0_1, 0))    
+        self.connect((self.to_mag_db_0, 0), (self.qtgui_number_sink_0_0, 0))    
+        self.connect((self.to_mag_db_0_0, 0), (self.qtgui_number_sink_0_0, 1))    
+        self.connect((self.to_mag_db_0_1, 0), (self.qtgui_number_sink_0_0, 2))    
+        self.connect((self.to_mag_db_0_2, 0), (self.qtgui_number_sink_0_0_0, 1))    
+        self.connect((self.to_mag_db_0_3, 0), (self.qtgui_number_sink_0_0_0, 0))    
+        self.connect((self.to_mag_db_0_4, 0), (self.qtgui_number_sink_0_0_0, 2))    
+        self.connect((self.zeromq_pull_source_0, 0), (self.fft_bin_select_0_1, 0))    
         self.connect((self.zeromq_pull_source_0, 0), (self.qtgui_freq_sink_x_0, 2))    
-        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_complex_to_mag_0_2, 0))    
-        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_divide_xx_1, 1))    
-        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_divide_xx_1_1, 0))    
+        self.connect((self.zeromq_pull_source_1, 0), (self.fft_bin_select_0_0, 0))    
         self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_freq_sink_x_0, 1))    
-        self.connect((self.zeromq_pull_source_2, 0), (self.blocks_complex_to_mag_0_4, 0))    
-        self.connect((self.zeromq_pull_source_2, 0), (self.blocks_divide_xx_1, 0))    
-        self.connect((self.zeromq_pull_source_2, 0), (self.blocks_divide_xx_1_0, 0))    
         self.connect((self.zeromq_pull_source_2, 0), (self.blocks_throttle_0, 0))    
+        self.connect((self.zeromq_pull_source_2, 0), (self.fft_bin_select_0, 0))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "path_length_diff")
@@ -550,6 +548,24 @@ class path_length_diff(gr.top_block, Qt.QWidget):
     def set_rx_gain(self, rx_gain):
         self.rx_gain = rx_gain
         self.xmlrpc_client0.set_rx_gain(self.rx_gain)
+
+    def get_gui_update_sec(self):
+        return self.gui_update_sec
+
+    def set_gui_update_sec(self, gui_update_sec):
+        self.gui_update_sec = gui_update_sec
+        self.qtgui_number_sink_1.set_update_time(self.gui_update_sec)
+        self.qtgui_number_sink_0_0_0.set_update_time(self.gui_update_sec)
+        self.qtgui_number_sink_0_0.set_update_time(self.gui_update_sec)
+        self.qtgui_number_sink_0.set_update_time(self.gui_update_sec)
+        self.qtgui_freq_sink_x_0.set_update_time(self.gui_update_sec)
+        self.qtgui_const_sink_x_0.set_update_time(self.gui_update_sec)
+
+    def get_fft_size(self):
+        return self.fft_size
+
+    def set_fft_size(self, fft_size):
+        self.fft_size = fft_size
 
     def get_client_address(self):
         return self.client_address
