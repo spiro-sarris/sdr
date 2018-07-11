@@ -213,7 +213,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>100e6</value>
+      <value>500e6</value>
     </param>
   </block>
   <block>
@@ -1592,7 +1592,7 @@
     </param>
     <param>
       <key>color3</key>
-      <value>"red"</value>
+      <value>"green"</value>
     </param>
     <param>
       <key>label3</key>

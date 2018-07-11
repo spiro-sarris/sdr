@@ -217,7 +217,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(632, 80)</value>
+      <value>(576, 88)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -276,7 +276,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(944, 304)</value>
+      <value>(872, 408)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -323,11 +323,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(968, 812)</value>
+      <value>(856, 220)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -398,7 +398,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>100e6</value>
+      <value>500e6</value>
     </param>
   </block>
   <block>
@@ -723,7 +723,7 @@
     </param>
     <param>
       <key>center_freq1</key>
-      <value>uhd.tune_request(freq,10e6)</value>
+      <value>uhd.tune_request(freq,tuning_lo_offset)</value>
     </param>
     <param>
       <key>norm_gain1</key>
@@ -1179,7 +1179,7 @@
     </param>
     <param>
       <key>sd_spec0</key>
-      <value>A:A</value>
+      <value>A:A A:B</value>
     </param>
     <param>
       <key>time_source0</key>
@@ -1271,7 +1271,7 @@
     </param>
     <param>
       <key>nchan</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>num_mboards</key>
@@ -1283,7 +1283,7 @@
     </param>
     <param>
       <key>hide_cmd_port</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
       <key>hide_lo_controls</key>
@@ -2514,7 +2514,7 @@
     </param>
     <param>
       <key>sd_spec0</key>
-      <value>A:B</value>
+      <value>A:A A:B</value>
     </param>
     <param>
       <key>time_source0</key>
@@ -2610,7 +2610,7 @@
     </param>
     <param>
       <key>nchan</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>num_mboards</key>
@@ -2818,7 +2818,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1208, 276)</value>
+      <value>(1144, 380)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2869,14 +2869,20 @@
   </connection>
   <connection>
     <source_block_id>blocks_null_source_0</source_block_id>
-    <sink_block_id>zeromq_push_sink_0</sink_block_id>
+    <sink_block_id>uhd_usrp_sink_0</sink_block_id>
     <source_key>0</source_key>
-    <sink_key>0</sink_key>
+    <sink_key>1</sink_key>
   </connection>
   <connection>
     <source_block_id>uhd_usrp_source_0</source_block_id>
     <sink_block_id>zeromq_push_sink_1</sink_block_id>
     <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>uhd_usrp_source_0</source_block_id>
+    <sink_block_id>zeromq_push_sink_0</sink_block_id>
+    <source_key>1</source_key>
     <sink_key>0</sink_key>
   </connection>
 </flow_graph>
