@@ -5,7 +5,7 @@
 # Title: Path Length Difference
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Wed Jul 11 17:27:39 2018
+# Generated: Sat Jul 14 18:07:56 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -69,7 +69,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         ##################################################
         self.velocity_factor = velocity_factor = 0.69
         self.speed_of_light = speed_of_light = 299792458
-        self.rf_freq = rf_freq = 500e6
+        self.rf_freq = rf_freq = 100e6
         self.wavelength = wavelength = velocity_factor*speed_of_light/rf_freq
         self.wave_number = wave_number = 2*np.pi/wavelength
         self.meters_per_radian = meters_per_radian = 1/wave_number

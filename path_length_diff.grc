@@ -213,7 +213,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>500e6</value>
+      <value>100e6</value>
     </param>
   </block>
   <block>
@@ -416,7 +416,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1696, 132)</value>
+      <value>(1632, 132)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -459,7 +459,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1664, 260)</value>
+      <value>(1632, 260)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -502,7 +502,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1360, 260)</value>
+      <value>(1320, 132)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -545,7 +545,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1696, 4)</value>
+      <value>(1632, 4)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1492,7 +1492,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1664, 1184)</value>
+      <value>(1632, 1168)</value>
     </param>
     <param>
       <key>gui_hint</key>

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rxstream E3Xx
-# Generated: Wed Jul 11 17:44:23 2018
+# Generated: Sat Jul 14 18:09:10 2018
 ##################################################
 
 from gnuradio import analog
@@ -22,7 +22,7 @@ import time
 
 class rxstream_e3xx(gr.top_block):
 
-    def __init__(self, freq=500e6, rx_gain=30, tx_gain=30):
+    def __init__(self, freq=100e6, rx_gain=30, tx_gain=30):
         gr.top_block.__init__(self, "Rxstream E3Xx")
 
         ##################################################
@@ -158,7 +158,7 @@ class rxstream_e3xx(gr.top_block):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
-        "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(500e6),
+        "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(100e6),
         help="Set freq [default=%default]")
     parser.add_option(
         "", "--rx-gain", dest="rx_gain", type="eng_float", default=eng_notation.num_to_str(30),
