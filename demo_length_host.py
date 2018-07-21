@@ -5,7 +5,7 @@
 # Title: Path Length Difference
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Sat Jul 21 14:40:02 2018
+# Generated: Sat Jul 21 15:09:30 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -372,15 +372,15 @@ class demo_length_host(gr.top_block, Qt.QWidget):
         
         self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_1.addWidget(self._qtgui_const_sink_x_0_win, 0,0,1,1)
-        self.fft_bin_select_0_1 = fft_bin_select(
+        self.fft_bin_select_ref = fft_bin_select(
             fft_size=64,
             nskip=1,
         )
-        self.fft_bin_select_0_0 = fft_bin_select(
+        self.fft_bin_select_B = fft_bin_select(
             fft_size=64,
             nskip=1,
         )
-        self.fft_bin_select_0 = fft_bin_select(
+        self.fft_bin_select_A = fft_bin_select(
             fft_size=64,
             nskip=1,
         )
@@ -388,9 +388,9 @@ class demo_length_host(gr.top_block, Qt.QWidget):
         self.blocks_multiply_const_vxx_1_1 = blocks.multiply_const_vff((meters_per_radian, ))
         self.blocks_multiply_const_vxx_1_0 = blocks.multiply_const_vff((meters_per_radian, ))
         self.blocks_multiply_const_vxx_1 = blocks.multiply_const_vff((meters_per_radian, ))
-        self.blocks_divide_xx_1_1 = blocks.divide_cc(1)
-        self.blocks_divide_xx_1_0 = blocks.divide_cc(1)
-        self.blocks_divide_xx_1 = blocks.divide_cc(1)
+        self.blocks_divide_ref_b = blocks.divide_cc(1)
+        self.blocks_divide_ref_a = blocks.divide_cc(1)
+        self.blocks_divide_a_b = blocks.divide_cc(1)
         self.blocks_complex_to_arg_0_1 = blocks.complex_to_arg(1)
         self.blocks_complex_to_arg_0_0 = blocks.complex_to_arg(1)
         self.blocks_complex_to_arg_0 = blocks.complex_to_arg(1)
@@ -410,40 +410,40 @@ class demo_length_host(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_complex_to_arg_0_0, 0), (self.qtgui_number_sink_0, 2))    
         self.connect((self.blocks_complex_to_arg_0_1, 0), (self.blocks_add_const_vxx_0_0, 0))    
         self.connect((self.blocks_complex_to_arg_0_1, 0), (self.qtgui_number_sink_0, 1))    
-        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_complex_to_arg_0, 0))    
-        self.connect((self.blocks_divide_xx_1, 0), (self.qtgui_const_sink_x_0, 0))    
-        self.connect((self.blocks_divide_xx_1, 0), (self.to_mag_db_0_3, 0))    
-        self.connect((self.blocks_divide_xx_1_0, 0), (self.blocks_complex_to_arg_0_1, 0))    
-        self.connect((self.blocks_divide_xx_1_0, 0), (self.qtgui_const_sink_x_0, 1))    
-        self.connect((self.blocks_divide_xx_1_0, 0), (self.to_mag_db_0_2, 0))    
-        self.connect((self.blocks_divide_xx_1_1, 0), (self.blocks_complex_to_arg_0_0, 0))    
-        self.connect((self.blocks_divide_xx_1_1, 0), (self.qtgui_const_sink_x_0, 2))    
-        self.connect((self.blocks_divide_xx_1_1, 0), (self.to_mag_db_0_4, 0))    
+        self.connect((self.blocks_divide_a_b, 0), (self.blocks_complex_to_arg_0_0, 0))    
+        self.connect((self.blocks_divide_a_b, 0), (self.qtgui_const_sink_x_0, 2))    
+        self.connect((self.blocks_divide_a_b, 0), (self.to_mag_db_0_4, 0))    
+        self.connect((self.blocks_divide_ref_a, 0), (self.blocks_complex_to_arg_0, 0))    
+        self.connect((self.blocks_divide_ref_a, 0), (self.qtgui_const_sink_x_0, 0))    
+        self.connect((self.blocks_divide_ref_a, 0), (self.to_mag_db_0_3, 0))    
+        self.connect((self.blocks_divide_ref_b, 0), (self.blocks_complex_to_arg_0_1, 0))    
+        self.connect((self.blocks_divide_ref_b, 0), (self.qtgui_const_sink_x_0, 1))    
+        self.connect((self.blocks_divide_ref_b, 0), (self.to_mag_db_0_2, 0))    
         self.connect((self.blocks_multiply_const_vxx_1, 0), (self.qtgui_number_sink_1, 0))    
         self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.qtgui_number_sink_1, 1))    
         self.connect((self.blocks_multiply_const_vxx_1_1, 0), (self.qtgui_number_sink_1, 2))    
         self.connect((self.blocks_throttle_0, 0), (self.qtgui_freq_sink_x_0, 0))    
-        self.connect((self.fft_bin_select_0, 0), (self.blocks_divide_xx_1, 0))    
-        self.connect((self.fft_bin_select_0, 0), (self.blocks_divide_xx_1_0, 0))    
-        self.connect((self.fft_bin_select_0, 0), (self.to_mag_db_0, 0))    
-        self.connect((self.fft_bin_select_0_0, 0), (self.blocks_divide_xx_1, 1))    
-        self.connect((self.fft_bin_select_0_0, 0), (self.blocks_divide_xx_1_1, 0))    
-        self.connect((self.fft_bin_select_0_0, 0), (self.to_mag_db_0_0, 0))    
-        self.connect((self.fft_bin_select_0_1, 0), (self.blocks_divide_xx_1_0, 1))    
-        self.connect((self.fft_bin_select_0_1, 0), (self.blocks_divide_xx_1_1, 1))    
-        self.connect((self.fft_bin_select_0_1, 0), (self.to_mag_db_0_1, 0))    
+        self.connect((self.fft_bin_select_A, 0), (self.blocks_divide_a_b, 0))    
+        self.connect((self.fft_bin_select_A, 0), (self.blocks_divide_ref_a, 1))    
+        self.connect((self.fft_bin_select_A, 0), (self.to_mag_db_0_0, 0))    
+        self.connect((self.fft_bin_select_B, 0), (self.blocks_divide_a_b, 1))    
+        self.connect((self.fft_bin_select_B, 0), (self.blocks_divide_ref_b, 1))    
+        self.connect((self.fft_bin_select_B, 0), (self.to_mag_db_0_1, 0))    
+        self.connect((self.fft_bin_select_ref, 0), (self.blocks_divide_ref_a, 0))    
+        self.connect((self.fft_bin_select_ref, 0), (self.blocks_divide_ref_b, 0))    
+        self.connect((self.fft_bin_select_ref, 0), (self.to_mag_db_0, 0))    
         self.connect((self.to_mag_db_0, 0), (self.qtgui_number_sink_0_0, 0))    
         self.connect((self.to_mag_db_0_0, 0), (self.qtgui_number_sink_0_0, 1))    
         self.connect((self.to_mag_db_0_1, 0), (self.qtgui_number_sink_0_0, 2))    
         self.connect((self.to_mag_db_0_2, 0), (self.qtgui_number_sink_0_0_0, 1))    
         self.connect((self.to_mag_db_0_3, 0), (self.qtgui_number_sink_0_0_0, 0))    
         self.connect((self.to_mag_db_0_4, 0), (self.qtgui_number_sink_0_0_0, 2))    
-        self.connect((self.zeromq_pull_source_0, 0), (self.fft_bin_select_0_1, 0))    
+        self.connect((self.zeromq_pull_source_0, 0), (self.fft_bin_select_B, 0))    
         self.connect((self.zeromq_pull_source_0, 0), (self.qtgui_freq_sink_x_0, 2))    
-        self.connect((self.zeromq_pull_source_1, 0), (self.fft_bin_select_0_0, 0))    
+        self.connect((self.zeromq_pull_source_1, 0), (self.fft_bin_select_A, 0))    
         self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_freq_sink_x_0, 1))    
         self.connect((self.zeromq_pull_source_2, 0), (self.blocks_throttle_0, 0))    
-        self.connect((self.zeromq_pull_source_2, 0), (self.fft_bin_select_0, 0))    
+        self.connect((self.zeromq_pull_source_2, 0), (self.fft_bin_select_ref, 0))    
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "demo_length_host")
