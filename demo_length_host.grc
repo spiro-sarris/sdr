@@ -46,7 +46,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>path_length_diff</value>
+      <value>demo_length_host</value>
     </param>
     <param>
       <key>max_nouts</key>

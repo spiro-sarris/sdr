@@ -5,7 +5,7 @@
 # Title: Path Length Difference
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Sat Jul 14 18:07:56 2018
+# Generated: Sat Jul 21 14:40:02 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -39,7 +39,7 @@ import sip
 import xmlrpclib
 
 
-class path_length_diff(gr.top_block, Qt.QWidget):
+class demo_length_host(gr.top_block, Qt.QWidget):
 
     def __init__(self):
         gr.top_block.__init__(self, "Path Length Difference")
@@ -61,7 +61,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "path_length_diff")
+        self.settings = Qt.QSettings("GNU Radio", "demo_length_host")
         self.restoreGeometry(self.settings.value("geometry").toByteArray())
 
         ##################################################
@@ -446,7 +446,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.connect((self.zeromq_pull_source_2, 0), (self.fft_bin_select_0, 0))    
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "path_length_diff")
+        self.settings = Qt.QSettings("GNU Radio", "demo_length_host")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
@@ -574,7 +574,7 @@ class path_length_diff(gr.top_block, Qt.QWidget):
         self.client_address = client_address
 
 
-def main(top_block_cls=path_length_diff, options=None):
+def main(top_block_cls=demo_length_host, options=None):
 
     from distutils.version import StrictVersion
     if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):

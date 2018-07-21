@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 ##################################################
 # GNU Radio Python Flow Graph
-# Title: Rxstream E3Xx
-# Generated: Sat Jul 14 18:09:10 2018
+# Title: Demo Length E3
+# Generated: Sat Jul 21 14:40:04 2018
 ##################################################
 
 from gnuradio import analog
@@ -20,10 +20,10 @@ import threading
 import time
 
 
-class rxstream_e3xx(gr.top_block):
+class demo_length_e3(gr.top_block):
 
     def __init__(self, freq=100e6, rx_gain=30, tx_gain=30):
-        gr.top_block.__init__(self, "Rxstream E3Xx")
+        gr.top_block.__init__(self, "Demo Length E3")
 
         ##################################################
         # Parameters
@@ -169,7 +169,7 @@ def argument_parser():
     return parser
 
 
-def main(top_block_cls=rxstream_e3xx, options=None):
+def main(top_block_cls=demo_length_e3, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 
