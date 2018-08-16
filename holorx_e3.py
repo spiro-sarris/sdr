@@ -3,11 +3,14 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Holorx E3
-# Generated: Mon Aug 13 19:17:36 2018
+# Generated: Thu Aug 16 15:27:29 2018
 ##################################################
 
+from gnuradio import blocks
 from gnuradio import eng_notation
+from gnuradio import filter
 from gnuradio import gr
+from gnuradio import gr, blocks
 from gnuradio import uhd
 from gnuradio import zeromq
 from gnuradio.eng_option import eng_option
@@ -20,20 +23,21 @@ import time
 
 class holorx_e3(gr.top_block):
 
-    def __init__(self, freq_rftune=70e6, gain_rxa=30, gain_rxb=30, freq_lo_offset=60e3):
+    def __init__(self, freq_lo_offset=60e3, freq_rftune=69999953, gain_rxa=0, gain_rxb=0):
         gr.top_block.__init__(self, "Holorx E3")
 
         ##################################################
         # Parameters
         ##################################################
+        self.freq_lo_offset = freq_lo_offset
         self.freq_rftune = freq_rftune
         self.gain_rxa = gain_rxa
         self.gain_rxb = gain_rxb
-        self.freq_lo_offset = freq_lo_offset
 
         ##################################################
         # Variables
         ##################################################
+        self.sps_output = sps_output = 200
         self.server_port = server_port = 30000
         self.server_address = server_address = "192.168.10.184"
         self.samp_rate = samp_rate = 20e3
@@ -55,6 +59,8 @@ class holorx_e3(gr.top_block):
         		channels=range(2),
         	),
         )
+        self.uhd_usrp_source_0.set_clock_source('internal', 0)
+        self.uhd_usrp_source_0.set_time_source('external', 0)
         self.uhd_usrp_source_0.set_subdev_spec('A:A A:B', 0)
         self.uhd_usrp_source_0.set_samp_rate(samp_rate)
         self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(freq_rftune,freq_lo_offset), 0)
@@ -63,12 +69,41 @@ class holorx_e3(gr.top_block):
         self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(freq_rftune,freq_lo_offset), 1)
         self.uhd_usrp_source_0.set_gain(gain_rxb, 1)
         self.uhd_usrp_source_0.set_antenna('RX2', 1)
+        self.rational_resampler_xxx_0_0 = filter.rational_resampler_ccc(
+                interpolation=1,
+                decimation=int(samp_rate/sps_output),
+                taps=None,
+                fractional_bw=None,
+        )
+        self.rational_resampler_xxx_0 = filter.rational_resampler_ccc(
+                interpolation=1,
+                decimation=int(samp_rate/sps_output),
+                taps=None,
+                fractional_bw=None,
+        )
+        self.blocks_tag_debug_0_0 = blocks.tag_debug(gr.sizeof_gr_complex*1, 'usrp_rx_a', ""); self.blocks_tag_debug_0_0.set_display(True)
+        self.blocks_tag_debug_0 = blocks.tag_debug(gr.sizeof_gr_complex*1, 'usrp_rx_b', ""); self.blocks_tag_debug_0.set_display(True)
+        self.blocks_file_meta_sink_0 = blocks.file_meta_sink(gr.sizeof_gr_complex*1, 'test.out', samp_rate, sps_output/samp_rate, blocks.GR_FILE_FLOAT, True, 1000000, "", True)
+        self.blocks_file_meta_sink_0.set_unbuffered(False)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.uhd_usrp_source_0, 1), (self.zeromq_push_sink_0, 0))    
-        self.connect((self.uhd_usrp_source_0, 0), (self.zeromq_push_sink_1, 0))    
+        self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_file_meta_sink_0, 0))    
+        self.connect((self.rational_resampler_xxx_0, 0), (self.zeromq_push_sink_1, 0))    
+        self.connect((self.rational_resampler_xxx_0_0, 0), (self.zeromq_push_sink_0, 0))    
+        self.connect((self.uhd_usrp_source_0, 1), (self.blocks_tag_debug_0, 0))    
+        self.connect((self.uhd_usrp_source_0, 0), (self.blocks_tag_debug_0_0, 0))    
+        self.connect((self.uhd_usrp_source_0, 0), (self.rational_resampler_xxx_0, 0))    
+        self.connect((self.uhd_usrp_source_0, 1), (self.rational_resampler_xxx_0_0, 0))    
+
+    def get_freq_lo_offset(self):
+        return self.freq_lo_offset
+
+    def set_freq_lo_offset(self, freq_lo_offset):
+        self.freq_lo_offset = freq_lo_offset
+        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq_rftune,self.freq_lo_offset), 0)
+        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq_rftune,self.freq_lo_offset), 1)
 
     def get_freq_rftune(self):
         return self.freq_rftune
@@ -94,13 +129,11 @@ class holorx_e3(gr.top_block):
         self.uhd_usrp_source_0.set_gain(self.gain_rxb, 1)
         	
 
-    def get_freq_lo_offset(self):
-        return self.freq_lo_offset
+    def get_sps_output(self):
+        return self.sps_output
 
-    def set_freq_lo_offset(self, freq_lo_offset):
-        self.freq_lo_offset = freq_lo_offset
-        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq_rftune,self.freq_lo_offset), 0)
-        self.uhd_usrp_source_0.set_center_freq(uhd.tune_request(self.freq_rftune,self.freq_lo_offset), 1)
+    def set_sps_output(self, sps_output):
+        self.sps_output = sps_output
 
     def get_server_port(self):
         return self.server_port
@@ -125,17 +158,17 @@ class holorx_e3(gr.top_block):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
-        "", "--freq-rftune", dest="freq_rftune", type="eng_float", default=eng_notation.num_to_str(70e6),
-        help="Set freq_rftune [default=%default]")
-    parser.add_option(
-        "", "--gain-rxa", dest="gain_rxa", type="eng_float", default=eng_notation.num_to_str(30),
-        help="Set gain_rxa [default=%default]")
-    parser.add_option(
-        "", "--gain-rxb", dest="gain_rxb", type="eng_float", default=eng_notation.num_to_str(30),
-        help="Set gain_rxb [default=%default]")
-    parser.add_option(
         "", "--freq-lo-offset", dest="freq_lo_offset", type="eng_float", default=eng_notation.num_to_str(60e3),
         help="Set freq_lo_offset [default=%default]")
+    parser.add_option(
+        "", "--freq-rftune", dest="freq_rftune", type="eng_float", default=eng_notation.num_to_str(69999953),
+        help="Set freq_rftune [default=%default]")
+    parser.add_option(
+        "", "--gain-rxa", dest="gain_rxa", type="eng_float", default=eng_notation.num_to_str(0),
+        help="Set gain_rxa [default=%default]")
+    parser.add_option(
+        "", "--gain-rxb", dest="gain_rxb", type="eng_float", default=eng_notation.num_to_str(0),
+        help="Set gain_rxb [default=%default]")
     return parser
 
 
@@ -143,7 +176,7 @@ def main(top_block_cls=holorx_e3, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 
-    tb = top_block_cls(freq_rftune=options.freq_rftune, gain_rxa=options.gain_rxa, gain_rxb=options.gain_rxb, freq_lo_offset=options.freq_lo_offset)
+    tb = top_block_cls(freq_lo_offset=options.freq_lo_offset, freq_rftune=options.freq_rftune, gain_rxa=options.gain_rxa, gain_rxb=options.gain_rxb)
     tb.start()
     try:
         raw_input('Press Enter to quit: ')

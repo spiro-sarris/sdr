@@ -5,7 +5,7 @@
 # Title: Holo RX
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Mon Aug 13 19:17:59 2018
+# Generated: Thu Aug 16 16:19:06 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -67,13 +67,14 @@ class holorx_host(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 20e3
-        self.gui_update_sec = gui_update_sec = 0.2
-        self.gain_rxb = gain_rxb = 30
-        self.gain_rxa = gain_rxa = 30
-        self.freq_rftune = freq_rftune = 70e6
+        self.seconds_record = seconds_record = 60
+        self.samp_rate = samp_rate = 200
+        self.gui_update_sec = gui_update_sec = 1
+        self.gain_rxb = gain_rxb = 0
+        self.gain_rxa = gain_rxa = 0
+        self.freq_rftune = freq_rftune = 69999953
         self.freq_lo_offset = freq_lo_offset = 60e3
-        self.fft_size = fft_size = 64
+        self.fft_size = fft_size = 128
         self.client_address = client_address = "192.168.10.184"
 
         ##################################################
@@ -104,9 +105,9 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.qtgui_number_sink_0_0_0.set_update_time(gui_update_sec)
         self.qtgui_number_sink_0_0_0.set_title('Difference A-B')
         
-        labels = ['Magnitude (dB)', 'Phase (rad)', 'A - B', '', '',
+        labels = ['Magnitude (dB)', 'Phase (deg)', 'A - B', '', '',
                   '', '', '', '', '']
-        units = ['dB', 'rad', 'dB', '', '',
+        units = ['dB', 'degrees', 'dB', '', '',
                  '', '', '', '', '']
         colors = [("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"),
                   ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black"), ("black", "black")]
@@ -158,7 +159,7 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self._qtgui_number_sink_0_0_win = sip.wrapinstance(self.qtgui_number_sink_0_0.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_0.addWidget(self._qtgui_number_sink_0_0_win, 1,1,2,1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
-        	1024, #size
+        	fft_size, #size
         	firdes.WIN_HANN, #wintype
         	0, #fc
         	samp_rate, #bw
@@ -166,7 +167,7 @@ class holorx_host(gr.top_block, Qt.QWidget):
         	2 #number of inputs
         )
         self.qtgui_freq_sink_x_0.set_update_time(gui_update_sec)
-        self.qtgui_freq_sink_x_0.set_y_axis(-140, -20)
+        self.qtgui_freq_sink_x_0.set_y_axis(-160, -20)
         self.qtgui_freq_sink_x_0.set_y_label('FFT Amplitude', 'dB')
         self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
         self.qtgui_freq_sink_x_0.enable_autoscale(False)
@@ -200,35 +201,42 @@ class holorx_host(gr.top_block, Qt.QWidget):
         
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_win, 0,0,1,2)
-        self._gain_rxb_range = Range(0, 80, 1, 30, 1)
+        self._gain_rxb_range = Range(0, 80, 1, 0, 1)
         self._gain_rxb_win = RangeWidget(self._gain_rxb_range, self.set_gain_rxb, 'Gain RXB', "counter", float)
         self.tabs_grid_layout_0.addWidget(self._gain_rxb_win, 2,0,1,1)
-        self._gain_rxa_range = Range(0, 80, 1, 30, 1)
+        self._gain_rxa_range = Range(0, 80, 1, 0, 1)
         self._gain_rxa_win = RangeWidget(self._gain_rxa_range, self.set_gain_rxa, 'Gain RXA', "counter", float)
         self.tabs_grid_layout_0.addWidget(self._gain_rxa_win, 1,0,1,1)
-        self._freq_rftune_range = Range(10e6, 6e9, 1, 70e6, 1)
+        self._freq_rftune_range = Range(10e6, 6e9, 1, 69999953, 1)
         self._freq_rftune_win = RangeWidget(self._freq_rftune_range, self.set_freq_rftune, 'Freq RF Tune', "counter", float)
         self.tabs_grid_layout_0.addWidget(self._freq_rftune_win, 3,0,1,1)
         self._freq_lo_offset_range = Range(0, 1e6, 1, 60e3, 1)
         self._freq_lo_offset_win = RangeWidget(self._freq_lo_offset_range, self.set_freq_lo_offset, 'Freq LO Offset', "counter", float)
         self.tabs_grid_layout_0.addWidget(self._freq_lo_offset_win, 4,0,1,1)
         self.fft_bin_select_B = fft_bin_select(
-            fft_size=64,
+            fft_size=fft_size,
             nskip=1,
         )
         self.fft_bin_select_A = fft_bin_select(
-            fft_size=64,
+            fft_size=fft_size,
             nskip=1,
         )
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((180/np.pi, ))
+        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, seconds_record*int(samp_rate/fft_size))
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'test500MHz_fft128.iq', False)
+        self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_divide_xx_0 = blocks.divide_cc(1)
         self.blocks_complex_to_arg_0 = blocks.complex_to_arg(1)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_complex_to_arg_0, 0), (self.qtgui_number_sink_0_0_0, 1))    
+        self.connect((self.blocks_complex_to_arg_0, 0), (self.blocks_multiply_const_vxx_0, 0))    
         self.connect((self.blocks_divide_xx_0, 0), (self.blocks_complex_to_arg_0, 0))    
+        self.connect((self.blocks_divide_xx_0, 0), (self.blocks_head_0, 0))    
         self.connect((self.blocks_divide_xx_0, 0), (self.to_mag_db_0_3, 0))    
+        self.connect((self.blocks_head_0, 0), (self.blocks_file_sink_0, 0))    
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_number_sink_0_0_0, 1))    
         self.connect((self.fft_bin_select_A, 0), (self.blocks_divide_xx_0, 0))    
         self.connect((self.fft_bin_select_A, 0), (self.to_mag_db_0_0, 0))    
         self.connect((self.fft_bin_select_B, 0), (self.blocks_divide_xx_0, 1))    
@@ -246,12 +254,20 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
+    def get_seconds_record(self):
+        return self.seconds_record
+
+    def set_seconds_record(self, seconds_record):
+        self.seconds_record = seconds_record
+        self.blocks_head_0.set_length(self.seconds_record*int(self.samp_rate/self.fft_size))
+
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
+        self.blocks_head_0.set_length(self.seconds_record*int(self.samp_rate/self.fft_size))
 
     def get_gui_update_sec(self):
         return self.gui_update_sec
@@ -295,6 +311,9 @@ class holorx_host(gr.top_block, Qt.QWidget):
 
     def set_fft_size(self, fft_size):
         self.fft_size = fft_size
+        self.fft_bin_select_B.set_fft_size(self.fft_size)
+        self.fft_bin_select_A.set_fft_size(self.fft_size)
+        self.blocks_head_0.set_length(self.seconds_record*int(self.samp_rate/self.fft_size))
 
     def get_client_address(self):
         return self.client_address
