@@ -5,7 +5,7 @@
 # Title: Holo RX
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Fri Aug 17 12:57:10 2018
+# Generated: Fri Aug 17 18:13:49 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -41,7 +41,7 @@ import xmlrpclib
 
 class holorx_host(gr.top_block, Qt.QWidget):
 
-    def __init__(self):
+    def __init__(self, fft_size=1024):
         gr.top_block.__init__(self, "Holo RX")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Holo RX")
@@ -65,16 +65,23 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.restoreGeometry(self.settings.value("geometry").toByteArray())
 
         ##################################################
+        # Parameters
+        ##################################################
+        self.fft_size = fft_size
+
+        ##################################################
         # Variables
         ##################################################
-        self.seconds_record = seconds_record = 90
         self.samp_rate = samp_rate = 1000
+        self.seconds_record = seconds_record = 90
+        self.label_results_per_second = label_results_per_second = samp_rate/fft_size
+        self.label_fftsize = label_fftsize = fft_size
+        self.label_binwidth_hz = label_binwidth_hz = samp_rate/fft_size
+        self.label_baseband_samp_freq = label_baseband_samp_freq = samp_rate
         self.gui_update_sec = gui_update_sec = 0.2
         self.gain_rxb = gain_rxb = 0
         self.gain_rxa = gain_rxa = 0
-        self.freq_rftune = freq_rftune = 999999341
-        self.freq_lo_offset = freq_lo_offset = 60e3
-        self.fft_size = fft_size = 64
+        self.freq_rftune = freq_rftune = 99999935
         self.client_address = client_address = "192.168.10.184"
 
         ##################################################
@@ -90,7 +97,6 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9998', 100, False, -1)
         self.zeromq_pull_source_0 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9999', 100, False, -1)
         self.xmlrpc_client1 = xmlrpclib.Server('http://192.168.10.184:30000')
-        self.xmlrpc_client0_0_0 = xmlrpclib.Server('http://192.168.10.184:30000')
         self.xmlrpc_client0_0 = xmlrpclib.Server('http://192.168.10.184:30000')
         self.xmlrpc_client0 = xmlrpclib.Server('http://192.168.10.184:30000')
         self.to_mag_db_0_3 = to_mag_db()
@@ -201,18 +207,63 @@ class holorx_host(gr.top_block, Qt.QWidget):
         
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_win, 0,0,1,2)
+        self._label_results_per_second_tool_bar = Qt.QToolBar(self)
+        
+        if None:
+          self._label_results_per_second_formatter = None
+        else:
+          self._label_results_per_second_formatter = lambda x: x
+        
+        self._label_results_per_second_tool_bar.addWidget(Qt.QLabel('FFT Results Per Second '+": "))
+        self._label_results_per_second_label = Qt.QLabel(str(self._label_results_per_second_formatter(self.label_results_per_second)))
+        self._label_results_per_second_tool_bar.addWidget(self._label_results_per_second_label)
+        self.top_grid_layout.addWidget(self._label_results_per_second_tool_bar, 4,0,1,1)
+          
+        self._label_fftsize_tool_bar = Qt.QToolBar(self)
+        
+        if None:
+          self._label_fftsize_formatter = None
+        else:
+          self._label_fftsize_formatter = lambda x: x
+        
+        self._label_fftsize_tool_bar.addWidget(Qt.QLabel('FFT Size'+": "))
+        self._label_fftsize_label = Qt.QLabel(str(self._label_fftsize_formatter(self.label_fftsize)))
+        self._label_fftsize_tool_bar.addWidget(self._label_fftsize_label)
+        self.top_grid_layout.addWidget(self._label_fftsize_tool_bar, 2,0,1,1)
+          
+        self._label_binwidth_hz_tool_bar = Qt.QToolBar(self)
+        
+        if None:
+          self._label_binwidth_hz_formatter = None
+        else:
+          self._label_binwidth_hz_formatter = lambda x: x
+        
+        self._label_binwidth_hz_tool_bar.addWidget(Qt.QLabel('FFT Bin Width (Hz) '+": "))
+        self._label_binwidth_hz_label = Qt.QLabel(str(self._label_binwidth_hz_formatter(self.label_binwidth_hz)))
+        self._label_binwidth_hz_tool_bar.addWidget(self._label_binwidth_hz_label)
+        self.top_grid_layout.addWidget(self._label_binwidth_hz_tool_bar, 3,0,1,1)
+          
+        self._label_baseband_samp_freq_tool_bar = Qt.QToolBar(self)
+        
+        if None:
+          self._label_baseband_samp_freq_formatter = None
+        else:
+          self._label_baseband_samp_freq_formatter = lambda x: x
+        
+        self._label_baseband_samp_freq_tool_bar.addWidget(Qt.QLabel('Baseband Sample Frequency (Hz)'+": "))
+        self._label_baseband_samp_freq_label = Qt.QLabel(str(self._label_baseband_samp_freq_formatter(self.label_baseband_samp_freq)))
+        self._label_baseband_samp_freq_tool_bar.addWidget(self._label_baseband_samp_freq_label)
+        self.top_grid_layout.addWidget(self._label_baseband_samp_freq_tool_bar, 1,0,1,1)
+          
         self._gain_rxb_range = Range(0, 80, 1, 0, 1)
         self._gain_rxb_win = RangeWidget(self._gain_rxb_range, self.set_gain_rxb, 'Gain RXB', "counter", float)
         self.tabs_grid_layout_0.addWidget(self._gain_rxb_win, 2,0,1,1)
         self._gain_rxa_range = Range(0, 80, 1, 0, 1)
         self._gain_rxa_win = RangeWidget(self._gain_rxa_range, self.set_gain_rxa, 'Gain RXA', "counter", float)
         self.tabs_grid_layout_0.addWidget(self._gain_rxa_win, 1,0,1,1)
-        self._freq_rftune_range = Range(10e6, 6e9, 1, 999999341, 1)
+        self._freq_rftune_range = Range(10e6, 6e9, 1, 99999935, 1)
         self._freq_rftune_win = RangeWidget(self._freq_rftune_range, self.set_freq_rftune, 'Freq RF Tune', "counter", float)
         self.tabs_grid_layout_0.addWidget(self._freq_rftune_win, 3,0,1,1)
-        self._freq_lo_offset_range = Range(0, 1e6, 1, 60e3, 1)
-        self._freq_lo_offset_win = RangeWidget(self._freq_lo_offset_range, self.set_freq_lo_offset, 'Freq LO Offset', "counter", float)
-        self.tabs_grid_layout_0.addWidget(self._freq_lo_offset_win, 4,0,1,1)
         self.fft_bin_select_B = fft_bin_select(
             fft_size=fft_size,
             nskip=1,
@@ -223,8 +274,8 @@ class holorx_host(gr.top_block, Qt.QWidget):
         )
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((180/np.pi, ))
-        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, seconds_record*int(samp_rate/fft_size))
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'test1000MHz_fft128.iq', False)
+        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, int(seconds_record*samp_rate/fft_size))
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'test.iq', False)
         self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_divide_xx_0 = blocks.divide_cc(1)
         self.blocks_complex_to_arg_0 = blocks.complex_to_arg(1)
@@ -256,12 +307,17 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
-    def get_seconds_record(self):
-        return self.seconds_record
+    def get_fft_size(self):
+        return self.fft_size
 
-    def set_seconds_record(self, seconds_record):
-        self.seconds_record = seconds_record
-        self.blocks_head_0.set_length(self.seconds_record*int(self.samp_rate/self.fft_size))
+    def set_fft_size(self, fft_size):
+        self.fft_size = fft_size
+        self.set_label_results_per_second(self._label_results_per_second_formatter(self.samp_rate/self.fft_size))
+        self.set_label_fftsize(self._label_fftsize_formatter(self.fft_size))
+        self.set_label_binwidth_hz(self._label_binwidth_hz_formatter(self.samp_rate/self.fft_size))
+        self.fft_bin_select_B.set_fft_size(self.fft_size)
+        self.fft_bin_select_A.set_fft_size(self.fft_size)
+        self.blocks_head_0.set_length(int(self.seconds_record*self.samp_rate/self.fft_size))
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -269,8 +325,46 @@ class holorx_host(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
+        self.set_label_results_per_second(self._label_results_per_second_formatter(self.samp_rate/self.fft_size))
+        self.set_label_binwidth_hz(self._label_binwidth_hz_formatter(self.samp_rate/self.fft_size))
+        self.set_label_baseband_samp_freq(self._label_baseband_samp_freq_formatter(self.samp_rate))
         self.blocks_throttle_0.set_sample_rate(self.samp_rate)
-        self.blocks_head_0.set_length(self.seconds_record*int(self.samp_rate/self.fft_size))
+        self.blocks_head_0.set_length(int(self.seconds_record*self.samp_rate/self.fft_size))
+
+    def get_seconds_record(self):
+        return self.seconds_record
+
+    def set_seconds_record(self, seconds_record):
+        self.seconds_record = seconds_record
+        self.blocks_head_0.set_length(int(self.seconds_record*self.samp_rate/self.fft_size))
+
+    def get_label_results_per_second(self):
+        return self.label_results_per_second
+
+    def set_label_results_per_second(self, label_results_per_second):
+        self.label_results_per_second = label_results_per_second
+        Qt.QMetaObject.invokeMethod(self._label_results_per_second_label, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.label_results_per_second)))
+
+    def get_label_fftsize(self):
+        return self.label_fftsize
+
+    def set_label_fftsize(self, label_fftsize):
+        self.label_fftsize = label_fftsize
+        Qt.QMetaObject.invokeMethod(self._label_fftsize_label, "setText", Qt.Q_ARG("QString", str(self.label_fftsize)))
+
+    def get_label_binwidth_hz(self):
+        return self.label_binwidth_hz
+
+    def set_label_binwidth_hz(self, label_binwidth_hz):
+        self.label_binwidth_hz = label_binwidth_hz
+        Qt.QMetaObject.invokeMethod(self._label_binwidth_hz_label, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.label_binwidth_hz)))
+
+    def get_label_baseband_samp_freq(self):
+        return self.label_baseband_samp_freq
+
+    def set_label_baseband_samp_freq(self, label_baseband_samp_freq):
+        self.label_baseband_samp_freq = label_baseband_samp_freq
+        Qt.QMetaObject.invokeMethod(self._label_baseband_samp_freq_label, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.label_baseband_samp_freq)))
 
     def get_gui_update_sec(self):
         return self.gui_update_sec
@@ -302,22 +396,6 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.freq_rftune = freq_rftune
         self.xmlrpc_client0_0.set_freq_rftune(self.freq_rftune)
 
-    def get_freq_lo_offset(self):
-        return self.freq_lo_offset
-
-    def set_freq_lo_offset(self, freq_lo_offset):
-        self.freq_lo_offset = freq_lo_offset
-        self.xmlrpc_client0_0_0.set_freq_lo_offset(self.freq_lo_offset)
-
-    def get_fft_size(self):
-        return self.fft_size
-
-    def set_fft_size(self, fft_size):
-        self.fft_size = fft_size
-        self.fft_bin_select_B.set_fft_size(self.fft_size)
-        self.fft_bin_select_A.set_fft_size(self.fft_size)
-        self.blocks_head_0.set_length(self.seconds_record*int(self.samp_rate/self.fft_size))
-
     def get_client_address(self):
         return self.client_address
 
@@ -325,7 +403,15 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.client_address = client_address
 
 
+def argument_parser():
+    description = 'Phase and Path Length Difference of Two Receiver Channels'
+    parser = OptionParser(usage="%prog: [options]", option_class=eng_option, description=description)
+    return parser
+
+
 def main(top_block_cls=holorx_host, options=None):
+    if options is None:
+        options, _ = argument_parser().parse_args()
 
     from distutils.version import StrictVersion
     if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):

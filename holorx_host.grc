@@ -109,33 +109,6 @@
     </param>
   </block>
   <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 296)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fft_size</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>64</value>
-    </param>
-  </block>
-  <block>
     <key>variable_qtgui_range</key>
     <param>
       <key>comment</key>
@@ -143,70 +116,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>60e3</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(912, 220)</value>
-    </param>
-    <param>
-      <key>gui_hint</key>
-      <value>tabs@0:4,0,1,1</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>freq_lo_offset</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Freq LO Offset</value>
-    </param>
-    <param>
-      <key>min_len</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>orient</key>
-      <value>Qt.Vertical</value>
-    </param>
-    <param>
-      <key>start</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>step</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>stop</key>
-      <value>1e6</value>
-    </param>
-    <param>
-      <key>rangeType</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>widget</key>
-      <value>counter</value>
-    </param>
-  </block>
-  <block>
-    <key>variable_qtgui_range</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>999999341</value>
+      <value>99999935</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -415,6 +325,178 @@
     </param>
   </block>
   <block>
+    <key>variable_qtgui_label</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>formatter</key>
+      <value>None</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(32, 1028)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value>1,0,1,1</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>label_baseband_samp_freq</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Baseband Sample Frequency (Hz)</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>real</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_qtgui_label</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>samp_rate/fft_size</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>formatter</key>
+      <value>None</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(32, 1284)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value>3,0,1,1</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>label_binwidth_hz</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>FFT Bin Width (Hz) </value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>real</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_qtgui_label</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>fft_size</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>formatter</key>
+      <value>None</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(32, 1152)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value>2,0,1,1</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>label_fftsize</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>FFT Size</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>int</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_qtgui_label</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>samp_rate/fft_size</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>formatter</key>
+      <value>None</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(32, 1420)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value>4,0,1,1</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>label_results_per_second</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>FFT Results Per Second </value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>real</value>
+    </param>
+  </block>
+  <block>
     <key>variable</key>
     <param>
       <key>comment</key>
@@ -453,7 +535,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 400)</value>
+      <value>(8, 296)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -586,7 +668,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>test1000MHz_fft128.iq</value>
+      <value>test.iq</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -653,7 +735,7 @@
     </param>
     <param>
       <key>num_items</key>
-      <value>seconds_record*int(samp_rate/fft_size)</value>
+      <value>int(seconds_record*samp_rate/fft_size)</value>
     </param>
     <param>
       <key>type</key>
@@ -862,6 +944,49 @@
     <param>
       <key>nskip</key>
       <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(232, 300)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fft_size</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>fft_size</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>64</value>
     </param>
   </block>
   <block>
@@ -1972,49 +2097,6 @@
     <param>
       <key>variable</key>
       <value>freq_rftune</value>
-    </param>
-  </block>
-  <block>
-    <key>xmlrpc_client</key>
-    <param>
-      <key>addr</key>
-      <value>str(client_address)</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>callback</key>
-      <value>set_freq_lo_offset</value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1672, 164)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>xmlrpc_client0_0_0</value>
-    </param>
-    <param>
-      <key>port</key>
-      <value>30000</value>
-    </param>
-    <param>
-      <key>variable</key>
-      <value>freq_lo_offset</value>
     </param>
   </block>
   <block>
