@@ -3,14 +3,13 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Holorx E3
-# Generated: Thu Aug 16 15:27:29 2018
+# Generated: Fri Aug 17 12:49:00 2018
 ##################################################
 
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import filter
 from gnuradio import gr
-from gnuradio import gr, blocks
 from gnuradio import uhd
 from gnuradio import zeromq
 from gnuradio.eng_option import eng_option
@@ -23,7 +22,7 @@ import time
 
 class holorx_e3(gr.top_block):
 
-    def __init__(self, freq_lo_offset=60e3, freq_rftune=69999953, gain_rxa=0, gain_rxb=0):
+    def __init__(self, freq_lo_offset=60e3, freq_rftune=999999341, gain_rxa=0, gain_rxb=0):
         gr.top_block.__init__(self, "Holorx E3")
 
         ##################################################
@@ -37,7 +36,7 @@ class holorx_e3(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.sps_output = sps_output = 200
+        self.sps_output = sps_output = 1000
         self.server_port = server_port = 30000
         self.server_address = server_address = "192.168.10.184"
         self.samp_rate = samp_rate = 20e3
@@ -83,13 +82,10 @@ class holorx_e3(gr.top_block):
         )
         self.blocks_tag_debug_0_0 = blocks.tag_debug(gr.sizeof_gr_complex*1, 'usrp_rx_a', ""); self.blocks_tag_debug_0_0.set_display(True)
         self.blocks_tag_debug_0 = blocks.tag_debug(gr.sizeof_gr_complex*1, 'usrp_rx_b', ""); self.blocks_tag_debug_0.set_display(True)
-        self.blocks_file_meta_sink_0 = blocks.file_meta_sink(gr.sizeof_gr_complex*1, 'test.out', samp_rate, sps_output/samp_rate, blocks.GR_FILE_FLOAT, True, 1000000, "", True)
-        self.blocks_file_meta_sink_0.set_unbuffered(False)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_file_meta_sink_0, 0))    
         self.connect((self.rational_resampler_xxx_0, 0), (self.zeromq_push_sink_1, 0))    
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.zeromq_push_sink_0, 0))    
         self.connect((self.uhd_usrp_source_0, 1), (self.blocks_tag_debug_0, 0))    
@@ -161,7 +157,7 @@ def argument_parser():
         "", "--freq-lo-offset", dest="freq_lo_offset", type="eng_float", default=eng_notation.num_to_str(60e3),
         help="Set freq_lo_offset [default=%default]")
     parser.add_option(
-        "", "--freq-rftune", dest="freq_rftune", type="eng_float", default=eng_notation.num_to_str(69999953),
+        "", "--freq-rftune", dest="freq_rftune", type="eng_float", default=eng_notation.num_to_str(999999341),
         help="Set freq_rftune [default=%default]")
     parser.add_option(
         "", "--gain-rxa", dest="gain_rxa", type="eng_float", default=eng_notation.num_to_str(0),
