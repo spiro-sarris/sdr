@@ -5,7 +5,7 @@
 # Title: Holo RX
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Fri Aug 17 18:13:49 2018
+# Generated: Tue Aug 21 10:53:00 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -41,7 +41,7 @@ import xmlrpclib
 
 class holorx_host(gr.top_block, Qt.QWidget):
 
-    def __init__(self, fft_size=1024):
+    def __init__(self, fft_size=128):
         gr.top_block.__init__(self, "Holo RX")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Holo RX")
@@ -73,7 +73,7 @@ class holorx_host(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 1000
-        self.seconds_record = seconds_record = 90
+        self.seconds_record = seconds_record = 7200
         self.label_results_per_second = label_results_per_second = samp_rate/fft_size
         self.label_fftsize = label_fftsize = fft_size
         self.label_binwidth_hz = label_binwidth_hz = samp_rate/fft_size
@@ -81,7 +81,7 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.gui_update_sec = gui_update_sec = 0.2
         self.gain_rxb = gain_rxb = 0
         self.gain_rxa = gain_rxa = 0
-        self.freq_rftune = freq_rftune = 99999935
+        self.freq_rftune = freq_rftune = 70e6
         self.client_address = client_address = "192.168.10.184"
 
         ##################################################
@@ -173,7 +173,7 @@ class holorx_host(gr.top_block, Qt.QWidget):
         	2 #number of inputs
         )
         self.qtgui_freq_sink_x_0.set_update_time(gui_update_sec)
-        self.qtgui_freq_sink_x_0.set_y_axis(-160, -20)
+        self.qtgui_freq_sink_x_0.set_y_axis(-160, 0)
         self.qtgui_freq_sink_x_0.set_y_label('FFT Amplitude', 'dB')
         self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
         self.qtgui_freq_sink_x_0.enable_autoscale(False)
@@ -261,7 +261,7 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self._gain_rxa_range = Range(0, 80, 1, 0, 1)
         self._gain_rxa_win = RangeWidget(self._gain_rxa_range, self.set_gain_rxa, 'Gain RXA', "counter", float)
         self.tabs_grid_layout_0.addWidget(self._gain_rxa_win, 1,0,1,1)
-        self._freq_rftune_range = Range(10e6, 6e9, 1, 99999935, 1)
+        self._freq_rftune_range = Range(10e6, 6e9, 1, 70e6, 1)
         self._freq_rftune_win = RangeWidget(self._freq_rftune_range, self.set_freq_rftune, 'Freq RF Tune', "counter", float)
         self.tabs_grid_layout_0.addWidget(self._freq_rftune_win, 3,0,1,1)
         self.fft_bin_select_B = fft_bin_select(
@@ -275,7 +275,7 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((180/np.pi, ))
         self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, int(seconds_record*samp_rate/fft_size))
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'test.iq', False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'test2hrs.iq', False)
         self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_divide_xx_0 = blocks.divide_cc(1)
         self.blocks_complex_to_arg_0 = blocks.complex_to_arg(1)

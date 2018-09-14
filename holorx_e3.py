@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Holorx E3
-# Generated: Fri Aug 17 17:09:51 2018
+# Generated: Tue Aug 21 10:35:41 2018
 ##################################################
 
 from gnuradio import blocks
@@ -22,7 +22,7 @@ import time
 
 class holorx_e3(gr.top_block):
 
-    def __init__(self, freq_lo_offset=60e3, freq_rftune=100e6, gain_rxa=0, gain_rxb=0):
+    def __init__(self, freq_lo_offset=60e3, freq_rftune=70e6, gain_rxa=0, gain_rxb=0):
         gr.top_block.__init__(self, "Holorx E3")
 
         ##################################################
@@ -157,7 +157,7 @@ def argument_parser():
         "", "--freq-lo-offset", dest="freq_lo_offset", type="eng_float", default=eng_notation.num_to_str(60e3),
         help="Set freq_lo_offset [default=%default]")
     parser.add_option(
-        "", "--freq-rftune", dest="freq_rftune", type="eng_float", default=eng_notation.num_to_str(100e6),
+        "", "--freq-rftune", dest="freq_rftune", type="eng_float", default=eng_notation.num_to_str(70e6),
         help="Set freq_rftune [default=%default]")
     parser.add_option(
         "", "--gain-rxa", dest="gain_rxa", type="eng_float", default=eng_notation.num_to_str(0),
