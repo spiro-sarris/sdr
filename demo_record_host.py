@@ -5,8 +5,10 @@
 # Title: Path Length Difference
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Sun Jul 15 09:54:43 2018
+# Generated: Sun Feb 17 10:53:39 2019
 ##################################################
+
+from distutils.version import StrictVersion
 
 if __name__ == '__main__':
     import ctypes
@@ -18,7 +20,8 @@ if __name__ == '__main__':
         except:
             print "Warning: failed to XInitThreads()"
 
-from PyQt4 import Qt
+from PyQt5 import Qt
+from PyQt5 import Qt, QtCore
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
@@ -32,6 +35,7 @@ import numpy as np
 import sip
 import sys
 import xmlrpclib
+from gnuradio import qtgui
 
 
 class demo_record_host(gr.top_block, Qt.QWidget):
@@ -40,6 +44,7 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         gr.top_block.__init__(self, "Path Length Difference")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Path Length Difference")
+        qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
         except:
@@ -57,7 +62,8 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         self.top_layout.addLayout(self.top_grid_layout)
 
         self.settings = Qt.QSettings("GNU Radio", "demo_record_host")
-        self.restoreGeometry(self.settings.value("geometry").toByteArray())
+        self.restoreGeometry(self.settings.value("geometry", type=QtCore.QByteArray))
+
 
         ##################################################
         # Variables
@@ -88,12 +94,20 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         self.tabs_grid_layout_2 = Qt.QGridLayout()
         self.tabs_layout_2.addLayout(self.tabs_grid_layout_2)
         self.tabs.addTab(self.tabs_widget_2, 'Time Scope')
-        self.top_grid_layout.addWidget(self.tabs, 0,0,1,2)
+        self.top_grid_layout.addWidget(self.tabs, 0, 0, 1, 2)
+        for r in range(0, 1):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9998', 100, False, -1)
         self.xmlrpc_client0 = xmlrpclib.Server('http://192.168.10.184:30000')
         self._rx_gain_range = Range(0, 80, 1, 30, 100)
         self._rx_gain_win = RangeWidget(self._rx_gain_range, self.set_rx_gain, 'RX Gain', "counter_slider", float)
-        self.tabs_grid_layout_0.addWidget(self._rx_gain_win, 1,0,1,1)
+        self.tabs_grid_layout_0.addWidget(self._rx_gain_win, 1, 0, 1, 1)
+        for r in range(1, 2):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
         	1024, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -105,13 +119,13 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         self.qtgui_waterfall_sink_x_0.set_update_time(0.10)
         self.qtgui_waterfall_sink_x_0.enable_grid(False)
         self.qtgui_waterfall_sink_x_0.enable_axis_labels(True)
-        
+
         if not True:
           self.qtgui_waterfall_sink_x_0.disable_legend()
-        
+
         if "complex" == "float" or "complex" == "msg_float":
           self.qtgui_waterfall_sink_x_0.set_plot_pos_half(not True)
-        
+
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
         colors = [0, 0, 0, 0, 0,
@@ -125,11 +139,15 @@ class demo_record_host(gr.top_block, Qt.QWidget):
                 self.qtgui_waterfall_sink_x_0.set_line_label(i, labels[i])
             self.qtgui_waterfall_sink_x_0.set_color_map(i, colors[i])
             self.qtgui_waterfall_sink_x_0.set_line_alpha(i, alphas[i])
-        
+
         self.qtgui_waterfall_sink_x_0.set_intensity_range(-120, -50)
-        
+
         self._qtgui_waterfall_sink_x_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.tabs_grid_layout_1.addWidget(self._qtgui_waterfall_sink_x_0_win, 0,0,1,1)
+        self.tabs_grid_layout_1.addWidget(self._qtgui_waterfall_sink_x_0_win, 0, 0, 1, 1)
+        for r in range(0, 1):
+            self.tabs_grid_layout_1.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.tabs_grid_layout_1.setColumnStretch(c, 1)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
         	1024, #size
         	samp_rate, #samp_rate
@@ -138,19 +156,20 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         )
         self.qtgui_time_sink_x_0.set_update_time(0.10)
         self.qtgui_time_sink_x_0.set_y_axis(-0.05, 0.05)
-        
+
         self.qtgui_time_sink_x_0.set_y_label('Amplitude', "")
-        
+
         self.qtgui_time_sink_x_0.enable_tags(-1, True)
         self.qtgui_time_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
         self.qtgui_time_sink_x_0.enable_autoscale(False)
         self.qtgui_time_sink_x_0.enable_grid(False)
         self.qtgui_time_sink_x_0.enable_axis_labels(True)
         self.qtgui_time_sink_x_0.enable_control_panel(False)
-        
+        self.qtgui_time_sink_x_0.enable_stem_plot(False)
+
         if not True:
           self.qtgui_time_sink_x_0.disable_legend()
-        
+
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
@@ -163,8 +182,8 @@ class demo_record_host(gr.top_block, Qt.QWidget):
                    -1, -1, -1, -1, -1]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
-        
-        for i in xrange(2*1):
+
+        for i in xrange(2):
             if len(labels[i]) == 0:
                 if(i % 2 == 0):
                     self.qtgui_time_sink_x_0.set_line_label(i, "Re{{Data {0}}}".format(i/2))
@@ -177,9 +196,13 @@ class demo_record_host(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0.set_line_style(i, styles[i])
             self.qtgui_time_sink_x_0.set_line_marker(i, markers[i])
             self.qtgui_time_sink_x_0.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.tabs_grid_layout_2.addWidget(self._qtgui_time_sink_x_0_win, 0,0,1,1)
+        self.tabs_grid_layout_2.addWidget(self._qtgui_time_sink_x_0_win, 0, 0, 1, 1)
+        for r in range(0, 1):
+            self.tabs_grid_layout_2.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.tabs_grid_layout_2.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
         	1024, #size
         	firdes.WIN_HANN, #wintype
@@ -197,13 +220,13 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_x_0.set_fft_average(1.0)
         self.qtgui_freq_sink_x_0.enable_axis_labels(True)
         self.qtgui_freq_sink_x_0.enable_control_panel(True)
-        
+
         if not True:
           self.qtgui_freq_sink_x_0.disable_legend()
-        
+
         if "complex" == "float" or "complex" == "msg_float":
           self.qtgui_freq_sink_x_0.set_plot_pos_half(not True)
-        
+
         labels = ['', 'RXA', 'RXB', '', '',
                   '', '', '', '', '']
         widths = [1, 2, 2, 1, 1,
@@ -220,23 +243,29 @@ class demo_record_host(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
             self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.tabs_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_win, 0,0,1,1)
+        self.tabs_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_win, 0, 0, 1, 1)
+        for r in range(0, 1):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, int(2*samp_rate))
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'demo.iq', False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
+
+
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_head_0, 0), (self.blocks_file_sink_0, 0))    
-        self.connect((self.blocks_throttle_0, 0), (self.blocks_head_0, 0))    
-        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_throttle_0, 0))    
-        self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_freq_sink_x_0, 0))    
-        self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_time_sink_x_0, 0))    
-        self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_waterfall_sink_x_0, 0))    
+        self.connect((self.blocks_head_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.blocks_head_0, 0))
+        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_throttle_0, 0))
+        self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_freq_sink_x_0, 0))
+        self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_time_sink_x_0, 0))
+        self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_waterfall_sink_x_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "demo_record_host")
@@ -290,10 +319,6 @@ class demo_record_host(gr.top_block, Qt.QWidget):
 
 def main(top_block_cls=demo_record_host, options=None):
 
-    from distutils.version import StrictVersion
-    if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):
-        style = gr.prefs().get_string('qtgui', 'style', 'raster')
-        Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
     tb = top_block_cls()
@@ -303,7 +328,7 @@ def main(top_block_cls=demo_record_host, options=None):
     def quitting():
         tb.stop()
         tb.wait()
-    qapp.connect(qapp, Qt.SIGNAL("aboutToQuit()"), quitting)
+    qapp.aboutToQuit.connect(quitting)
     qapp.exec_()
 
 

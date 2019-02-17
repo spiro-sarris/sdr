@@ -3,8 +3,9 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: c
-# Generated: Sat Jul 21 14:30:00 2018
+# Generated: Sun Feb 17 10:53:42 2019
 ##################################################
+
 
 from gnuradio import eng_notation
 from gnuradio import gr
@@ -59,10 +60,12 @@ class demo_record_e3(gr.top_block):
         self.uhd_usrp_source_0.set_gain(rx_gain, 0)
         self.uhd_usrp_source_0.set_antenna('RX2', 0)
 
+
+
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.uhd_usrp_source_0, 0), (self.zeromq_push_sink_1, 0))    
+        self.connect((self.uhd_usrp_source_0, 0), (self.zeromq_push_sink_1, 0))
 
     def get_freq(self):
         return self.freq
@@ -78,9 +81,9 @@ class demo_record_e3(gr.top_block):
     def set_rx_gain(self, rx_gain):
         self.rx_gain = rx_gain
         self.uhd_usrp_source_0.set_gain(self.rx_gain, 0)
-        	
+
         self.uhd_usrp_source_0.set_gain(self.rx_gain, 1)
-        	
+
 
     def get_tuning_lo_offset(self):
         return self.tuning_lo_offset

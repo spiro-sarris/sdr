@@ -3,8 +3,9 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Holorx E3
-# Generated: Tue Aug 21 10:35:41 2018
+# Generated: Sun Feb 17 10:46:21 2019
 ##################################################
+
 
 from gnuradio import blocks
 from gnuradio import eng_notation
@@ -83,15 +84,17 @@ class holorx_e3(gr.top_block):
         self.blocks_tag_debug_0_0 = blocks.tag_debug(gr.sizeof_gr_complex*1, 'usrp_rx_a', ""); self.blocks_tag_debug_0_0.set_display(True)
         self.blocks_tag_debug_0 = blocks.tag_debug(gr.sizeof_gr_complex*1, 'usrp_rx_b', ""); self.blocks_tag_debug_0.set_display(True)
 
+
+
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.rational_resampler_xxx_0, 0), (self.zeromq_push_sink_1, 0))    
-        self.connect((self.rational_resampler_xxx_0_0, 0), (self.zeromq_push_sink_0, 0))    
-        self.connect((self.uhd_usrp_source_0, 1), (self.blocks_tag_debug_0, 0))    
-        self.connect((self.uhd_usrp_source_0, 0), (self.blocks_tag_debug_0_0, 0))    
-        self.connect((self.uhd_usrp_source_0, 0), (self.rational_resampler_xxx_0, 0))    
-        self.connect((self.uhd_usrp_source_0, 1), (self.rational_resampler_xxx_0_0, 0))    
+        self.connect((self.rational_resampler_xxx_0, 0), (self.zeromq_push_sink_1, 0))
+        self.connect((self.rational_resampler_xxx_0_0, 0), (self.zeromq_push_sink_0, 0))
+        self.connect((self.uhd_usrp_source_0, 1), (self.blocks_tag_debug_0, 0))
+        self.connect((self.uhd_usrp_source_0, 0), (self.blocks_tag_debug_0_0, 0))
+        self.connect((self.uhd_usrp_source_0, 0), (self.rational_resampler_xxx_0, 0))
+        self.connect((self.uhd_usrp_source_0, 1), (self.rational_resampler_xxx_0_0, 0))
 
     def get_freq_lo_offset(self):
         return self.freq_lo_offset
@@ -115,7 +118,7 @@ class holorx_e3(gr.top_block):
     def set_gain_rxa(self, gain_rxa):
         self.gain_rxa = gain_rxa
         self.uhd_usrp_source_0.set_gain(self.gain_rxa, 0)
-        	
+
 
     def get_gain_rxb(self):
         return self.gain_rxb
@@ -123,7 +126,7 @@ class holorx_e3(gr.top_block):
     def set_gain_rxb(self, gain_rxb):
         self.gain_rxb = gain_rxb
         self.uhd_usrp_source_0.set_gain(self.gain_rxb, 1)
-        	
+
 
     def get_sps_output(self):
         return self.sps_output

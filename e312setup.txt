@@ -39,23 +39,17 @@ $ sshfs root@e3:/ ~/mnte3
 $ make install DESTDIR=~/mnte3
 
 ==================== gnuradio ============================================================
-$ mkdir ~/prefix/src/
-$ cd ~/prefix/src/
-$ git clone https://github.com/????
-$ git checkout ????
-$ cd ???
-$ mkdir build-arm
-$ cd build-arm
-
 Build gnuradio from source using new UHD
 have to install uhd also to the directory where gnuradio build wants to find it becahse I was unable to convince cmake to look in any other place.
 $ cd ~/prefix
 $ source ./environment-setup-armv7ahf-vfp-neon-oe-linux-gnueabi
 $ cd ~/prefix/src/uhd/host/build/
 $ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+
 $ mkdir ~/prefix/src/gnuradio/build-arm
 $ cd ~/prefix/src/gnuradio/build-arm/
-$ cmake -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/o~/
+$ cmake -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GR_VOCODER=OFF -DENABLE_GR_ATSC=OFF -DENABLE_GR_DTV=OFF -DENABLE_DOXYGEN=OFF ../
+
 // make -j4 could be used to speed up build, but terminal output is confusing with multiple jobs dumping text to the screen at the same time. If errors occur, use "make -j1" so the output makes sense in time order
 
 Install to e312 local - this will wipe out the original 3.7.9 gnuradio
@@ -83,126 +77,13 @@ $ scp *e3* root@e3s:/usr/share/uhd/images
 
 Confirm that it worked by checking hardware with uhd_usrp_probe
 
-$ uhd_usrp_probe 
-linux; GNU C++ version 4.9.2; Boost_105700; UHD_003.010.003.000-0-gef157678
-
--- Loading FPGA image: /usr/share/uhd/images/usrp_e310_fpga_sg3.bit... done
--- Initializing core control...
--- Performing register loopback test... pass
--- Performing register loopback test... pass
--- Performing register loopback test... pass
--- Performing CODEC loopback test... pass
--- Performing CODEC loopback test... pass
--- Setting time source to internal
--- Asking for clock rate 16 MHz
--- Actually got clock rate 16 MHz
--- Performing timer loopback test... pass
--- Performing timer loopback test... pass
-  _____________________________________________________
- /
-|       Device: E-Series Device
-|     _____________________________________________________
-|    /
-|   |       Mboard: E3XX
-|   |   product: 30675
-|   |   revision: 6
-|   |   serial: 312EDFA
-|   |   mac-addr: 00:80:2f:17:d1:2a
-|   |   FPGA Version: 16.0
-|   |   
-|   |   Time sources:  none, internal, external
-|   |   Clock sources: internal
-|   |   Sensors: temp, ref_locked
-|   |     _____________________________________________________
-|   |    /
-|   |   |       RX DSP: 0
-|   |   |   
-|   |   |   Freq range: -8.000 to 8.000 MHz
-|   |     _____________________________________________________
-|   |    /
-|   |   |       RX DSP: 1
-|   |   |   
-|   |   |   Freq range: -8.000 to 8.000 MHz
-|   |     _____________________________________________________
-|   |    /
-|   |   |       RX Dboard: A
-|   |   |   ID: E310 MIMO XCVR (0x0110)
-|   |   |   Serial: 312D66B
-|   |   |     _____________________________________________________
-|   |   |    /
-|   |   |   |       RX Frontend: A
-|   |   |   |   Name: FE-RX2
-|   |   |   |   Antennas: TX/RX, RX2
-|   |   |   |   Sensors: temp, rssi, lo_locked
-|   |   |   |   Freq range: 50.000 to 6000.000 MHz
-|   |   |   |   Gain range PGA: 0.0 to 76.0 step 1.0 dB
-|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
-|   |   |   |   Connection Type: IQ
-|   |   |   |   Uses LO offset: No
-|   |   |     _____________________________________________________
-|   |   |    /
-|   |   |   |       RX Frontend: B
-|   |   |   |   Name: FE-RX1
-|   |   |   |   Antennas: TX/RX, RX2
-|   |   |   |   Sensors: temp, rssi, lo_locked
-|   |   |   |   Freq range: 50.000 to 6000.000 MHz
-|   |   |   |   Gain range PGA: 0.0 to 76.0 step 1.0 dB
-|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
-|   |   |   |   Connection Type: IQ
-|   |   |   |   Uses LO offset: No
-|   |   |     _____________________________________________________
-|   |   |    /
-|   |   |   |       RX Codec: A
-|   |   |   |   Name: E3x0 RX dual ADC
-|   |   |   |   Gain Elements: None
-|   |     _____________________________________________________
-|   |    /
-|   |   |       TX DSP: 0
-|   |   |   
-|   |   |   Freq range: -8.000 to 8.000 MHz
-|   |     _____________________________________________________
-|   |    /
-|   |   |       TX DSP: 1
-|   |   |   
-|   |   |   Freq range: -8.000 to 8.000 MHz
-|   |     _____________________________________________________
-|   |    /
-|   |   |       TX Dboard: A
-|   |   |   ID: E310 MIMO XCVR (0x0110)
-|   |   |   Serial: 312D66B
-|   |   |     _____________________________________________________
-|   |   |    /
-|   |   |   |       TX Frontend: A
-|   |   |   |   Name: FE-TX2
-|   |   |   |   Antennas: TX/RX
-|   |   |   |   Sensors: temp, lo_locked
-|   |   |   |   Freq range: 50.000 to 6000.000 MHz
-|   |   |   |   Gain range PGA: 0.0 to 89.8 step 0.2 dB
-|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
-|   |   |   |   Connection Type: IQ
-|   |   |   |   Uses LO offset: No
-|   |   |     _____________________________________________________
-|   |   |    /
-|   |   |   |       TX Frontend: B
-|   |   |   |   Name: FE-TX1
-|   |   |   |   Antennas: TX/RX
-|   |   |   |   Sensors: temp, lo_locked
-|   |   |   |   Freq range: 50.000 to 6000.000 MHz
-|   |   |   |   Gain range PGA: 0.0 to 89.8 step 0.2 dB
-|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
-|   |   |   |   Connection Type: IQ
-|   |   |   |   Uses LO offset: No
-|   |   |     _____________________________________________________
-|   |   |    /
-|   |   |   |       TX Codec: A
-|   |   |   |   Name: E3x0 TX dual DAC
-|   |   |   |   Gain Elements: None
+see file e312_probe_3.10.3.0.txt
 
 Test that all of TX channels can work by observing LEDs.  No sense in using the "Antenna" parameter because we can't transmit out of an "RX2" port. have to use ch0 and ch1 from subdev spec list of daughterboards, and it will be the TX selection
 
 Use only TRX-A as default when default is A:A A:B
 $ /usr/bin/uhd_siggen -f 902000000 --const
-
+x
 Use only TRX-B by forcing subdev spec to ignore A:A 
 $ /usr/bin/uhd_siggen -f 902000000 --const --spec "A:B"
 
@@ -221,3 +102,130 @@ Use RX2-B.  Requires subdev spec to motherboard B and antenna selection to RX2
 
 Use TRX-B.  Requires subdev spec to motherboard B and antenna selection to TX/RX
 ./rx_ascii_art_dft --freq 903000000 --rate 10000 --ref-lvl -30 --dyn-rng 100 --ant "TX/RX" --subdev "A:B"
+======================================================================
+Upgrade on 2019-02-16
+======================================================================
+### build UHD for embedded system
+
+$ cd /prefix/src/uhd$ git checkout v3.13.1.0
+$ cd host
+$ mkdir build
+$ cd build
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../host/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_E300=ON ..
+$ make
+
+compiled successfuly on the first try!
+
+install to the e312
+
+$ mkdir ~/mnte3
+$ sshfs root@e312:/ ~/mnte3
+$ make install DESTDIR=~/mnte3
+
+log into e312 via ssh and run uhd_find_devices.  view output
+root@ettus-e3xx-sg3:~# uhd_find_devices 
+[INFO] [UHD] linux; GNU C++ version 4.9.2; Boost_105700; UHD_3.13.1.HEAD-0-gbbce3e45
+--------------------------------------------------
+-- UHD Device 0
+--------------------------------------------------
+Device Address:
+    serial: 312EDFA
+    name: 
+    node: /dev/axi_fpga
+    product: E3XX SG3
+    type: e3x0
+
+SUCCESS!
+
+### Install another copy of UHD embedded version to a place where GNUradio cmake can find it
+
+$ cd ~/prefix/src/uhd/host/build/
+$ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+
+### Compile and install new UHD on my host computer so I can use the tool uhd_images_downloader and get the new FPGA image for E312 that works with new UHD
+
+open a new terminal window to clear the environment variables of embedded development.
+
+$ cd ~/prefix/src/uhd/host/build
+$ make clean
+$ cmake ..
+$ make
+$ sudo make install
+$ sudo python3 uhd_images_downloader -t e3xx -v
+when I run uhd_images_downloader from command line executable, it can't find some python libraries.  But no worry.  run from python.
+$ cd /usr/share/uhd/images/
+Look to see that files are present.  and delete files for e320 because I don't need them
+$ sudo rm *e320*
+$ scp *e3* root@e312:/usr/share/uhd/images
+
+login to e312 and reboot
+login again
+e312$ uhd_usrp_probe
+
+look at output in e312probe_3.13.1.txt
+looks good for all the tests.  Only one thing strange is the lines that used to say RX/TX DSP -8 MHz to 8 MHz now say 0 MHz to 0 MHz.  I assume it has something to do with the new RFNOC architecture where DDC and DUC are included in the standard FPGA image.
+
+### test receivers
+Use RX2-B.  Requires subdev spec to motherboard B and antenna selection to RX2
+./rx_ascii_art_dft --freq 903000000 --rate 10000 --ref-lvl -30 --dyn-rng 100 --ant "RX2" --subdev "A:B"	
+
+Use TRX-B.  Requires subdev spec to motherboard B and antenna selection to TX/RX
+./rx_ascii_art_dft --freq 903000000 --rate 10000 --ref-lvl -30 --dyn-rng 100 --ant "TX/RX" --subdev "A:B"
+
+### test transmitters 
+$ /usr/lib/uhd/examples/tx_waveforms --freq 902000000 --subdev "A:A A:B" --channels "0,1" --ampl 0.01 --rate 125000
+
+### Compile and install gnuradio for embedded system
+$ cd ~/prefix/src/gnuradio 
+$ git pull
+$ git status 
+> HEAD detached at v3.7.10.1
+git checkout v3.7.13.4
+
+$ cd ~/prefix/src/gnuradio/build-arm/
+$ cmake -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GR_VOCODER=OFF -DENABLE_GR_ATSC=OFF -DENABLE_GR_DTV=OFF -DENABLE_DOXYGEN=OFF ../
+
+Install dependencies for Ubuntu 18.04 as described in 
+https://wiki.gnuradio.org/index.php/UbuntuInstall
+sudo apt-get -y install git cmake g++ python-dev swig pkg-config libfftw3-dev libboost-all-dev libcppunit-dev libgsl-dev libusb-dev libsdl1.2-dev python-wxgtk3.0 python-numpy python-cheetah python-lxml doxygen libxi-dev python-sip libqt4-opengl-dev libqwt-dev libfontconfig1-dev libxrender-dev python-sip python-sip-dev python-qt4 python-sphinx libusb-1.0-0-dev libcomedi-dev libzmq3-dev python-mako python-gtk2 
+
+$ make -j4 
+# this might fail in confusing ways if missing dependencies.  If fails, use make without "-j4" so everything can happen in order and debug.
+
+fails on function call to volk.  I have v1.3 (official support on bionic beaver). Need v1.4
+
+go ahead and upgrade OS because I assume gnuradio will have more similar problems that need packages from newer distribution of Ubuntu
+
+Install dependencies again to be sure they were not deleted in OS upgrade
+
+use git command to pull in submodule.  forgot to do recursive on git clone.
+
+$ git submodule update
+
+install python package six to embedded environment prefix.
+$ sudo pip install --install-option="--prefix=/home/ssarris/prefix/sysroots/x86_64-oesdk-linux/usr" --ignore-installed six
+
+$ cd ~/prefix/src/gnuradio/build-arm/
+$ make clean
+$ cmake -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GR_VOCODER=OFF -DENABLE_GR_ATSC=OFF -DENABLE_GR_DTV=OFF -DENABLE_DOXYGEN=OFF ../
+$ make -j4
+
+Install to e312 local - this will wipe out the old gnuradio
+$ sshfs root@e3s:/ ~/mnte3
+$ cd ~/prefix/src/gnuradio/build-arm/
+$ make install DESTDIR=~/mnte3
+
+### Install gnuradio host
+$ apt-cache policy gnuradio
+
+gnuradio:
+  Installed: 3.7.13.4-1build1
+  Candidate: 3.7.13.4-1build1
+  Version table:
+ *** 3.7.13.4-1build1 500
+        500 http://us.archive.ubuntu.com/ubuntu cosmic/universe amd64 Packages
+        100 /var/lib/dpkg/status
+
+Lucky for me, the version I compiled for embedded is also the same as current version in apt repo.  Install!
+
+$ sudo apt install gnuradio

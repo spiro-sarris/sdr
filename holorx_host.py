@@ -5,8 +5,10 @@
 # Title: Holo RX
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Tue Aug 21 10:53:00 2018
+# Generated: Sun Feb 17 10:52:10 2019
 ##################################################
+
+from distutils.version import StrictVersion
 
 if __name__ == '__main__':
     import ctypes
@@ -22,7 +24,8 @@ import os
 import sys
 sys.path.append(os.environ.get('GRC_HIER_PATH', os.path.expanduser('~/.grc_gnuradio')))
 
-from PyQt4 import Qt
+from PyQt5 import Qt
+from PyQt5 import Qt, QtCore
 from fft_bin_select import fft_bin_select  # grc-generated hier_block
 from gnuradio import blocks
 from gnuradio import eng_notation
@@ -37,6 +40,7 @@ from to_mag_db import to_mag_db  # grc-generated hier_block
 import numpy as np
 import sip
 import xmlrpclib
+from gnuradio import qtgui
 
 
 class holorx_host(gr.top_block, Qt.QWidget):
@@ -45,6 +49,7 @@ class holorx_host(gr.top_block, Qt.QWidget):
         gr.top_block.__init__(self, "Holo RX")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Holo RX")
+        qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
         except:
@@ -62,7 +67,8 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.top_layout.addLayout(self.top_grid_layout)
 
         self.settings = Qt.QSettings("GNU Radio", "holorx_host")
-        self.restoreGeometry(self.settings.value("geometry").toByteArray())
+        self.restoreGeometry(self.settings.value("geometry", type=QtCore.QByteArray))
+
 
         ##################################################
         # Parameters
@@ -93,7 +99,11 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.tabs_grid_layout_0 = Qt.QGridLayout()
         self.tabs_layout_0.addLayout(self.tabs_grid_layout_0)
         self.tabs.addTab(self.tabs_widget_0, 'RX 2 Channels')
-        self.top_grid_layout.addWidget(self.tabs, 0,0,1,1)
+        self.top_grid_layout.addWidget(self.tabs, 0, 0, 1, 1)
+        for r in range(0, 1):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9998', 100, False, -1)
         self.zeromq_pull_source_0 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9999', 100, False, -1)
         self.xmlrpc_client1 = xmlrpclib.Server('http://192.168.10.184:30000')
@@ -110,7 +120,7 @@ class holorx_host(gr.top_block, Qt.QWidget):
         )
         self.qtgui_number_sink_0_0_0.set_update_time(gui_update_sec)
         self.qtgui_number_sink_0_0_0.set_title('Difference A-B')
-        
+
         labels = ['Magnitude (dB)', 'Phase (deg)', 'A - B', '', '',
                   '', '', '', '', '']
         units = ['dB', 'degrees', 'dB', '', '',
@@ -129,10 +139,14 @@ class holorx_host(gr.top_block, Qt.QWidget):
                 self.qtgui_number_sink_0_0_0.set_label(i, labels[i])
             self.qtgui_number_sink_0_0_0.set_unit(i, units[i])
             self.qtgui_number_sink_0_0_0.set_factor(i, factor[i])
-        
+
         self.qtgui_number_sink_0_0_0.enable_autoscale(False)
         self._qtgui_number_sink_0_0_0_win = sip.wrapinstance(self.qtgui_number_sink_0_0_0.pyqwidget(), Qt.QWidget)
-        self.tabs_grid_layout_0.addWidget(self._qtgui_number_sink_0_0_0_win, 3,1,2,1)
+        self.tabs_grid_layout_0.addWidget(self._qtgui_number_sink_0_0_0_win, 3, 1, 2, 1)
+        for r in range(3, 5):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_number_sink_0_0 = qtgui.number_sink(
             gr.sizeof_float,
             0,
@@ -141,7 +155,7 @@ class holorx_host(gr.top_block, Qt.QWidget):
         )
         self.qtgui_number_sink_0_0.set_update_time(gui_update_sec)
         self.qtgui_number_sink_0_0.set_title('Magnitude (dB)')
-        
+
         labels = ['RXA', 'RXB', 'RXB', '', '',
                   '', '', '', '', '']
         units = ['dB', 'dB', 'dB', '', '',
@@ -160,10 +174,14 @@ class holorx_host(gr.top_block, Qt.QWidget):
                 self.qtgui_number_sink_0_0.set_label(i, labels[i])
             self.qtgui_number_sink_0_0.set_unit(i, units[i])
             self.qtgui_number_sink_0_0.set_factor(i, factor[i])
-        
+
         self.qtgui_number_sink_0_0.enable_autoscale(False)
         self._qtgui_number_sink_0_0_win = sip.wrapinstance(self.qtgui_number_sink_0_0.pyqwidget(), Qt.QWidget)
-        self.tabs_grid_layout_0.addWidget(self._qtgui_number_sink_0_0_win, 1,1,2,1)
+        self.tabs_grid_layout_0.addWidget(self._qtgui_number_sink_0_0_win, 1, 1, 2, 1)
+        for r in range(1, 3):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
         	fft_size, #size
         	firdes.WIN_HANN, #wintype
@@ -181,13 +199,13 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_x_0.set_fft_average(1.0)
         self.qtgui_freq_sink_x_0.enable_axis_labels(True)
         self.qtgui_freq_sink_x_0.enable_control_panel(False)
-        
+
         if not True:
           self.qtgui_freq_sink_x_0.disable_legend()
-        
+
         if "complex" == "float" or "complex" == "msg_float":
           self.qtgui_freq_sink_x_0.set_plot_pos_half(not True)
-        
+
         labels = ['RXA', 'RXB', 'RXB', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 2, 1, 1,
@@ -204,66 +222,94 @@ class holorx_host(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
             self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.tabs_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_win, 0,0,1,2)
+        self.tabs_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_win, 0, 0, 1, 2)
+        for r in range(0, 1):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(0, 2):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self._label_results_per_second_tool_bar = Qt.QToolBar(self)
-        
+
         if None:
           self._label_results_per_second_formatter = None
         else:
-          self._label_results_per_second_formatter = lambda x: x
-        
+          self._label_results_per_second_formatter = lambda x: eng_notation.num_to_str(x)
+
         self._label_results_per_second_tool_bar.addWidget(Qt.QLabel('FFT Results Per Second '+": "))
         self._label_results_per_second_label = Qt.QLabel(str(self._label_results_per_second_formatter(self.label_results_per_second)))
         self._label_results_per_second_tool_bar.addWidget(self._label_results_per_second_label)
-        self.top_grid_layout.addWidget(self._label_results_per_second_tool_bar, 4,0,1,1)
-          
+        self.top_grid_layout.addWidget(self._label_results_per_second_tool_bar, 4, 0, 1, 1)
+        for r in range(4, 5):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self._label_fftsize_tool_bar = Qt.QToolBar(self)
-        
+
         if None:
           self._label_fftsize_formatter = None
         else:
-          self._label_fftsize_formatter = lambda x: x
-        
+          self._label_fftsize_formatter = lambda x: str(x)
+
         self._label_fftsize_tool_bar.addWidget(Qt.QLabel('FFT Size'+": "))
         self._label_fftsize_label = Qt.QLabel(str(self._label_fftsize_formatter(self.label_fftsize)))
         self._label_fftsize_tool_bar.addWidget(self._label_fftsize_label)
-        self.top_grid_layout.addWidget(self._label_fftsize_tool_bar, 2,0,1,1)
-          
+        self.top_grid_layout.addWidget(self._label_fftsize_tool_bar, 2, 0, 1, 1)
+        for r in range(2, 3):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self._label_binwidth_hz_tool_bar = Qt.QToolBar(self)
-        
+
         if None:
           self._label_binwidth_hz_formatter = None
         else:
-          self._label_binwidth_hz_formatter = lambda x: x
-        
+          self._label_binwidth_hz_formatter = lambda x: eng_notation.num_to_str(x)
+
         self._label_binwidth_hz_tool_bar.addWidget(Qt.QLabel('FFT Bin Width (Hz) '+": "))
         self._label_binwidth_hz_label = Qt.QLabel(str(self._label_binwidth_hz_formatter(self.label_binwidth_hz)))
         self._label_binwidth_hz_tool_bar.addWidget(self._label_binwidth_hz_label)
-        self.top_grid_layout.addWidget(self._label_binwidth_hz_tool_bar, 3,0,1,1)
-          
+        self.top_grid_layout.addWidget(self._label_binwidth_hz_tool_bar, 3, 0, 1, 1)
+        for r in range(3, 4):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self._label_baseband_samp_freq_tool_bar = Qt.QToolBar(self)
-        
+
         if None:
           self._label_baseband_samp_freq_formatter = None
         else:
-          self._label_baseband_samp_freq_formatter = lambda x: x
-        
+          self._label_baseband_samp_freq_formatter = lambda x: eng_notation.num_to_str(x)
+
         self._label_baseband_samp_freq_tool_bar.addWidget(Qt.QLabel('Baseband Sample Frequency (Hz)'+": "))
         self._label_baseband_samp_freq_label = Qt.QLabel(str(self._label_baseband_samp_freq_formatter(self.label_baseband_samp_freq)))
         self._label_baseband_samp_freq_tool_bar.addWidget(self._label_baseband_samp_freq_label)
-        self.top_grid_layout.addWidget(self._label_baseband_samp_freq_tool_bar, 1,0,1,1)
-          
+        self.top_grid_layout.addWidget(self._label_baseband_samp_freq_tool_bar, 1, 0, 1, 1)
+        for r in range(1, 2):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self._gain_rxb_range = Range(0, 80, 1, 0, 1)
         self._gain_rxb_win = RangeWidget(self._gain_rxb_range, self.set_gain_rxb, 'Gain RXB', "counter", float)
-        self.tabs_grid_layout_0.addWidget(self._gain_rxb_win, 2,0,1,1)
+        self.tabs_grid_layout_0.addWidget(self._gain_rxb_win, 2, 0, 1, 1)
+        for r in range(2, 3):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self._gain_rxa_range = Range(0, 80, 1, 0, 1)
         self._gain_rxa_win = RangeWidget(self._gain_rxa_range, self.set_gain_rxa, 'Gain RXA', "counter", float)
-        self.tabs_grid_layout_0.addWidget(self._gain_rxa_win, 1,0,1,1)
+        self.tabs_grid_layout_0.addWidget(self._gain_rxa_win, 1, 0, 1, 1)
+        for r in range(1, 2):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self._freq_rftune_range = Range(10e6, 6e9, 1, 70e6, 1)
         self._freq_rftune_win = RangeWidget(self._freq_rftune_range, self.set_freq_rftune, 'Freq RF Tune', "counter", float)
-        self.tabs_grid_layout_0.addWidget(self._freq_rftune_win, 3,0,1,1)
+        self.tabs_grid_layout_0.addWidget(self._freq_rftune_win, 3, 0, 1, 1)
+        for r in range(3, 4):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.fft_bin_select_B = fft_bin_select(
             fft_size=fft_size,
             nskip=1,
@@ -280,27 +326,29 @@ class holorx_host(gr.top_block, Qt.QWidget):
         self.blocks_divide_xx_0 = blocks.divide_cc(1)
         self.blocks_complex_to_arg_0 = blocks.complex_to_arg(1)
 
+
+
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_complex_to_arg_0, 0), (self.blocks_multiply_const_vxx_0, 0))    
-        self.connect((self.blocks_divide_xx_0, 0), (self.blocks_complex_to_arg_0, 0))    
-        self.connect((self.blocks_divide_xx_0, 0), (self.blocks_head_0, 0))    
-        self.connect((self.blocks_divide_xx_0, 0), (self.to_mag_db_0_3, 0))    
-        self.connect((self.blocks_head_0, 0), (self.blocks_file_sink_0, 0))    
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_number_sink_0_0_0, 1))    
-        self.connect((self.blocks_throttle_0, 0), (self.qtgui_freq_sink_x_0, 0))    
-        self.connect((self.fft_bin_select_A, 0), (self.blocks_divide_xx_0, 0))    
-        self.connect((self.fft_bin_select_A, 0), (self.to_mag_db_0_0, 0))    
-        self.connect((self.fft_bin_select_B, 0), (self.blocks_divide_xx_0, 1))    
-        self.connect((self.fft_bin_select_B, 0), (self.to_mag_db_0_1, 0))    
-        self.connect((self.to_mag_db_0_0, 0), (self.qtgui_number_sink_0_0, 0))    
-        self.connect((self.to_mag_db_0_1, 0), (self.qtgui_number_sink_0_0, 1))    
-        self.connect((self.to_mag_db_0_3, 0), (self.qtgui_number_sink_0_0_0, 0))    
-        self.connect((self.zeromq_pull_source_0, 0), (self.fft_bin_select_B, 0))    
-        self.connect((self.zeromq_pull_source_0, 0), (self.qtgui_freq_sink_x_0, 1))    
-        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_throttle_0, 0))    
-        self.connect((self.zeromq_pull_source_1, 0), (self.fft_bin_select_A, 0))    
+        self.connect((self.blocks_complex_to_arg_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.blocks_divide_xx_0, 0), (self.blocks_complex_to_arg_0, 0))
+        self.connect((self.blocks_divide_xx_0, 0), (self.blocks_head_0, 0))
+        self.connect((self.blocks_divide_xx_0, 0), (self.to_mag_db_0_3, 0))
+        self.connect((self.blocks_head_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_number_sink_0_0_0, 1))
+        self.connect((self.blocks_throttle_0, 0), (self.qtgui_freq_sink_x_0, 0))
+        self.connect((self.fft_bin_select_A, 0), (self.blocks_divide_xx_0, 0))
+        self.connect((self.fft_bin_select_A, 0), (self.to_mag_db_0_0, 0))
+        self.connect((self.fft_bin_select_B, 0), (self.blocks_divide_xx_0, 1))
+        self.connect((self.fft_bin_select_B, 0), (self.to_mag_db_0_1, 0))
+        self.connect((self.to_mag_db_0_0, 0), (self.qtgui_number_sink_0_0, 0))
+        self.connect((self.to_mag_db_0_1, 0), (self.qtgui_number_sink_0_0, 1))
+        self.connect((self.to_mag_db_0_3, 0), (self.qtgui_number_sink_0_0_0, 0))
+        self.connect((self.zeromq_pull_source_0, 0), (self.fft_bin_select_B, 0))
+        self.connect((self.zeromq_pull_source_0, 0), (self.qtgui_freq_sink_x_0, 1))
+        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_throttle_0, 0))
+        self.connect((self.zeromq_pull_source_1, 0), (self.fft_bin_select_A, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "holorx_host")
@@ -343,28 +391,28 @@ class holorx_host(gr.top_block, Qt.QWidget):
 
     def set_label_results_per_second(self, label_results_per_second):
         self.label_results_per_second = label_results_per_second
-        Qt.QMetaObject.invokeMethod(self._label_results_per_second_label, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.label_results_per_second)))
+        Qt.QMetaObject.invokeMethod(self._label_results_per_second_label, "setText", Qt.Q_ARG("QString", self.label_results_per_second))
 
     def get_label_fftsize(self):
         return self.label_fftsize
 
     def set_label_fftsize(self, label_fftsize):
         self.label_fftsize = label_fftsize
-        Qt.QMetaObject.invokeMethod(self._label_fftsize_label, "setText", Qt.Q_ARG("QString", str(self.label_fftsize)))
+        Qt.QMetaObject.invokeMethod(self._label_fftsize_label, "setText", Qt.Q_ARG("QString", self.label_fftsize))
 
     def get_label_binwidth_hz(self):
         return self.label_binwidth_hz
 
     def set_label_binwidth_hz(self, label_binwidth_hz):
         self.label_binwidth_hz = label_binwidth_hz
-        Qt.QMetaObject.invokeMethod(self._label_binwidth_hz_label, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.label_binwidth_hz)))
+        Qt.QMetaObject.invokeMethod(self._label_binwidth_hz_label, "setText", Qt.Q_ARG("QString", self.label_binwidth_hz))
 
     def get_label_baseband_samp_freq(self):
         return self.label_baseband_samp_freq
 
     def set_label_baseband_samp_freq(self, label_baseband_samp_freq):
         self.label_baseband_samp_freq = label_baseband_samp_freq
-        Qt.QMetaObject.invokeMethod(self._label_baseband_samp_freq_label, "setText", Qt.Q_ARG("QString", eng_notation.num_to_str(self.label_baseband_samp_freq)))
+        Qt.QMetaObject.invokeMethod(self._label_baseband_samp_freq_label, "setText", Qt.Q_ARG("QString", self.label_baseband_samp_freq))
 
     def get_gui_update_sec(self):
         return self.gui_update_sec
@@ -413,10 +461,6 @@ def main(top_block_cls=holorx_host, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 
-    from distutils.version import StrictVersion
-    if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):
-        style = gr.prefs().get_string('qtgui', 'style', 'raster')
-        Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
     tb = top_block_cls()
@@ -426,7 +470,7 @@ def main(top_block_cls=holorx_host, options=None):
     def quitting():
         tb.stop()
         tb.wait()
-    qapp.connect(qapp, Qt.SIGNAL("aboutToQuit()"), quitting)
+    qapp.aboutToQuit.connect(quitting)
     qapp.exec_()
 
 

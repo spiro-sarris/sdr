@@ -1,0 +1,13 @@
+Today 3 Feb 2019
+check gnuradio version from python
+import gnuradio as gr
+gr.verion()
+
+my version: 3.7.11.0 (Feb 2017) 
+latest release: 3.7.13.4 (July 2018)
+
+UHD:
+my version: 003.010.003.000-release (Jan 2018 - no support for N310)
+latest release: 003.013.001.0 (Jan 2019)
+
+RFNoC.  No official release, but most recent commit to uhd:rfnoc-devel is 3 JUL 2018.  Try this next week.
