@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<?grc format='1' created='3.7.10'?>
+<?grc format='1' created='3.7.13'?>
 <flow_graph>
   <timestamp>Wed Jul 11 14:49:33 2012</timestamp>
   <block>
@@ -73,12 +73,20 @@
       <value>True</value>
     </param>
     <param>
+      <key>sizing_mode</key>
+      <value>fixed</value>
+    </param>
+    <param>
       <key>thread_safe_setters</key>
       <value></value>
     </param>
     <param>
       <key>title</key>
-      <value>c</value>
+      <value>demo_record_e3</value>
+    </param>
+    <param>
+      <key>placement</key>
+      <value>(0,0)</value>
     </param>
   </block>
   <block>
@@ -93,7 +101,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 240)</value>
+      <value>(8, 172)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -105,7 +113,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>8e6</value>
+      <value>1e6</value>
     </param>
   </block>
   <block>
@@ -120,7 +128,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 344)</value>
+      <value>(8, 236)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -147,7 +155,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 448)</value>
+      <value>(8, 364)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -174,7 +182,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 136)</value>
+      <value>(8, 108)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -205,7 +213,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(368, 28)</value>
+      <value>(184, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -224,12 +232,47 @@
       <value></value>
     </param>
     <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
       <key>type</key>
       <value>eng_float</value>
     </param>
     <param>
       <key>value</key>
       <value>871.3e6</value>
+    </param>
+  </block>
+  <block>
+    <key>import</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(368, 12)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>import_0</value>
+    </param>
+    <param>
+      <key>import</key>
+      <value>import ettus</value>
     </param>
   </block>
   <block>
@@ -248,7 +291,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(368, 284)</value>
+      <value>(280, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -267,12 +310,16 @@
       <value></value>
     </param>
     <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
       <key>type</key>
       <value>eng_float</value>
     </param>
     <param>
       <key>value</key>
-      <value>30</value>
+      <value>40</value>
     </param>
   </block>
   <block>
@@ -1459,7 +1506,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(720, 104)</value>
+      <value>(248, 140)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1634,7 +1681,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(368, 416)</value>
+      <value>(8, 300)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1673,7 +1720,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1224, 132)</value>
+      <value>(656, 156)</value>
     </param>
     <param>
       <key>_rotation</key>
