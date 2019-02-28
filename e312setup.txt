@@ -103,7 +103,7 @@ Use RX2-B.  Requires subdev spec to motherboard B and antenna selection to RX2
 Use TRX-B.  Requires subdev spec to motherboard B and antenna selection to TX/RX
 ./rx_ascii_art_dft --freq 903000000 --rate 10000 --ref-lvl -30 --dyn-rng 100 --ant "TX/RX" --subdev "A:B"
 ======================================================================
-Upgrade on 2019-02-16
+Upgrade on 2019-02-16 - using ssarris-mpb
 ======================================================================
 ### build UHD for embedded system
 
@@ -198,7 +198,7 @@ go ahead and upgrade OS because I assume gnuradio will have more similar problem
 
 Install dependencies again to be sure they were not deleted in OS upgrade
 
-use git command to pull in submodule.  forgot to do recursive on git clone.
+use git command to pull in submodule.  forgot to do recursive on git clone!!!
 
 $ git submodule update
 
@@ -229,3 +229,221 @@ gnuradio:
 Lucky for me, the version I compiled for embedded is also the same as current version in apt repo.  Install!
 
 $ sudo apt install gnuradio
+======================================================================
+Version changes on 2019-02-26 - using TCS-DEV-PC2
+======================================================================
+Try to run simple demo_rx_record with new versions of everything.  Appears to work OK for streaming data, but I cannot change the gain setting.
+XMLRPC posts a message.  USRP is ok.  host flowgraph dies and complains about channel address <very large  number> is out of range.  So, something is wrong there.
+I also notice that when I start the flowgraph using mutli_usrp uhd_usrp_source, it dumps a bunch of log messages about legacy compatibility mode.  Looks like RFNoC is the future and it hacks together 3 RFNoC blocks.  But then the channel addressing doesn't work for updates.  
+Idea - modify this program to work with RFNoC architecture and not use multi_usrp anymore. 
+
+
+Looks like my version of UHD is too new for the compat num of noc_shell in the newest RFNoC image.  Let me build an older version of UHD for this E312, but keep the newest version for N310
+lastest version of rfnoc-devel branch on github is 8 Jul 2018.
+
+v3.12.0.0 date is Jun 6, 2018.  
+
+### Download and install the SDK for this computer TCS-DEV-PC2
+$ wget http://files.ettus.com/e3xx_images/e3xx-release-4/oecore-x86_64-armv7ahf-vfp-neon-toolchain-nodistro.0.sh
+$ bash oecore-x86_64-armv7ahf-vfp-neon-toolchain-nodistro.0.sh
+
+
+$ cd /prefix/src/uhd$ git checkout v3.12.0.0
+$ cd host
+$ mkdir build_e312_3_12_0_0
+$ cd build_e312_3_12_0_0
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../host/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_E300=ON ..
+$ make -j4
+// I believe all the dependencies are sorted out from last week, so go for the glory -j4!
+
+I notice that in this build, it is compiling lots of code in rfnoc directory. that's a good sign.  I hope I can install this version to USRP and and use the RFNOC FPGA image
+
+looks like I might have had an old version of the fpga RFNOC image.  there are 3 releases between jan 2018 and Mar 2018 with RFNOC FPGA images.  make sure I have the newest one and then try again with new UHD.  If that doesn't work. go back and install the older UHD for my e312
+
+16c79f2d83a54f1a4fab8fc312cf7d79  usrp_e310_fpga_RFNOC_sg3.bit (whatever version I had before)
+6e951528f58892d18d0d968db5c35ac6  usrp_e310_fpga_RFNOC_sg3.bit (from newest RFNOC)
+
+The newest RFNOC FPGA wants some crazy number of UHD compat_num.  not 2,3,4.  
+[ERROR] [0/Radio_0] Major compat number mismatch for noc_shell: Expecting 3, got 195936478.
+
+go back and rebuild UHD with ENABLE_RFNOC=ON in Cmake
+### Compile and install rfnoc-devel branch and install to local host system
+$ cd /prefix/src/uhd$ git checkout v3.13.1.
+$ cd host
+$ mkdir build_host_rfnoc-devel
+$ cd build_howt_rfnoc-devel
+$ cmake -DENABLE_E300=ON ..
+$ make -j4
+
+### Cross compile and install to E312
+$ mkdir build_e312_rfnoc-devel
+$ cd build_e312_rfnoc-devel
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../host/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_E300=ON ..
+$ make -j4
+
+### Get FPGA repository
+git clone --recursive https://github.com/EttusResearch/fpga.git
+git checkout v3.13.1.0
+
+======================================================================
+Version changes on 2019-02-27 - using TCS-DEV-PC1
+======================================================================
+following guide - https://kb.ettus.com/Software_Development_on_the_E3xx_USRP_-_Building_RFNoC_UHD_/_GNU_Radio_/_gr-ettus_from_Source
+
+### cross compile UHD for e312
+This time, remove devices that are not necessary.  No need to waste time on old USRP stuff.
+$ cd ~/prefix/sru/uhd
+$ git checkout master
+$ git pull
+$ git submodule update // there arent' any submodules, but just in case
+$ git checkout v3.13.1.0
+$ source ~/prefix/environment-setup-armv7ahf-vfp-neon-oe-linux-gnueabi
+$ cd build_e312_3_13_1_0/
+
+# disable all of the devices that are not relevant to the E310/E312
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../host/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GPSD=ON -DENABLE_B100=OFF -DENABLE_B200=OFF -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=OFF -DENABLE_X300=OFF -DENABLE_N230=OFF -DENABLE_N300=OFF -DENABLE_OCTOCLOCK=OFF -DENABLE_E320=OFF -DENABLE_RFNOC=ON ..
+
+# Use make without -j4 so I can see the errors without scrambling
+$ make
+
+# Download a set of relevant FPGA images for v3.13.1.0
+$ sudo uhd_images_downloader -t e3xx_e310 --verbose
+[INFO] Images destination: /usr/local/share/uhd/images
+[INFO] Target e3xx_e310_fpga_default is up to date.
+[DEBUG] URLs to download:
+e3xx/fpga-d6a878b/e3xx_e310_fpga_rfnoc-gd6a878b.zip
+05337 kB / 05337 kB (100%) e3xx_e310_fpga_rfnoc-gd6a878b.zip
+[INFO] Images download complete.
+
+# Note that the directory /usr/local/share/uhd/images/
+# might contain old FPGA images from a previous download.  
+
+# Install this version of UHD to E312 and copy over the relevant FPGA images. Log into e312 and delete all old images first.
+$ mkdir ~/mnte312
+$ sshfs root@e312:/ ~/mnte312
+$ make install DESTDIR=~/mnte312
+$ scp /usr/local/share/uhd/images/* root@e312:/usr/share/uhd/images/
+
+# Install another copy to the host machine for gnuradio, gr-ettus builds
+$ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+
+
+$ uhd_find_devices 
+[INFO] [UHD] linux; GNU C++ version 4.9.2; Boost_105700; UHD_3.13.1.HEAD-0-gbbce3e45
+--------------------------------------------------
+-- UHD Device 0
+--------------------------------------------------
+Device Address:
+    serial: 312EDFA
+    name: 
+    node: /dev/axi_fpga
+    product: E3XX SG3
+    type: e3x0
+
+I notice that the version of GNU C++ and version of Boost are very different on the e312 and the host system.  Mabye I have to downgrade my host system to older boost to make it work. Looking in CMakelistss, I see 1.63 is the highest number in the list.  probably have to downgrade to that for host install.
+
+uhd_find_devices 
+[INFO] [UHD] linux; GNU C++ version 8.2.0; Boost_106700; UHD_3.13.1.HEAD-0-gbbce3e45
+No UHD Devices Found
+
+$uhd_usrp_probe appears to work.  reads the default FPGA image, but not the RFNOC FPGA image for some reason.  oh well.
+
+### Build gnuradio for e312
+cmake -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GR_VOCODER=OFF -DENABLE_GR_ATSC=OFF -DENABLE_GR_DTV=OFF -DENABLE_DOXYGEN=OFF ../
+
+<wait 1+ hour>
+no errors.  Intstall to USRP
+
+### Install to the e312 over sshfs
+$ mkdir ~/mnte312
+$ sshfs root@e312:/ ~/mnte312
+$ make install DESTDIR=~/mnte312
+$ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+
+### Log into e312 and check if gnuradio looks like it worked.
+$ gnuradio-config-info --version
+ >>> 3.7.13.4
+
+looks good!
+
+### Cross compile and install gr-ettus for e312
+$ cd ~/prefix/src/gnuradio/build_e312_3_7_13_4
+$ cmake -DCMAKE_TOOLCHAIN_FILE=~/prefix/src/gnuradio/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+$ make
+$ make install DESTDIR=~/mnte312
+$ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+
+## All looks good.  Now go back and build for the host system
+## 
+$ cmake -DENABLE_GPSD=OFF -DENABLE_B100=OFF -DENABLE_B200=ON -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=ON -DENABLE_X300=ON -DENABLE_N230=ON -DENABLE_N300=ON -DENABLE_OCTOCLOCK=ON -DENABLE_E320=ON -DENABLE_RFNOC=ON ..
+$ make
+
+! fails on make because boost 1.67 is too new.  e312 uses boost 1.57.  Seems too old.  I remember UHD building correctly the first time at the NARIT office.  I think I had ubuntu 18.04 at that time and UHD worked for that.
+
+lots of time wasted trying to downgrade.  fuck it.  reinstall ubuntu 18.04 LTS clean.  
+$ cd ~/prefix/src/uhd/host/build_host_3_13_1_0/
+$ cmake -DENABLE_GPSD=OFF -DENABLE_B100=OFF -DENABLE_B200=ON -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=ON -DENABLE_X300=ON -DENABLE_N230=ON -DENABLE_N300=ON -DENABLE_OCTOCLOCK=ON -DENABLE_E320=ON -DENABLE_RFNOC=ON ..
+$ make
+
+SUCCESS!
+
+$ sudo make install
+$ sudo ldconfig
+
+### build gnuradio for host system
+$ cd ~/prefix/src/gnuradio
+$ git checkout master
+$ git pull
+$ git submodule update
+$ git checkout v3.7.13.4
+$ mkdir build_host_3_7_13_4
+$ cd build_host_3_7_13_4
+$ cmake ..
+$ make
+
+SUCCESS!
+$ sudo make install
+$ sudo ldconfig
+
+### build gr-ettus for host system
+$ cd ~/prefix/src/gr-ettus/
+$ git checkout master
+$ git pull
+$ git submodule update 
+$ mkdir build-x86_64-master
+$ cd build-x86_64-master
+$ cmake ..
+$ make
+$ sudo make install
+$ sudo ldconfig
+
+All done.  Now log into E312 and try something.
+### Try ASCII spectrum DFT first
+$ cd /usr/lib/uhd/examples/
+$ ./rx_ascii_art_dft --freq 903000000 --rate 125000 --ref-lvl -30 --dyn-rng 100 --ant "RX2" --subdev "A:A"
+
+then check through subdev A:B , and antenna "TX/RX" - "RX2". All look good.
+
+Try transmit:
+# TX A
+tx_waveforms --freq 902000000 --subdev "A:A A:B" --channels "0" --ampl 0.01 --rate 125000
+
+# TX B
+tx_waveforms --freq 902000000 --subdev "A:A A:B" --channels "1" --ampl 0.01 --rate 125000
+
+# Both
+tx_waveforms --freq 902000000 --subdev "A:A A:B" --channels "0,1" --ampl 0.01 --rate 125000
+
+# I still think the subdev spec is a little unusual.  if subdev == "A:A A:B", you can simply choose channels="0" or channels="1" to choose TX-A or TX-B.  You can also choose subdev="A:A", channels="0" for TX-A and subdev="A:B", channels="0" for TX-B.  Just a note.
+
+Now try gnuradio example
+on host computer
+$ gnuradio-companion
+$ search blocks with '/' character.  "rfnoc".  YES!  I found RFNoC!
+
+use gnuradi-companion to recompile demo_record_host.grc and demo_record_e3.grc
+Failed to load module "canberra-gtk-module"
+<<< Welcome to GNU Radio Companion 3.7.13.4 >>>
+
+notice that canberra-gtk-module is missing.  fix this too.
+ 

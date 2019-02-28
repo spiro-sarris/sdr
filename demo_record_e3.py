@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 ##################################################
 # GNU Radio Python Flow Graph
-# Title: c
-# Generated: Sun Feb 17 10:53:42 2019
+# Title: demo_record_e3
+# Generated: Thu Feb 28 11:21:23 2019
 ##################################################
-
 
 from gnuradio import eng_notation
 from gnuradio import gr
@@ -15,14 +14,15 @@ from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from optparse import OptionParser
 import SimpleXMLRPCServer
+import ettus
 import threading
 import time
 
 
 class demo_record_e3(gr.top_block):
 
-    def __init__(self, freq=871.3e6, rx_gain=30):
-        gr.top_block.__init__(self, "c")
+    def __init__(self, freq=871.3e6, rx_gain=40):
+        gr.top_block.__init__(self, "demo_record_e3")
 
         ##################################################
         # Parameters
@@ -36,7 +36,7 @@ class demo_record_e3(gr.top_block):
         self.tuning_lo_offset = tuning_lo_offset = 60e3
         self.server_port = server_port = 30000
         self.server_address = server_address = "192.168.10.184"
-        self.samp_rate = samp_rate = 8e6
+        self.samp_rate = samp_rate = 1e6
 
         ##################################################
         # Blocks
@@ -119,7 +119,7 @@ def argument_parser():
         "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(871.3e6),
         help="Set freq [default=%default]")
     parser.add_option(
-        "", "--rx-gain", dest="rx_gain", type="eng_float", default=eng_notation.num_to_str(30),
+        "", "--rx-gain", dest="rx_gain", type="eng_float", default=eng_notation.num_to_str(40),
         help="Set rx_gain [default=%default]")
     return parser
 

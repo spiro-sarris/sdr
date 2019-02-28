@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 ##################################################
 # GNU Radio Python Flow Graph
-# Title: Path Length Difference
+# Title: SDR RX Test
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Sun Feb 17 10:53:39 2019
+# Generated: Thu Feb 28 11:20:31 2019
 ##################################################
-
-from distutils.version import StrictVersion
 
 if __name__ == '__main__':
     import ctypes
@@ -20,8 +18,7 @@ if __name__ == '__main__':
         except:
             print "Warning: failed to XInitThreads()"
 
-from PyQt5 import Qt
-from PyQt5 import Qt, QtCore
+from PyQt4 import Qt
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
@@ -31,6 +28,7 @@ from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from gnuradio.qtgui import Range, RangeWidget
 from optparse import OptionParser
+import ettus
 import numpy as np
 import sip
 import sys
@@ -41,9 +39,9 @@ from gnuradio import qtgui
 class demo_record_host(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Path Length Difference")
+        gr.top_block.__init__(self, "SDR RX Test")
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Path Length Difference")
+        self.setWindowTitle("SDR RX Test")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -62,7 +60,7 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         self.top_layout.addLayout(self.top_grid_layout)
 
         self.settings = Qt.QSettings("GNU Radio", "demo_record_host")
-        self.restoreGeometry(self.settings.value("geometry", type=QtCore.QByteArray))
+        self.restoreGeometry(self.settings.value("geometry").toByteArray())
 
 
         ##################################################
@@ -70,9 +68,9 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         ##################################################
         self.velocity_factor = velocity_factor = 0.69
         self.speed_of_light = speed_of_light = 299792458
-        self.samp_rate = samp_rate = 8e6
-        self.rx_gain = rx_gain = 30
-        self.rf_freq = rf_freq = 871.3e6
+        self.samp_rate = samp_rate = 1e6
+        self.rx_gain = rx_gain = 60
+        self.freq = freq = 432e6
         self.client_address = client_address = "192.168.10.184"
 
         ##################################################
@@ -99,19 +97,27 @@ class demo_record_host(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 2):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9998', 100, False, -1)
-        self.xmlrpc_client0 = xmlrpclib.Server('http://192.168.10.184:30000')
-        self._rx_gain_range = Range(0, 80, 1, 30, 100)
-        self._rx_gain_win = RangeWidget(self._rx_gain_range, self.set_rx_gain, 'RX Gain', "counter_slider", float)
-        self.tabs_grid_layout_0.addWidget(self._rx_gain_win, 1, 0, 1, 1)
-        for r in range(1, 2):
+        self._freq_range = Range(100e6, 6000e6, 1e6, 432e6, 100)
+        self._freq_win = RangeWidget(self._freq_range, self.set_freq, 'RF Freq', "counter_slider", float)
+        self.tabs_grid_layout_0.addWidget(self._freq_win, 0, 0, 1, 1)
+        for r in range(0, 1):
             self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
+        self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9998', 100, False, -1)
+        self.xmlrpc_client0_0 = xmlrpclib.Server('http://192.168.10.184:30000')
+        self.xmlrpc_client0 = xmlrpclib.Server('http://192.168.10.184:30000')
+        self._rx_gain_range = Range(0, 80, 1, 60, 100)
+        self._rx_gain_win = RangeWidget(self._rx_gain_range, self.set_rx_gain, 'RX Gain', "counter_slider", float)
+        self.tabs_grid_layout_0.addWidget(self._rx_gain_win, 0, 1, 1, 1)
+        for r in range(0, 1):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(1, 2):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
         	1024, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
-        	rf_freq, #fc
+        	freq, #fc
         	samp_rate, #bw
         	"", #name
                 1 #number of inputs
@@ -128,7 +134,7 @@ class demo_record_host(gr.top_block, Qt.QWidget):
 
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
-        colors = [0, 0, 0, 0, 0,
+        colors = [3, 0, 0, 0, 0,
                   0, 0, 0, 0, 0]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
@@ -140,14 +146,14 @@ class demo_record_host(gr.top_block, Qt.QWidget):
             self.qtgui_waterfall_sink_x_0.set_color_map(i, colors[i])
             self.qtgui_waterfall_sink_x_0.set_line_alpha(i, alphas[i])
 
-        self.qtgui_waterfall_sink_x_0.set_intensity_range(-120, -50)
+        self.qtgui_waterfall_sink_x_0.set_intensity_range(-100, -40)
 
         self._qtgui_waterfall_sink_x_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.tabs_grid_layout_1.addWidget(self._qtgui_waterfall_sink_x_0_win, 0, 0, 1, 1)
-        for r in range(0, 1):
-            self.tabs_grid_layout_1.setRowStretch(r, 1)
-        for c in range(0, 1):
-            self.tabs_grid_layout_1.setColumnStretch(c, 1)
+        self.tabs_grid_layout_0.addWidget(self._qtgui_waterfall_sink_x_0_win, 2, 1, 1, 1)
+        for r in range(2, 3):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
         	1024, #size
         	samp_rate, #samp_rate
@@ -198,30 +204,30 @@ class demo_record_host(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.tabs_grid_layout_2.addWidget(self._qtgui_time_sink_x_0_win, 0, 0, 1, 1)
-        for r in range(0, 1):
-            self.tabs_grid_layout_2.setRowStretch(r, 1)
+        self.tabs_grid_layout_0.addWidget(self._qtgui_time_sink_x_0_win, 2, 0, 1, 1)
+        for r in range(2, 3):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
-            self.tabs_grid_layout_2.setColumnStretch(c, 1)
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
         	1024, #size
         	firdes.WIN_HANN, #wintype
-        	rf_freq, #fc
+        	freq, #fc
         	samp_rate, #bw
         	"", #name
         	1 #number of inputs
         )
         self.qtgui_freq_sink_x_0.set_update_time(0.1)
-        self.qtgui_freq_sink_x_0.set_y_axis(-140, -20)
+        self.qtgui_freq_sink_x_0.set_y_axis(-100, -20)
         self.qtgui_freq_sink_x_0.set_y_label('Amplitude', 'dB')
         self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
         self.qtgui_freq_sink_x_0.enable_autoscale(False)
         self.qtgui_freq_sink_x_0.enable_grid(True)
         self.qtgui_freq_sink_x_0.set_fft_average(1.0)
         self.qtgui_freq_sink_x_0.enable_axis_labels(True)
-        self.qtgui_freq_sink_x_0.enable_control_panel(True)
+        self.qtgui_freq_sink_x_0.enable_control_panel(False)
 
-        if not True:
+        if not False:
           self.qtgui_freq_sink_x_0.disable_legend()
 
         if "complex" == "float" or "complex" == "msg_float":
@@ -245,24 +251,67 @@ class demo_record_host(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.tabs_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_win, 0, 0, 1, 1)
-        for r in range(0, 1):
+        self.tabs_grid_layout_0.addWidget(self._qtgui_freq_sink_x_0_win, 1, 1, 1, 1)
+        for r in range(1, 2):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
+        self.qtgui_const_sink_x_0 = qtgui.const_sink_c(
+        	1024, #size
+        	"", #name
+        	1 #number of inputs
+        )
+        self.qtgui_const_sink_x_0.set_update_time(0.10)
+        self.qtgui_const_sink_x_0.set_y_axis(-0.05, 0.05)
+        self.qtgui_const_sink_x_0.set_x_axis(-0.05, 0.05)
+        self.qtgui_const_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, "")
+        self.qtgui_const_sink_x_0.enable_autoscale(False)
+        self.qtgui_const_sink_x_0.enable_grid(True)
+        self.qtgui_const_sink_x_0.enable_axis_labels(True)
+
+        if not True:
+          self.qtgui_const_sink_x_0.disable_legend()
+
+        labels = ['', '', '', '', '',
+                  '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        colors = ["blue", "red", "red", "red", "red",
+                  "red", "red", "red", "red", "red"]
+        styles = [0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0]
+        markers = [0, 0, 0, 0, 0,
+                   0, 0, 0, 0, 0]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+                  1.0, 1.0, 1.0, 1.0, 1.0]
+        for i in xrange(1):
+            if len(labels[i]) == 0:
+                self.qtgui_const_sink_x_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_const_sink_x_0.set_line_label(i, labels[i])
+            self.qtgui_const_sink_x_0.set_line_width(i, widths[i])
+            self.qtgui_const_sink_x_0.set_line_color(i, colors[i])
+            self.qtgui_const_sink_x_0.set_line_style(i, styles[i])
+            self.qtgui_const_sink_x_0.set_line_marker(i, markers[i])
+            self.qtgui_const_sink_x_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.pyqwidget(), Qt.QWidget)
+        self.tabs_grid_layout_0.addWidget(self._qtgui_const_sink_x_0_win, 1, 0, 1, 1)
+        for r in range(1, 2):
             self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
-        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, int(2*samp_rate))
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'demo.iq', False)
-        self.blocks_file_sink_0.set_unbuffered(False)
+        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_gr_complex*1)
 
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_head_0, 0), (self.blocks_file_sink_0, 0))
-        self.connect((self.blocks_throttle_0, 0), (self.blocks_head_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.blocks_null_sink_0, 0))
         self.connect((self.zeromq_pull_source_1, 0), (self.blocks_throttle_0, 0))
+        self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_const_sink_x_0, 0))
         self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_waterfall_sink_x_0, 0))
@@ -289,11 +338,10 @@ class demo_record_host(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.qtgui_waterfall_sink_x_0.set_frequency_range(self.rf_freq, self.samp_rate)
+        self.qtgui_waterfall_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
-        self.qtgui_freq_sink_x_0.set_frequency_range(self.rf_freq, self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
         self.blocks_throttle_0.set_sample_rate(self.samp_rate)
-        self.blocks_head_0.set_length(int(2*self.samp_rate))
 
     def get_rx_gain(self):
         return self.rx_gain
@@ -302,13 +350,14 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         self.rx_gain = rx_gain
         self.xmlrpc_client0.set_rx_gain(self.rx_gain)
 
-    def get_rf_freq(self):
-        return self.rf_freq
+    def get_freq(self):
+        return self.freq
 
-    def set_rf_freq(self, rf_freq):
-        self.rf_freq = rf_freq
-        self.qtgui_waterfall_sink_x_0.set_frequency_range(self.rf_freq, self.samp_rate)
-        self.qtgui_freq_sink_x_0.set_frequency_range(self.rf_freq, self.samp_rate)
+    def set_freq(self, freq):
+        self.freq = freq
+        self.xmlrpc_client0_0.set_freq(self.freq)
+        self.qtgui_waterfall_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
 
     def get_client_address(self):
         return self.client_address
@@ -319,6 +368,10 @@ class demo_record_host(gr.top_block, Qt.QWidget):
 
 def main(top_block_cls=demo_record_host, options=None):
 
+    from distutils.version import StrictVersion
+    if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):
+        style = gr.prefs().get_string('qtgui', 'style', 'raster')
+        Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
     tb = top_block_cls()
@@ -328,7 +381,7 @@ def main(top_block_cls=demo_record_host, options=None):
     def quitting():
         tb.stop()
         tb.wait()
-    qapp.aboutToQuit.connect(quitting)
+    qapp.connect(qapp, Qt.SIGNAL("aboutToQuit()"), quitting)
     qapp.exec_()
 
 
