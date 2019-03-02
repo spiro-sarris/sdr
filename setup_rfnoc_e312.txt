@@ -1,0 +1,101 @@
+Install fresh ubuntu 18.04 from USB
+Run the first batch of software update and reboot
+Change default shell to be bash, not dash.  It's a littel heavier, but we need it.
+$ sudo dpkg-reconfigure dash
+
+Update package manager index to download some tools
+$ sudo apt update
+
+Change desktop to dark mode.  save our eyes.
+$ sudo apt install gnome-tweaks
+$ gnome-tweaks
+Appearance > Adwaita-dark
+
+Install a Sublime text editor.
+$ wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+$ echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+Tell package manager to look for new software at this path from sublime
+$ sudo apt update
+$ sudo apt install sublime-text
+
+Compare dependencies lists from 
+
+* https://kb.ettus.com/Building_and_Installing_the_USRP_Open-Source_Toolchain_(UHD_and_GNU_Radio)_on_Linux
+(has a note about ubuntu 18.04 specifically)
+
+* https://kb.ettus.com/Software_Development_on_the_E3xx_USRP_-_Building_RFNoC_UHD_/_GNU_Radio_/_gr-ettus_from_Source
+(doesn't specify ubuntu version)
+
+
+Make my own list without any of the python tools.  since we will install those manually from Python and pip.  Give preference to the one that mentions ubuntu 18.04 if there is a conflict. (only difference was some zmq versions and libcppunit 1.14)
+
+$ sudo apt install
+git swig cmake doxygen build-essential libboost-all-dev libtool libusb-dev libusb-1.0-0 libusb-1.0-0-dev libudev-dev libncurses5 libncurses5-dev libncurses5-dbg libfftw3-bin libfftw3-dev libfftw3-doc libcppunit-1.14-0 libcppunit-dev libcppunit-doc ncurses-bin cpufrequtils qt4-bin-dbg qt4-default qt4-doc libqt4-dev libqt4-dev-bin qt4-dev-tools  libqwt6abi1 ncurses-bin libfontconfig1-dev libxrender-dev libpulse-dev g++ automake autoconf libtool fort77 libsdl1.2-dev ccache libgsl-dev libqwtplot3d-qt5-dev  libqwt-dev libxi-dev gtk2-engines-pixbuf r-base-dev liborc-0.4-0 liborc-0.4-dev libasound2-dev libzmq3-dev libzmq5 libcomedi-dev libgps-dev libgps23 gpsd gpsd-clients python-dev python-numpy python-numpy-doc python-numpy-dbg python-scipy python-docutils python-qt4 python-qt4-dbg python-qt4-dev python-qt4-doc python-wxgtk3.0 python-opengl python-cheetah python-mako python-lxml python-qwt5-qt4 python-tk python-gtk2 python-requests python-sphinx python-zmq python-six python-gps python-setuptools pyqt4-dev-tools
+
+problem with libqwt5-qt4-dev.  leave it out for now.
+It wants to install python anyway. might as well put all the other python dependencies into the list.  fuck it.  See which python version we get
+
+# That's all well and good.  But now, download a fresh copy of python python 2.7.15 and setup pip for our SDK section.
+Download 
+https://www.python.org/downloads/release/python-2715/
+https://bootstrap.pypa.io/get-pip.py
+
+Unzip Python source to directory of choice
+$ tar -xzvf Python-2.7.15.tgz
+$ mv Python-2.7.15 ~/prefix/src/
+$ cd ~/prefix/src/Python-2.7.15/
+
+I want to wipe out the existing python with this known version so I can control package installations more carefully with pip.  Really should have installed this first rather than using the automatic version that came from apt.  If I intalled this first, I could have 
+
+$ ./configure --prefix=/usr
+$ make
+$ sudo make install
+$ python
+
+view version number 2.7.15 from compiled source today. check for numpy
+>>>import numpy
+(not found.  good install it with pip!)
+
+Now, run the install SDK script (it requires python.  thats why we waited until now to install)
+
+Install SDK
+$ sh oecore-x86_64-armv7ahf-vfp-neon-toolchain-nodistro.0.sh 
+
+It asks for target directory.
+~/prefix
+
+After SDK is setup.  
+$ cd ~/prefix/sysroots$ ls
+ ---> armv7ahf-vfp-neon-oe-linux-gnueabi  
+ ---> x86_64-oesdk-linux
+browse and see python installations.
+cd ~/prefix/sysroots/x86_64-oesdk-linux/usr/bin
+./python --version
+ ---> v 2.7.9
+
+Install another copy of Python into the SDK x86 directory to ensure we are using the same version on host system and compiled in toolchain.
+
+$ cd ~/prefix/src/Python-2.7.15/
+$ ./configure --prefix=~/prefix/sysroots/x86_64-oesdk-linux/usr 	
+$ make
+
+That didn't work out.  missing something in this prefix directory.  In host computer, it was all installed with apt prerequisites.  Not easy to do for a separate directory in prefix.  shit.  Try to get a version of pip that will work in python 2.7.9 in SDK x86 sysroot.
+
+fails on plistlib.
+
+try in host python.  no success installing pip like this.  Screw it.  go back and build all the other tools for e312 and see if I can get the gr-ettus python lib "ettus" to happen.  I started shaving yaks yesterday with UHD installation when the real problem before was really gr-ettus python module not being installed.  might be able to fix this.
+
+===== Build all for E312 same as 3 days ago =========================
+
+$ git clone --recursive https://github.com/EttusResearch/uhd.git
+$ git clone --recursive https://github.com/EttusResearch/gr-ettus.git
+$ git clone --recursive https://github.com/gnuradio/gnuradio.git
+$ git clone --recursive https://github.com/spiro-sarris/sdr.git
+
+checkout correct release branches
+$ uhd/
+$ git checkout v3.13.1.0
+$ cd ../gnuradio/
+$ git checkout v3.7.13.4
+
+
