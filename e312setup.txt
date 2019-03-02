@@ -292,7 +292,7 @@ following guide - https://kb.ettus.com/Software_Development_on_the_E3xx_USRP_-_B
 
 ### cross compile UHD for e312
 This time, remove devices that are not necessary.  No need to waste time on old USRP stuff.
-$ cd ~/prefix/sru/uhd
+$ cd ~/prefix/src/uhd
 $ git checkout master
 $ git pull
 $ git submodule update // there arent' any submodules, but just in case
@@ -367,7 +367,7 @@ $ gnuradio-config-info --version
 looks good!
 
 ### Cross compile and install gr-ettus for e312
-$ cd ~/prefix/src/gnuradio/build_e312_3_7_13_4
+$ cd ~/prefix/src/gr-ettus/build_e312_3_7_13_4
 $ cmake -DCMAKE_TOOLCHAIN_FILE=~/prefix/src/gnuradio/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr ..
 $ make
 $ make install DESTDIR=~/mnte312
@@ -441,9 +441,72 @@ on host computer
 $ gnuradio-companion
 $ search blocks with '/' character.  "rfnoc".  YES!  I found RFNoC!
 
-use gnuradi-companion to recompile demo_record_host.grc and demo_record_e3.grc
+use gnuradio-companion to recompile demo_record_host.grc and demo_record_e3.grc
 Failed to load module "canberra-gtk-module"
 <<< Welcome to GNU Radio Companion 3.7.13.4 >>>
 
-notice that canberra-gtk-module is missing.  fix this too.
- 
+======================================================================
+Try RFNoC on 2019-02-28 - using TCS-DEV-PC2
+======================================================================
+
+# try gnuradio with RFNoC blocks on E312
+-- missing python module ettus
+notice that in my gr-ettus/build-arm/lib, I don't have the same files as in the x86 build dir.  missing libgnuradio-ettus.  Probalbly from libuhd portion of one of the compiles.  can't remember which one.
+
+-------- in x86 build
+drwxr-xr-x 6 sdrdev sdrdev   4096 feb 28 09:23 CMakeFiles
+-rw-r--r-- 1 sdrdev sdrdev   2180 feb 28 09:23 cmake_install.cmake
+-rw-r--r-- 1 sdrdev sdrdev    414 feb 28 09:23 CTestTestfile.cmake
+-rw-r--r-- 1 sdrdev sdrdev    244 feb 28 09:23 fosphor.qrc.depends
+drwxr-xr-x 4 sdrdev sdrdev   4096 feb 28 09:24 gnuradio-ettus_autogen
+-rwxr-xr-x 1 sdrdev sdrdev 621800 feb 28 09:25 libgnuradio-ettus.so
+-rw-r--r-- 1 sdrdev sdrdev  29447 feb 28 09:23 Makefile
+-rw-r--r-- 1 sdrdev sdrdev  17124 feb 28 09:24 qrc_fosphor.cxx
+-rwxr-xr-x 1 sdrdev sdrdev  26096 feb 28 09:25 test-ettus
+drwxr-xr-x 3 sdrdev sdrdev   4096 feb 28 09:25 test-ettus_autogen
+-rwxr-xr-x 1 sdrdev sdrdev    361 feb 28 09:23 test_ettus_test.sh
+
+-------- in arm build
+drwxr-xr-x 6 sdrdev sdrdev  4096 feb 27 16:26 CMakeFiles
+-rw-r--r-- 1 sdrdev sdrdev  2235 feb 27 12:02 cmake_install.cmake
+-rw-r--r-- 1 sdrdev sdrdev   410 feb 27 12:02 CTestTestfile.cmake
+-rw-r--r-- 1 sdrdev sdrdev   244 feb 27 12:02 fosphor.qrc.depends
+-rw-r--r-- 1 sdrdev sdrdev 28476 feb 27 12:02 Makefile
+-rw-r--r-- 1 sdrdev sdrdev   357 feb 27 12:02 test_ettus_test.sh 
+
+======================================================================
+Debug gr-ettus install - using TCS-DEV-PC2
+======================================================================
+# Re-run the installs on the host machine.  I see that install of gr-ettus copies the appropriate python module to /usr/local/lib/python2.7/dist-packages/ettus/
+
+# Now, I need to rebuild gr-ettus for armv7-e312.  But since the reinstall of OS,
+I lost the toolchain and SDK.  Go back and download that again over lunch.  Install embedded version of UHD, GNURADIO to the toolchain directory.  Then rebuid gr-ettus and look for errors in creating pyton library that I need.
+
+# Can't do a simple install for embedded system now that all the make files are fucked up.  rebuild uhd, gnuradio, gr-ettus for e312.  Make sure libUHD python libs happen.
+
+# Need to use pip intall to add "requests" and "numpy" to the sdk location.  Add to both sysroots.
+
+# installed via pip into the path of sysroots, but python 2.7.9 in sysroots area still cannot import the module.  some error about multi_array.  well documented bug in recent versions of numpy where old stuff is lying around in the system and it has a conflict.  Skip all that and install a new fresh copy of Python 2.7.15 into the SDK.  I hope it installs over top of the old one.  let's see.
+
+http://www.benhepworth.com/blog/2016/05/18/install-python-to-separate-directory-on-linux-in-5-easy-steps/
+
+
+# looks like I messed up and installed some python packages to /home/ssarris instead of /home/sdrdev.  Delete those files and try again with "requests" and "numpy"
+
+$ sudo pip install --install-option="--prefix=/home/sdrdev/prefix/sysroots/x86_64-oesdk-linux/usr" --ignore-installed requests
+
+$ sudo pip install --install-option="--prefix=/home/sdrdev/prefix/sysroots/x86_64-oesdk-linux/usr" --ignore-installed numpy==1.13.3
+
+Still can't load numpy.  Another thought is that the installed version of Python 2.7.15 that I have is not the same as the 2.7.15 that I installed into the sysroot/x86.  Slightly different version building the same numpy. probably not transferrable.
+install the new python 2.7.15 same as I installed in the SDK.  But prefix = /usr
+
+
+
+
+
+## Go back and try CMAKE again for UHD embedded.
+
+$ source ~/prefix/environment-setup-armv7ahf-vfp-neon-oe-linux-gnueabi
+# disable all of the devices that are not relevant to the E310/E312.  Force enable RFNOC and PYTHON_API.  If dependencies are missing, we will learn now during cmake not at runtime. Need PYTHON_API to use gr-ettus for RFNoC blocks
+
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../host/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GPSD=ON -DENABLE_B100=OFF -DENABLE_B200=OFF -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=OFF -DENABLE_X300=OFF -DENABLE_N230=OFF -DENABLE_N300=OFF -DENABLE_OCTOCLOCK=OFF -DENABLE_E320=OFF -DENABLE_RFNOC=ON -DENABLE_PYTHON_API=ON ..

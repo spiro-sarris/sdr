@@ -30,7 +30,7 @@ Compare dependencies lists from
 Make my own list without any of the python tools.  since we will install those manually from Python and pip.  Give preference to the one that mentions ubuntu 18.04 if there is a conflict. (only difference was some zmq versions and libcppunit 1.14)
 
 $ sudo apt install
-git swig cmake doxygen build-essential libboost-all-dev libtool libusb-dev libusb-1.0-0 libusb-1.0-0-dev libudev-dev libncurses5 libncurses5-dev libncurses5-dbg libfftw3-bin libfftw3-dev libfftw3-doc libcppunit-1.14-0 libcppunit-dev libcppunit-doc ncurses-bin cpufrequtils qt4-bin-dbg qt4-default qt4-doc libqt4-dev libqt4-dev-bin qt4-dev-tools  libqwt6abi1 ncurses-bin libfontconfig1-dev libxrender-dev libpulse-dev g++ automake autoconf libtool fort77 libsdl1.2-dev ccache libgsl-dev libqwtplot3d-qt5-dev  libqwt-dev libxi-dev gtk2-engines-pixbuf r-base-dev liborc-0.4-0 liborc-0.4-dev libasound2-dev libzmq3-dev libzmq5 libcomedi-dev libgps-dev libgps23 gpsd gpsd-clients python-dev python-numpy python-numpy-doc python-numpy-dbg python-scipy python-docutils python-qt4 python-qt4-dbg python-qt4-dev python-qt4-doc python-wxgtk3.0 python-opengl python-cheetah python-mako python-lxml python-qwt5-qt4 python-tk python-gtk2 python-requests python-sphinx python-zmq python-six python-gps python-setuptools pyqt4-dev-tools
+git swig cmake doxygen build-essential libboost-all-dev libtool libusb-dev libusb-1.0-0 libusb-1.0-0-dev libudev-dev libncurses5 libncurses5-dev libncurses5-dbg libfftw3-bin libfftw3-dev libfftw3-doc libcppunit-1.14-0 libcppunit-dev libcppunit-doc ncurses-bin cpufrequtils qt4-bin-dbg qt4-default qt4-doc libqt4-dev libqt4-dev-bin qt4-dev-tools  libqwt6abi1 ncurses-bin libfontconfig1-dev libxrender-dev libpulse-dev g++ automake autoconf libtool fort77 libsdl1.2-dev ccache libgsl-dev libqwtplot3d-qt5-dev  libqwt-dev libxi-dev gtk2-engines-pixbuf r-base-dev liborc-0.4-0 liborc-0.4-dev libasound2-dev libzmq3-dev libzmq5 libcomedi-dev libgps-dev libgps23 gpsd gpsd-clients python-dev python-numpy python-numpy-doc python-numpy-dbg python-scipy python-docutils python-qt4 python-qt4-dbg python-qt4-dev python-qt4-doc python-wxgtk3.0 python-opengl python-cheetah python-mako python-lxml python-qwt5-qt4 python-tk python-gtk2 python-requests python-sphinx python-zmq python-six python-gps python-setuptools pyqt4-dev-tools sshfs
 
 problem with libqwt5-qt4-dev.  leave it out for now.
 It wants to install python anyway. might as well put all the other python dependencies into the list.  fuck it.  See which python version we get
@@ -98,4 +98,95 @@ $ git checkout v3.13.1.0
 $ cd ../gnuradio/
 $ git checkout v3.7.13.4
 
+$ source ~/prefix/environment-setup-armv7ahf-vfp-neon-oe-linux-gnueabi
 
+$ mkdir build-armv7-e312-3.13.1.0
+cd build-armv7-e312-3.13.1.0/
+
+# disable all of the devices that are not relevant to the E310/E312.  Route outout to log-cmake.txt
+
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../host/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GPSD=ON -DENABLE_B100=OFF -DENABLE_B200=OFF -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=OFF -DENABLE_X300=OFF -DENABLE_N230=OFF -DENABLE_N300=OFF -DENABLE_OCTOCLOCK=OFF -DENABLE_E320=OFF -DENABLE_RFNOC=ON .. | tee log-cmake.txt
+
+$ make
+# Install to  host machine SDK so it can be found by gnuradio, gr-ettus builds
+$ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+
+
+Build gnuradio and install to SDK
+
+cd ~/prefix/src/gnuradio/
+$ mkdir build-armv7-e312-3.7.13.4
+$ cd build-armv7-e312-3.7.13.4/
+$ cmake -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GR_VOCODER=OFF -DENABLE_GR_ATSC=OFF -DENABLE_GR_DTV=OFF -DENABLE_DOXYGEN=OFF .. | tee log-cmake.txt
+
+$ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+
+Build gr-ettus and install to the SDK
+$ cmake -DCMAKE_TOOLCHAIN_FILE=~/prefix/src/gnuradio/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr .. | tee log-cmake.txt
+
+$ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+
+I see this line
+Installing: /home/sdrdev/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi/usr/lib/python2.7/site-packages/ettus/__init__.py
+
+that is a good sign.  means that I will have the ettus module 
+
+-- play around a little bit more with how to get old numpy installed to x86 directory. but no success.  install all to USRP.  Then start rebuilding host stuff.  
+
+
+
+==== INSTALL 3 packages over SSHFS
+$ mkdir ~/mnte312
+$ sshfs root@e312:/ ~/mnte312
+$ cd ~/prefix/src/uhd/host/build-armv7-e312-3.13.1.0
+$ make install DESTDIR=~/mnte312
+
+$ cd ~/prefix/src/gnuradio/build-armv7-e312-3.7.13.4
+$ make install DESTDIR=~/mnte312
+
+$ cd ~/prefix/src/gr-ettus/build-armv7-e312-master-dcb780b77a114a265bb355fdba4f24033c3412c4
+$ make install DESTDIR=~/mnte312
+
+Now login and try to import ettus module in python.  Looks like it imports OK!
+>>> zmq.zmq_version()
+'4.0.4'
+
+==== START Building and installing for host system
+## build UHD for host system
+
+$ cd ~/prefix/src/uhd/host/
+$ mkdir build-x86_64-ubuntu18-3.13.1.0/
+$ cd build-x86_64-ubuntu18-3.13.1.0/
+$ cmake -DENABLE_GPSD=OFF -DENABLE_B100=OFF -DENABLE_B200=ON -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=ON -DENABLE_X300=ON -DENABLE_N230=ON -DENABLE_N300=ON -DENABLE_OCTOCLOCK=ON -DENABLE_E320=ON -DENABLE_RFNOC=ON -DENABLE_PYTHON_API=OFF .. | tee log-cmake.txt
+
+$ make
+$ sudo make install
+$ sudo ldconfig
+
+### build gnuradio for host system
+$ cd ~/prefix/src/gnuradio
+$ mkdir build-x86_64-ubuntu18-3.7.13.4
+$ cd build-x86_64-ubuntu18-3.7.13.4
+$ 	
+
+some note about can't find pygtk.  but it is clearly installed by apt.
+Ok.  the real problem is that python cannot import 'gtk' for some reason even though it is installed.
+I don't know what the hells is going on, but it's strange.	probably have to reinstall OS again and not fuck up the python install.  Because if i wipe out GTK, the Ubuntu GUI disappears.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CURRENT STATUS
+$ make
+$ sudo make install
+$ sudo ldconfig
+
+$ cd ~/prefix/src/gr-ettus
+$ mkdir build-x86_64-ubuntu18-master-dcb780b77a114a265bb355fdba4f24033c3412c4
+$ cd build-x86_64-ubuntu18-master-dcb780b77a114a265bb355fdba4f24033c3412c4
+$ cmake ..
+$ make
+$ sudo make install
+$ sudo ldconfig
+
+/usr/include/pygtk-2.0
+/usr/lib/python2.7/dist-packages/pygtk.pth
+/usr/lib/python2.7/dist-packages/pygtk.py
+/usr/lib/python2.7/dist-packages/pygtk.pyc
+/usr/lib/python2.7/dist-packages/pygtkcompat
