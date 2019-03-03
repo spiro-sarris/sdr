@@ -30,7 +30,7 @@ Compare dependencies lists from
 Make my own list without any of the python tools.  since we will install those manually from Python and pip.  Give preference to the one that mentions ubuntu 18.04 if there is a conflict. (only difference was some zmq versions and libcppunit 1.14)
 
 $ sudo apt install
-git swig cmake doxygen build-essential libboost-all-dev libtool libusb-dev libusb-1.0-0 libusb-1.0-0-dev libudev-dev libncurses5 libncurses5-dev libncurses5-dbg libfftw3-bin libfftw3-dev libfftw3-doc libcppunit-1.14-0 libcppunit-dev libcppunit-doc ncurses-bin cpufrequtils qt4-bin-dbg qt4-default qt4-doc libqt4-dev libqt4-dev-bin qt4-dev-tools  libqwt6abi1 ncurses-bin libfontconfig1-dev libxrender-dev libpulse-dev g++ automake autoconf libtool fort77 libsdl1.2-dev ccache libgsl-dev libqwtplot3d-qt5-dev  libqwt-dev libxi-dev gtk2-engines-pixbuf r-base-dev liborc-0.4-0 liborc-0.4-dev libasound2-dev libzmq3-dev libzmq5 libcomedi-dev libgps-dev libgps23 gpsd gpsd-clients python-dev python-numpy python-numpy-doc python-numpy-dbg python-scipy python-docutils python-qt4 python-qt4-dbg python-qt4-dev python-qt4-doc python-wxgtk3.0 python-opengl python-cheetah python-mako python-lxml python-qwt5-qt4 python-tk python-gtk2 python-requests python-sphinx python-zmq python-six python-gps python-setuptools pyqt4-dev-tools sshfs
+git swig cmake doxygen build-essential libboost-all-dev libtool libusb-dev libusb-1.0-0 libusb-1.0-0-dev libudev-dev libncurses5 libncurses5-dev libncurses5-dbg libfftw3-bin libfftw3-dev libfftw3-doc libcppunit-1.14-0 libcppunit-dev libcppunit-doc ncurses-bin cpufrequtils qt4-bin-dbg qt4-default qt4-doc libqt4-dev libqt4-dev-bin qt4-dev-tools  libqwt6abi1 ncurses-bin libfontconfig1-dev libxrender-dev libpulse-dev g++ automake autoconf libtool fort77 libsdl1.2-dev ccache libgsl-dev libqwtplot3d-qt5-dev  libqwt-dev libxi-dev gtk2-engines-pixbuf r-base-dev liborc-0.4-0 liborc-0.4-dev libasound2-dev libzmq3-dev libzmq5 libcomedi-dev libgps-dev libgps23 gpsd gpsd-clients python python-dev python-numpy python-numpy-doc python-numpy-dbg python-scipy python-docutils python-qt4 python-qt4-dbg python-qt4-dev python-qt4-doc python-wxgtk3.0 python-opengl python-cheetah python-mako python-lxml python-qwt5-qt4 python-tk python-gtk2 libcanberra-gtk-module python-requests python-sphinx python-zmq python-six python-gps python-setuptools pyqt4-dev-tools sshfs sublime-text
 
 problem with libqwt5-qt4-dev.  leave it out for now.
 It wants to install python anyway. might as well put all the other python dependencies into the list.  fuck it.  See which python version we get
@@ -157,7 +157,7 @@ Now login and try to import ettus module in python.  Looks like it imports OK!
 $ cd ~/prefix/src/uhd/host/
 $ mkdir build-x86_64-ubuntu18-3.13.1.0/
 $ cd build-x86_64-ubuntu18-3.13.1.0/
-$ cmake -DENABLE_GPSD=OFF -DENABLE_B100=OFF -DENABLE_B200=ON -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=ON -DENABLE_X300=ON -DENABLE_N230=ON -DENABLE_N300=ON -DENABLE_OCTOCLOCK=ON -DENABLE_E320=ON -DENABLE_RFNOC=ON -DENABLE_PYTHON_API=OFF .. | tee log-cmake.txt
+$ cmake -DENABLE_GPSD=OFF -DENABLE_B100=OFF -DENABLE_B200=ON -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=ON -DENABLE_X300=ON -DENABLE_N230=ON -DENABLE_N300=ON -DENABLE_OCTOCLOCK=ON -DENABLE_E320=ON -DENABLE_RFNOC=ON -DENABLE_PYTHON_API=ON .. | tee log-cmake.txt
 
 $ make
 $ sudo make install
@@ -167,12 +167,7 @@ $ sudo ldconfig
 $ cd ~/prefix/src/gnuradio
 $ mkdir build-x86_64-ubuntu18-3.7.13.4
 $ cd build-x86_64-ubuntu18-3.7.13.4
-$ 	
-
-some note about can't find pygtk.  but it is clearly installed by apt.
-Ok.  the real problem is that python cannot import 'gtk' for some reason even though it is installed.
-I don't know what the hells is going on, but it's strange.	probably have to reinstall OS again and not fuck up the python install.  Because if i wipe out GTK, the Ubuntu GUI disappears.
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CURRENT STATUS
+$ cmake .. | tee log-cmake.txt	
 $ make
 $ sudo make install
 $ sudo ldconfig
@@ -185,8 +180,9 @@ $ make
 $ sudo make install
 $ sudo ldconfig
 
-/usr/include/pygtk-2.0
-/usr/lib/python2.7/dist-packages/pygtk.pth
-/usr/lib/python2.7/dist-packages/pygtk.py
-/usr/lib/python2.7/dist-packages/pygtk.pyc
-/usr/lib/python2.7/dist-packages/pygtkcompat
+>>> zmq.zmq_version()
+'4.2.5'
+At least is it is the same major revision as 4.0.4 on the E312.  hope it works.
+
+Now, log into E312 and try demo_record GUI and XMLRPC calls.  If that works,
+move on to RFNoC test.
