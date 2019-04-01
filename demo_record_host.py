@@ -5,7 +5,7 @@
 # Title: SDR RX Test
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Thu Feb 28 11:20:31 2019
+# Generated: Sun Mar  3 17:18:18 2019
 ##################################################
 
 if __name__ == '__main__':
@@ -81,17 +81,7 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         self.tabs_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_0)
         self.tabs_grid_layout_0 = Qt.QGridLayout()
         self.tabs_layout_0.addLayout(self.tabs_grid_layout_0)
-        self.tabs.addTab(self.tabs_widget_0, 'FFT Magnitude')
-        self.tabs_widget_1 = Qt.QWidget()
-        self.tabs_layout_1 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_1)
-        self.tabs_grid_layout_1 = Qt.QGridLayout()
-        self.tabs_layout_1.addLayout(self.tabs_grid_layout_1)
-        self.tabs.addTab(self.tabs_widget_1, 'Spectrogram')
-        self.tabs_widget_2 = Qt.QWidget()
-        self.tabs_layout_2 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_2)
-        self.tabs_grid_layout_2 = Qt.QGridLayout()
-        self.tabs_layout_2.addLayout(self.tabs_grid_layout_2)
-        self.tabs.addTab(self.tabs_widget_2, 'Time Scope')
+        self.tabs.addTab(self.tabs_widget_0, 'Real-Time Display')
         self.top_grid_layout.addWidget(self.tabs, 0, 0, 1, 2)
         for r in range(0, 1):
             self.top_grid_layout.setRowStretch(r, 1)

@@ -1857,7 +1857,7 @@
     </param>
     <param>
       <key>label0</key>
-      <value>FFT Magnitude</value>
+      <value>Real-Time Display</value>
     </param>
     <param>
       <key>label1</key>
@@ -1937,7 +1937,7 @@
     </param>
     <param>
       <key>num_tabs</key>
-      <value>3</value>
+      <value>1</value>
     </param>
   </block>
   <block>

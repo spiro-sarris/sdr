@@ -1,0 +1,16 @@
+root@ettus-e3xx-sg3:~/sdr# python rfnoc_rx_e3.py 
+[INFO] [UHD] linux; GNU C++ version 4.9.2; Boost_105700; UHD_3.13.1.HEAD-0-gbbce3e45
+[INFO] [E300] Loading FPGA image: /usr/share/uhd/images/usrp_e310_fpga_sg3.bit...
+[INFO] [E300] FPGA image loaded
+[INFO] [E300] Detecting internal GPS 
+.... [INFO] [E300] GPSDO found
+[INFO] [E300] Initializing core control (global registers)...
+
+[INFO] [E300] Performing register loopback test... 
+[INFO] [E300] Register loopback test passed
+[INFO] [0/Radio_0] Initializing block control (NOC ID: 0x12AD100000000000)
+[INFO] [0/DDC_0] Initializing block control (NOC ID: 0xDDC0000000000000)
+[INFO] [0/DUC_0] Initializing block control (NOC ID: 0xD0C0000000000002)
+[WARNING] [RFNOC] [legacy_compat] No FIFO detected. Higher transmit rates may encounter errors.
+Press Enter to quit: 
+

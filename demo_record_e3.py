@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: demo_record_e3
-# Generated: Thu Feb 28 11:21:23 2019
+# Generated: Sun Mar 24 20:11:18 2019
 ##################################################
 
 from gnuradio import eng_notation
@@ -21,7 +21,7 @@ import time
 
 class demo_record_e3(gr.top_block):
 
-    def __init__(self, freq=871.3e6, rx_gain=40):
+    def __init__(self, freq=432e6, rx_gain=40):
         gr.top_block.__init__(self, "demo_record_e3")
 
         ##################################################
@@ -116,7 +116,7 @@ class demo_record_e3(gr.top_block):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
-        "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(871.3e6),
+        "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(432e6),
         help="Set freq [default=%default]")
     parser.add_option(
         "", "--rx-gain", dest="rx_gain", type="eng_float", default=eng_notation.num_to_str(40),
