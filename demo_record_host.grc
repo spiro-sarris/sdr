@@ -117,6 +117,33 @@
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(424, 88)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fft_size</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1024</value>
+    </param>
+  </block>
+  <block>
     <key>variable_qtgui_range</key>
     <param>
       <key>comment</key>
@@ -308,6 +335,33 @@
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(224, 116)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>vec_length</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(8, 180)</value>
     </param>
     <param>
@@ -469,7 +523,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>1</value>
+      <value>vec_length</value>
     </param>
   </block>
   <block>
@@ -524,7 +578,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>1</value>
+      <value>vec_length</value>
     </param>
   </block>
   <block>
@@ -889,7 +943,7 @@
     </param>
     <param>
       <key>size</key>
-      <value>1024</value>
+      <value>fft_size</value>
     </param>
     <param>
       <key>tr_chan</key>
@@ -980,7 +1034,7 @@
     </param>
     <param>
       <key>fftsize</key>
-      <value>1024</value>
+      <value>fft_size</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1543,7 +1597,7 @@
     </param>
     <param>
       <key>size</key>
-      <value>1024</value>
+      <value>fft_size</value>
     </param>
     <param>
       <key>srate</key>
@@ -1634,7 +1688,7 @@
     </param>
     <param>
       <key>fftsize</key>
-      <value>1024</value>
+      <value>fft_size</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2086,7 +2140,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>1</value>
+      <value>vec_length</value>
     </param>
   </block>
   <connection>

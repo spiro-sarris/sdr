@@ -140,7 +140,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>432e6</value>
+      <value>871e6</value>
     </param>
   </block>
   <block>
@@ -256,6 +256,33 @@
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(480, 36)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>vec_length</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>uhd_rfnoc_streamer_ddc</key>
     <param>
       <key>alias</key>
@@ -279,7 +306,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>fpga_module_name</key>
@@ -287,7 +314,7 @@
     </param>
     <param>
       <key>grvlen</key>
-      <value>1</value>
+      <value>vec_length</value>
     </param>
     <param>
       <key>freq</key>
@@ -299,7 +326,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(520, 340)</value>
+      <value>(472, 222)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -327,7 +354,7 @@
     </param>
     <param>
       <key>output_rate</key>
-      <value>decim_rate</value>
+      <value>samp_rate</value>
     </param>
   </block>
   <block>
@@ -414,7 +441,7 @@
     </param>
     <param>
       <key>grvlen</key>
-      <value>1</value>
+      <value>vec_length</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -493,7 +520,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(688, 228)</value>
+      <value>(692, 222)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -521,12 +548,18 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>1</value>
+      <value>vec_length</value>
     </param>
   </block>
   <connection>
-    <source_block_id>uhd_rfnoc_streamer_radio_0</source_block_id>
+    <source_block_id>uhd_rfnoc_streamer_ddc_0</source_block_id>
     <sink_block_id>zeromq_push_sink_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>uhd_rfnoc_streamer_radio_0</source_block_id>
+    <sink_block_id>uhd_rfnoc_streamer_ddc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

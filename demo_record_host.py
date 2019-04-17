@@ -5,7 +5,7 @@
 # Title: SDR RX Test
 # Author: Spiro Sarris
 # Description: Phase and Path Length Difference of Two Receiver Channels
-# Generated: Sun Mar  3 17:18:18 2019
+# Generated: Wed Apr 17 22:03:09 2019
 ##################################################
 
 if __name__ == '__main__':
@@ -67,10 +67,12 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.velocity_factor = velocity_factor = 0.69
+        self.vec_length = vec_length = 1
         self.speed_of_light = speed_of_light = 299792458
         self.samp_rate = samp_rate = 1e6
         self.rx_gain = rx_gain = 60
         self.freq = freq = 432e6
+        self.fft_size = fft_size = 1024
         self.client_address = client_address = "192.168.10.184"
 
         ##################################################
@@ -94,7 +96,7 @@ class demo_record_host(gr.top_block, Qt.QWidget):
             self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
-        self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, 1, 'tcp://192.168.10.184:9998', 100, False, -1)
+        self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, vec_length, 'tcp://192.168.10.184:9998', 100, False, -1)
         self.xmlrpc_client0_0 = xmlrpclib.Server('http://192.168.10.184:30000')
         self.xmlrpc_client0 = xmlrpclib.Server('http://192.168.10.184:30000')
         self._rx_gain_range = Range(0, 80, 1, 60, 100)
@@ -105,7 +107,7 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         for c in range(1, 2):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
-        	1024, #size
+        	fft_size, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
         	freq, #fc
         	samp_rate, #bw
@@ -145,7 +147,7 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         for c in range(1, 2):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
-        	1024, #size
+        	fft_size, #size
         	samp_rate, #samp_rate
         	"", #name
         	1 #number of inputs
@@ -200,7 +202,7 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         for c in range(0, 1):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
-        	1024, #size
+        	fft_size, #size
         	firdes.WIN_HANN, #wintype
         	freq, #fc
         	samp_rate, #bw
@@ -247,7 +249,7 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         for c in range(1, 2):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.qtgui_const_sink_x_0 = qtgui.const_sink_c(
-        	1024, #size
+        	fft_size, #size
         	"", #name
         	1 #number of inputs
         )
@@ -291,8 +293,8 @@ class demo_record_host(gr.top_block, Qt.QWidget):
             self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
-        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
-        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_gr_complex*1)
+        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*vec_length, samp_rate,True)
+        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_gr_complex*vec_length)
 
 
 
@@ -316,6 +318,12 @@ class demo_record_host(gr.top_block, Qt.QWidget):
 
     def set_velocity_factor(self, velocity_factor):
         self.velocity_factor = velocity_factor
+
+    def get_vec_length(self):
+        return self.vec_length
+
+    def set_vec_length(self, vec_length):
+        self.vec_length = vec_length
 
     def get_speed_of_light(self):
         return self.speed_of_light
@@ -348,6 +356,12 @@ class demo_record_host(gr.top_block, Qt.QWidget):
         self.xmlrpc_client0_0.set_freq(self.freq)
         self.qtgui_waterfall_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
+
+    def get_fft_size(self):
+        return self.fft_size
+
+    def set_fft_size(self, fft_size):
+        self.fft_size = fft_size
 
     def get_client_address(self):
         return self.client_address

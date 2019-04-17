@@ -3,6 +3,9 @@ Run the first batch of software update and reboot
 Change default shell to be bash, not dash.  It's a littel heavier, but we need it.
 $ sudo dpkg-reconfigure dash
 
+Set my computer IP address to 192.168.10.222
+e312 address is 192.168.10.184
+
 Update package manager index to download some tools
 $ sudo apt update
 
@@ -26,37 +29,10 @@ Compare dependencies lists from
 * https://kb.ettus.com/Software_Development_on_the_E3xx_USRP_-_Building_RFNoC_UHD_/_GNU_Radio_/_gr-ettus_from_Source
 (doesn't specify ubuntu version)
 
+$ sudo apt install git swig cmake doxygen build-essential libboost-all-dev libtool libusb-dev libusb-1.0-0 libusb-1.0-0-dev libudev-dev libncurses5 libncurses5-dev libncurses5-dbg libfftw3-bin libfftw3-dev libfftw3-doc libcppunit-1.14-0 libcppunit-dev libcppunit-doc ncurses-bin cpufrequtils qt4-bin-dbg qt4-default qt4-doc libqt4-dev libqt4-dev-bin qt4-dev-tools  libqwt6abi1 ncurses-bin libfontconfig1-dev libxrender-dev libpulse-dev g++ automake autoconf libtool fort77 libsdl1.2-dev ccache libgsl-dev libqwtplot3d-qt5-dev  libqwt-dev libxi-dev gtk2-engines-pixbuf r-base-dev liborc-0.4-0 liborc-0.4-dev libasound2-dev libzmq3-dev libzmq5 libcomedi-dev libgps-dev libgps23 gpsd gpsd-clients python python-dev python-pip python-numpy python-numpy-doc python-numpy-dbg python-scipy python-docutils python-qt4 python-qt4-dbg python-qt4-dev python-qt4-doc python-wxgtk3.0 python-opengl python-cheetah python-mako python-lxml python-qwt5-qt4 python-tk python-gtk2 libcanberra-gtk-module python-requests python-sphinx python-zmq python-six python-gps python-setuptools pyqt4-dev-tools sshfs sublime-text screen net-tools
 
-Make my own list without any of the python tools.  since we will install those manually from Python and pip.  Give preference to the one that mentions ubuntu 18.04 if there is a conflict. (only difference was some zmq versions and libcppunit 1.14)
 
-$ sudo apt install
-git swig cmake doxygen build-essential libboost-all-dev libtool libusb-dev libusb-1.0-0 libusb-1.0-0-dev libudev-dev libncurses5 libncurses5-dev libncurses5-dbg libfftw3-bin libfftw3-dev libfftw3-doc libcppunit-1.14-0 libcppunit-dev libcppunit-doc ncurses-bin cpufrequtils qt4-bin-dbg qt4-default qt4-doc libqt4-dev libqt4-dev-bin qt4-dev-tools  libqwt6abi1 ncurses-bin libfontconfig1-dev libxrender-dev libpulse-dev g++ automake autoconf libtool fort77 libsdl1.2-dev ccache libgsl-dev libqwtplot3d-qt5-dev  libqwt-dev libxi-dev gtk2-engines-pixbuf r-base-dev liborc-0.4-0 liborc-0.4-dev libasound2-dev libzmq3-dev libzmq5 libcomedi-dev libgps-dev libgps23 gpsd gpsd-clients python python-dev python-numpy python-numpy-doc python-numpy-dbg python-scipy python-docutils python-qt4 python-qt4-dbg python-qt4-dev python-qt4-doc python-wxgtk3.0 python-opengl python-cheetah python-mako python-lxml python-qwt5-qt4 python-tk python-gtk2 libcanberra-gtk-module python-requests python-sphinx python-zmq python-six python-gps python-setuptools pyqt4-dev-tools sshfs sublime-text
-
-problem with libqwt5-qt4-dev.  leave it out for now.
-It wants to install python anyway. might as well put all the other python dependencies into the list.  fuck it.  See which python version we get
-
-# That's all well and good.  But now, download a fresh copy of python python 2.7.15 and setup pip for our SDK section.
-Download 
-https://www.python.org/downloads/release/python-2715/
-https://bootstrap.pypa.io/get-pip.py
-
-Unzip Python source to directory of choice
-$ tar -xzvf Python-2.7.15.tgz
-$ mv Python-2.7.15 ~/prefix/src/
-$ cd ~/prefix/src/Python-2.7.15/
-
-I want to wipe out the existing python with this known version so I can control package installations more carefully with pip.  Really should have installed this first rather than using the automatic version that came from apt.  If I intalled this first, I could have 
-
-$ ./configure --prefix=/usr
-$ make
-$ sudo make install
-$ python
-
-view version number 2.7.15 from compiled source today. check for numpy
->>>import numpy
-(not found.  good install it with pip!)
-
-Now, run the install SDK script (it requires python.  thats why we waited until now to install)
+Now that a decent list of pacakges are installed, run the armv7 toolchain SDK script (it requires python.  thats why we waited until now to install)
 
 Install SDK
 $ sh oecore-x86_64-armv7ahf-vfp-neon-toolchain-nodistro.0.sh 
@@ -65,7 +41,8 @@ It asks for target directory.
 ~/prefix
 
 After SDK is setup.  
-$ cd ~/prefix/sysroots$ ls
+$ cd ~/prefix/sysroots
+$ ls
  ---> armv7ahf-vfp-neon-oe-linux-gnueabi  
  ---> x86_64-oesdk-linux
 browse and see python installations.
@@ -73,44 +50,55 @@ cd ~/prefix/sysroots/x86_64-oesdk-linux/usr/bin
 ./python --version
  ---> v 2.7.9
 
-Install another copy of Python into the SDK x86 directory to ensure we are using the same version on host system and compiled in toolchain.
+# Install additional python libraries to sysroot x86 where CMAKE expects to find them.
+pip install --install-option="--prefix=/home/ssarris/prefix/sysroots/x86_64-oesdk-linux/usr" --ignore-installed requests six numpy==1.13.3
 
-$ cd ~/prefix/src/Python-2.7.15/
-$ ./configure --prefix=~/prefix/sysroots/x86_64-oesdk-linux/usr 	
-$ make
+# Download source repositories
+cd ~/prefix/src/
+git clone --recursive https://github.com/EttusResearch/uhd.git
+git clone --recursive https://github.com/EttusResearch/gr-ettus.git
+git clone --recursive https://github.com/gnuradio/gnuradio.git
+git clone --recursive https://github.com/spiro-sarris/sdr.git
 
-That didn't work out.  missing something in this prefix directory.  In host computer, it was all installed with apt prerequisites.  Not easy to do for a separate directory in prefix.  shit.  Try to get a version of pip that will work in python 2.7.9 in SDK x86 sysroot.
-
-fails on plistlib.
-
-try in host python.  no success installing pip like this.  Screw it.  go back and build all the other tools for e312 and see if I can get the gr-ettus python lib "ettus" to happen.  I started shaving yaks yesterday with UHD installation when the real problem before was really gr-ettus python module not being installed.  might be able to fix this.
-
-===== Build all for E312 same as 3 days ago =========================
-
-$ git clone --recursive https://github.com/EttusResearch/uhd.git
-$ git clone --recursive https://github.com/EttusResearch/gr-ettus.git
-$ git clone --recursive https://github.com/gnuradio/gnuradio.git
-$ git clone --recursive https://github.com/spiro-sarris/sdr.git
-
-checkout correct release branches
-$ uhd/
+## checkout current release branch of UHD.
+$ cd ~/prefix/src/uhd/ 
 $ git checkout v3.13.1.0
-$ cd ../gnuradio/
+
+## Create directories for both ARM and X86 build output
+cd host
+mkdir build_arm_3.14.0.0
+mkdir build_x86_3.14.0.0
+
+$ cd ~/prefix/src/gnuradio/
+## checkout current release branch of UHD.
 $ git checkout v3.7.13.4
 
+## Create directories for both ARM and X86 build output
+mkdir build_arm_3.7.13.4
+mkdir build_x86_3.7.134.
+
+# Set environment variables for armv7 build
 $ source ~/prefix/environment-setup-armv7ahf-vfp-neon-oe-linux-gnueabi
 
-$ mkdir build-armv7-e312-3.13.1.0
-cd build-armv7-e312-3.13.1.0/
+# Confirm by checking one example environment variable $CC
+echo $CC
+```
+arm-oe-linux-gnueabi-gcc -march=armv7-a -mfloat-abi/usr/bin/python =hard -mfpu=neon --sysroot=/home/ssarris/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
+```
+# Compile UHD
+# Prepare compile with CMAKE to read all options.
+# disable some of the Ettus USRP devices because we don't want to waste time to compile software for those devices we don't use in ARM embedded mode.  Route text output to log-cmake.txt
 
-# disable all of the devices that are not relevant to the E310/E312.  Route outout to log-cmake.txt
+cd ~/prefix/src/uhd/host/build_arm_3.14.0.0/
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../host/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_PYTHON_API=OFF -DENABLE_GPSD=ON -DENABLE_B100=OFF -DENABLE_B200=OFF -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=OFF -DENABLE_X300=OFF -DENABLE_N230=OFF -DENABLE_N300=ON -DENABLE_OCTOCLOCK=OFF -DENABLE_E320=OFF -DENABLE_RFNOC=ON .. | tee log-cmake.txt
 
-$ cmake -DCMAKE_TOOLCHAIN_FILE=../host/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GPSD=ON -DENABLE_B100=OFF -DENABLE_B200=OFF -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=OFF -DENABLE_X300=OFF -DENABLE_N230=OFF -DENABLE_N300=OFF -DENABLE_OCTOCLOCK=OFF -DENABLE_E320=OFF -DENABLE_RFNOC=ON .. | tee log-cmake.txt
+## Seems impossible to install numpy in a way that will be recognized by this old version of python 2.7.9.  Try without DENABLE_PYTHON_API
+
 
 $ make
-# Install to  host machine SDK so it can be found by gnuradio, gr-ettus builds
+# Install to  host machine SDK so it can be found by gnuradio, gr-ettus
+cd ~/prefix/src/uhd/host/build_arm_3.14.0.0/
 $ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
-
 
 Build gnuradio and install to SDK
 
@@ -123,6 +111,8 @@ $ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
 
 Build gr-ettus and install to the SDK
 $ cmake -DCMAKE_TOOLCHAIN_FILE=~/prefix/src/gnuradio/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr .. | tee log-cmake.txt
+
+$ make
 
 $ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
 
@@ -179,10 +169,174 @@ $ cmake ..
 $ make
 $ sudo make install
 $ sudo ldconfig
-
+```
 >>> zmq.zmq_version()
 '4.2.5'
 At least is it is the same major revision as 4.0.4 on the E312.  hope it works.
 
-Now, log into E312 and try demo_record GUI and XMLRPC calls.  If that works,
-move on to RFNoC test.
+## Test some basic UHD functions:
+root@ettus-e3xx-sg3:~# uhd_find_devices 
+[INFO] [UHD] linux; GNU C++ version 4.9.2; Boost_105700; UHD_3.14.0.HEAD-0-g6875d061
+--------------------------------------------------
+-- UHD Device 0
+--------------------------------------------------
+Device Address:
+    serial: 312EDFA
+    name: 
+    node: /dev/axi_fpga
+    product: E3XX SG3
+    type: e3x0
+
+
+## Add new FPGA images to path on E312
+ssarris@ssarris-MacBookPro:/usr/local/share/uhd/images$ scp usrp_e3* root@e312:/usr/share/uhd/images/
+
+```
+usrp_e310_fpga.bin                      100% 3951KB  16.5MB/s   00:00    
+usrp_e310_fpga.bit                      100% 3951KB  16.6MB/s   00:00    
+usrp_e310_fpga.rpt                      100%   24KB   4.1MB/s   00:00    
+usrp_e310_fpga_sg3.bin                  100% 3951KB  16.8MB/s   00:00    
+usrp_e310_fpga_sg3.bit                  100% 3951KB  16.8MB/s   00:00    
+usrp_e310_fpga_sg3.rpt                  100%   24KB   3.3MB/s   00:00    
+usrp_e3xx_fpga_idle.bin                 100% 3951KB  16.8MB/s   00:00    
+usrp_e3xx_fpga_idle.bit                 100% 3951KB  16.6MB/s   00:00    
+usrp_e3xx_fpga_idle.rpt                 100%   19KB   3.1MB/s   00:00    
+usrp_e3xx_fpga_idle_sg3.bin             100% 3951KB  16.8MB/s   00:00    
+usrp_e3xx_fpga_idle_sg3.bit             100% 3951KB  16.6MB/s   00:00    
+usrp_e3xx_fpga_idle_sg3.rpt             100%   19KB   3.8MB/s   00:00  
+```
+
+```
+uhd_usrp_probe       
+[INFO] [UHD] linux; GNU C++ version 4.9.2; Boost_105700; UHD_3.14.0.HEAD-0-g6875d061
+[INFO] [E300] Loading FPGA image: /usr/share/uhd/images/usrp_e310_fpga_sg3.bit...
+[INFO] [E300] FPGA image loaded
+[INFO] [E300] Detecting internal GPS 
+.... [INFO] [E300] GPSDO found
+[INFO] [E300] Initializing core control (global registers)...
+
+[INFO] [E300] Performing register loopback test... 
+[INFO] [E300] Register loopback test passed
+[INFO] [0/Radio_0] Initializing block control (NOC ID: 0x12AD100000000000)
+[INFO] [0/DDC_0] Initializing block control (NOC ID: 0xDDC0000000000000)
+[INFO] [0/DUC_0] Initializing block control (NOC ID: 0xD0C0000000000002)
+  _____________________________________________________
+ /
+|       Device: E-Series Device
+|     _____________________________________________________
+|    /
+|   |       Mboard: E3XX SG3
+|   |   product: 30675
+|   |   revision: 6
+|   |   serial: 312EDFA
+|   |   mac-addr: 00:80:2f:17:d1:2a
+|   |   FPGA Version: 255.0
+|   |   FPGA git hash: 4bc2c6f
+|   |   RFNoC capable: Yes
+|   |   
+|   |   Time sources:  none, internal, external, gpsdo
+|   |   Clock sources: internal
+|   |   Sensors: temp, ref_locked, gps_locked, gps_time, gps_position, gps_gpgga, gps_gprmc
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX DSP: 0
+|   |   |   
+|   |   |   Freq range: 0.000 to 0.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX DSP: 1
+|   |   |   
+|   |   |   Freq range: 0.000 to 0.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RX Dboard: A
+|   |   |   ID: E310 MIMO XCVR (0x0110)
+|   |   |   Serial: 312D66B
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Frontend: A
+|   |   |   |   Name: FE-RX2
+|   |   |   |   Antennas: TX/RX, RX2
+|   |   |   |   Sensors: temp, rssi, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 76.0 step 1.0 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Frontend: B
+|   |   |   |   Name: FE-RX1
+|   |   |   |   Antennas: TX/RX, RX2
+|   |   |   |   Sensors: temp, rssi, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 76.0 step 1.0 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       RX Codec: A
+|   |   |   |   Name: E3x0 RX dual ADC
+|   |   |   |   Gain Elements: None
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX DSP: 0
+|   |   |   
+|   |   |   Freq range: 0.000 to 0.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX DSP: 1
+|   |   |   
+|   |   |   Freq range: 0.000 to 0.000 MHz
+|   |     _____________________________________________________
+|   |    /
+|   |   |       TX Dboard: A
+|   |   |   ID: E310 MIMO XCVR (0x0110)
+|   |   |   Serial: 312D66B
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Frontend: A
+|   |   |   |   Name: FE-TX2
+|   |   |   |   Antennas: TX/RX
+|   |   |   |   Sensors: temp, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 89.8 step 0.2 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Frontend: B
+|   |   |   |   Name: FE-TX1
+|   |   |   |   Antennas: TX/RX
+|   |   |   |   Sensors: temp, lo_locked
+|   |   |   |   Freq range: 50.000 to 6000.000 MHz
+|   |   |   |   Gain range PGA: 0.0 to 89.8 step 0.2 dB
+|   |   |   |   Bandwidth range: 200000.0 to 56000000.0 step 0.0 Hz
+|   |   |   |   Connection Type: IQ
+|   |   |   |   Uses LO offset: No
+|   |   |     _____________________________________________________
+|   |   |    /
+|   |   |   |       TX Codec: A
+|   |   |   |   Name: E3x0 TX dual DAC
+|   |   |   |   Gain Elements: None
+|   |     _____________________________________________________
+|   |    /
+|   |   |       RFNoC blocks on this device:
+|   |   |   
+|   |   |   * Radio_0
+|   |   |   * DDC_0
+|   |   |   * DUC_0
+```
+
+# Test some existing flowgraphs without change from last time.
+rfnoc_rx_e3.py works as expected
+so does demo_record_e3.py (using multi_usrp# p with legacy_compat)
+
+# Try to use the DDC block in rfnoc_rx_e3 and see if I get the same frustrating errors as before about mismatched data sps or whatever it was.
+	
+No errors.  It just works!
+
+Now try higher sample rate. Seems to work OK at 1 MHz.  leave it alone for now.
+
