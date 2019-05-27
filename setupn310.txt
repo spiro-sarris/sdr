@@ -1,0 +1,41 @@
+setup for n310.
+Download file system image for n310.  dd to SD Card
+Download sdk for uhd 3.14, n3xx
+
+Using same host setup on dev machine for e312 development
+
+install the sdk to ~/sdk-n310
+
+Set environment variables to cross compile for n310
+`source ~/sdk-n310/environment-setup-cortexa9hf-neon-oe-linux-gnueabi`
+
+`echo $CC'
+```
+arm-oe-linux-gnueabi-gcc -march=armv7-a -marm -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a9 --sysroot=/home/ssarris/sdk-n310/sysroots/cortexa9hf-neon-oe-linux-gnueabi
+```
+cd ~/src/uhd/host/
+mkdir build_cortexA9_3.14.0.0
+cd build_cortexA9_3.14.0.0
+
+cmake -DCMAKE_TOOLCHAIN_FILE=../host/cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_PYTHON_API=OFF -DENABLE_GPSD=ON -DENABLE_B100=OFF -DENABLE_B200=OFF -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=OFF -DENABLE_X300=ON -DENABLE_N230=OFF -DENABLE_N300=ON -DENABLE_OCTOCLOCK=OFF -DENABLE_E320=OFF -DENABLE_RFNOC=ON -DENABLE_DPDK=OFF .. | tee log-cmake.txt
+
+make -j4
+
+install to the SDK path to be found by GNURAdio
+
+make install DESTDIR=~/sdk-n310/sysroots/cortexa9hf-neon-oe-linux-gnueabi
+
+cd ~/src/gnuradio/
+mkdir build_cortexA9_3.7.13.4
+cd build_cortexA9_3.7.13.4
+cmake -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GR_VOCODER=OFF -DENABLE_GR_ATSC=OFF -DENABLE_GR_DTV=OFF -DENABLE_DOXYGEN=OFF -DENABLE_GR_ZEROMQ=ON .. | tee log-cmake.txt
+
+20190527
+Since SDK does not include lib for zeromq, i give it the path of a different zeromq on my local system it can use.  Feels sloppy, but passes cmake! 
+
+cmake -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GR_VOCODER=OFF -DENABLE_GR_ATSC=OFF -DENABLE_GR_DTV=OFF -DENABLE_DOXYGEN=OFF -DZEROMQ_LIBRARIES=/usr/lib/x86_64-linux-gnu -DZEROMQ_INCLUDE_DIRS=/usr/include -DENABLE_GR_ZEROMQ=ON .. | tee log-cmake.txt
+
+It doesn't find libqwt for qtgui, but I don't care, because this will be installed on the N310 and doesn't need a GUI
+
+make failed on import of zmq.hpp even though CMAKE finds it.  fuck it. 
+copy the files to where it wants them to be in sysroots/cortex

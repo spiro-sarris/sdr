@@ -163,38 +163,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>rx_gain_A1</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>60</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 412)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
       <value>rx_gain_A2</value>
     </param>
     <param>
       <key>value</key>
-      <value>30</value>
+      <value>60</value>
     </param>
   </block>
   <block>
@@ -222,6 +195,60 @@
     <param>
       <key>value</key>
       <value>1e6</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 472)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>server_address</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>"192.168.10.184"</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(148, 468)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>server_port</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>30000</value>
     </param>
   </block>
   <block>
@@ -318,7 +345,7 @@
     </param>
     <param>
       <key>freq</key>
-      <value>0.0</value>
+      <value>0</value>
     </param>
     <param>
       <key>fullscale</key>
@@ -381,7 +408,7 @@
     </param>
     <param>
       <key>gain0</key>
-      <value>rx_gain_A1</value>
+      <value>rx_gain_A2</value>
     </param>
     <param>
       <key>lo_export0</key>
@@ -494,6 +521,41 @@
     <param>
       <key>stream_args</key>
       <value></value>
+    </param>
+  </block>
+  <block>
+    <key>xmlrpc_server</key>
+    <param>
+      <key>addr</key>
+      <value>str(server_address)</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(12, 524)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>xmlrpc_server_0</value>
+    </param>
+    <param>
+      <key>port</key>
+      <value>int(server_port)</value>
     </param>
   </block>
   <block>

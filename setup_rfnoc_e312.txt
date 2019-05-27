@@ -107,6 +107,7 @@ $ mkdir build-armv7-e312-3.7.13.4
 $ cd build-armv7-e312-3.7.13.4/
 $ cmake -Wno-dev -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/oe-sdk_cross.cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_GR_VOCODER=OFF -DENABLE_GR_ATSC=OFF -DENABLE_GR_DTV=OFF -DENABLE_DOXYGEN=OFF .. | tee log-cmake.txt
 
+$ make
 $ make install DESTDIR=~/prefix/sysroots/armv7ahf-vfp-neon-oe-linux-gnueabi
 
 Build gr-ettus and install to the SDK
@@ -339,4 +340,42 @@ so does demo_record_e3.py (using multi_usrp# p with legacy_compat)
 No errors.  It just works!
 
 Now try higher sample rate. Seems to work OK at 1 MHz.  leave it alone for now.
+----------------------------------------------
+20190522
+----------------------------------------------
+Made new FPGA image on 6 May with components for fosphor. 
+Unfortunately, the FIFO blocks don't fit on the image.  I imagine the
+fpga base image for UHD 3.14 grew bigger and can't fit all the extra stuff.
 
+copy the image over
+scp e300_fosphor.* root@e312:/usr/share/uhd/images
+
+test the image with uhd_usrp probe
+uhd_usrp_probe --args="fpga=e300_fosphor.bit"
+
+|   |    /
+|   |   |       RFNoC blocks on this device:
+|   |   |   
+|   |   |   * Radio_0
+|   |   |   * FFT_0
+|   |   |   * Window_0
+|   |   |   * fosphor_0
+
+
+Looks good!  shows the blocks for fosphor
+
+edit the IP addresses in both the USRP foshpor and the host fosphor to match
+192.168.10.222 for host
+192.168.10.184 for usrp
+add fpga="e300_fosphor.bit" in device3 args
+
+compile in gnuradio-companion.  copy the .py file over to the usrp
+~/src/gr-ettus/examples/rfnoc$ scp rfnoc_fosphor_network_usrp.py root@e312:/home/root/sdr/
+
+... looking good so far with startup on correct fpga image and finds window and fft.  
+But doesn't find FIFO block because it is not in the FPGA image.  we knew that already.
+becuase it doesn't fit in the FPGA image with the other crap from UHD 3.14.  
+
+Remove FIFO blocks from flowgraph and see if it runs.  Maybe the ZMQ system can handle the traffic.
+
+but doesn't 

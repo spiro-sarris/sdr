@@ -171,7 +171,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>freq</value>
+      <value>rf_freq</value>
     </param>
     <param>
       <key>label</key>
@@ -234,7 +234,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>rx_gain</value>
+      <value>rx_gain_A2</value>
     </param>
     <param>
       <key>label</key>
@@ -524,6 +524,100 @@
     <param>
       <key>vlen</key>
       <value>vec_length</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_null_sink</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>bus_conns</key>
+      <value>[[0,],]</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(208, 556)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_null_sink_1</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>num_inputs</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1024</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_null_sink</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>bus_conns</key>
+      <value>[[0,],]</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(212, 648)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_null_sink_1_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>num_inputs</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1024</value>
     </param>
   </block>
   <block>
@@ -1014,7 +1108,7 @@
     </param>
     <param>
       <key>fc</key>
-      <value>freq</value>
+      <value>rf_freq</value>
     </param>
     <param>
       <key>comment</key>
@@ -1672,7 +1766,7 @@
     </param>
     <param>
       <key>fc</key>
-      <value>freq</value>
+      <value>rf_freq</value>
     </param>
     <param>
       <key>comment</key>
@@ -2006,7 +2100,7 @@
     </param>
     <param>
       <key>callback</key>
-      <value>set_rx_gain</value>
+      <value>set_rx_gain_A2</value>
     </param>
     <param>
       <key>comment</key>
@@ -2034,7 +2128,7 @@
     </param>
     <param>
       <key>variable</key>
-      <value>rx_gain</value>
+      <value>rx_gain_A2</value>
     </param>
   </block>
   <block>
@@ -2049,7 +2143,7 @@
     </param>
     <param>
       <key>callback</key>
-      <value>set_freq</value>
+      <value>set_rf_freq</value>
     </param>
     <param>
       <key>comment</key>
@@ -2077,7 +2171,7 @@
     </param>
     <param>
       <key>variable</key>
-      <value>freq</value>
+      <value>rf_freq</value>
     </param>
   </block>
   <block>
@@ -2143,6 +2237,132 @@
       <value>vec_length</value>
     </param>
   </block>
+  <block>
+    <key>zeromq_pull_source</key>
+    <param>
+      <key>address</key>
+      <value>tcp://192.168.10.184:4000</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(16, 534)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>hwm</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>zeromq_pull_source_1_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>pass_tags</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>timeout</key>
+      <value>100</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1024</value>
+    </param>
+  </block>
+  <block>
+    <key>zeromq_pull_source</key>
+    <param>
+      <key>address</key>
+      <value>tcp://192.168.10.184:4001</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(20, 626)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>hwm</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>zeromq_pull_source_1_0_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>pass_tags</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>timeout</key>
+      <value>100</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1024</value>
+    </param>
+  </block>
   <connection>
     <source_block_id>blocks_head_0</source_block_id>
     <sink_block_id>blocks_file_sink_0</sink_block_id>
@@ -2188,6 +2408,18 @@
   <connection>
     <source_block_id>zeromq_pull_source_1</source_block_id>
     <sink_block_id>qtgui_waterfall_sink_x_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>zeromq_pull_source_1_0</source_block_id>
+    <sink_block_id>blocks_null_sink_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>zeromq_pull_source_1_0_0</source_block_id>
+    <sink_block_id>blocks_null_sink_1_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
