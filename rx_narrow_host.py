@@ -5,7 +5,7 @@
 # Title: RX Narrowband Receiver
 # Author: Spiro Sarris
 # Description: Observe wide spectrum. Select frequency. Record narrow channel
-# Generated: Tue Jun 11 22:18:11 2019
+# Generated: Mon Jun 17 12:56:44 2019
 ##################################################
 
 if __name__ == '__main__':
@@ -25,16 +25,17 @@ from gnuradio import eng_notation
 from gnuradio import filter
 from gnuradio import gr
 from gnuradio import qtgui
-from gnuradio import zeromq
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from gnuradio.qtgui import Range, RangeWidget
 from optparse import OptionParser
+import datetime
 import ettus
 import numpy as np
 import pmt
 import sip
 import sys
+import time
 import xmlrpclib
 from gnuradio import qtgui
 
@@ -101,7 +102,6 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
             self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(2, 3):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
-        self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, vec_length, 'tcp://192.168.10.184:9998', 100, False, -1)
         self.xmlrpc_client0_0 = xmlrpclib.Server('http://192.168.10.184:30000')
         self.xmlrpc_client0 = xmlrpclib.Server('http://192.168.10.184:30000')
         self._rx_gain_range = Range(0, 80, 1, 50, 100)
@@ -358,11 +358,12 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
             self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
-        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*vec_length, samp_rate/n_channels,True)
+        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
         self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, int(data_seconds*samp_rate/n_channels))
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, './data/test.iq', False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, "./data/"+datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S")+"_UTC.iq", False)
         self.blocks_file_sink_0.set_unbuffered(False)
+        self.analog_sig_source_x_1 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1000, 1e-1, 0)
         self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, -1*freq_select, 1, 0)
 
 
@@ -371,16 +372,16 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_xx_0, 1))
+        self.connect((self.analog_sig_source_x_1, 0), (self.blocks_throttle_0, 0))
         self.connect((self.blocks_head_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.blocks_multiply_xx_0, 0), (self.rational_resampler_xxx_0, 0))
-        self.connect((self.blocks_throttle_0, 0), (self.blocks_head_0, 0))
-        self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_throttle_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.blocks_multiply_xx_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.qtgui_freq_sink_x_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
+        self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_head_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_const_sink_x_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_time_sink_x_0, 0))
-        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_multiply_xx_0, 0))
-        self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.zeromq_pull_source_1, 0), (self.qtgui_waterfall_sink_x_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "rx_narrow_host")
@@ -408,8 +409,9 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
         self.qtgui_freq_sink_x_0_0.set_frequency_range(0, self.samp_rate/self.n_channels)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
-        self.blocks_throttle_0.set_sample_rate(self.samp_rate/self.n_channels)
+        self.blocks_throttle_0.set_sample_rate(self.samp_rate)
         self.blocks_head_0.set_length(int(self.data_seconds*self.samp_rate/self.n_channels))
+        self.analog_sig_source_x_1.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
 
     def get_rx_gain(self):
@@ -425,7 +427,6 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
     def set_n_channels(self, n_channels):
         self.n_channels = n_channels
         self.qtgui_freq_sink_x_0_0.set_frequency_range(0, self.samp_rate/self.n_channels)
-        self.blocks_throttle_0.set_sample_rate(self.samp_rate/self.n_channels)
         self.blocks_head_0.set_length(int(self.data_seconds*self.samp_rate/self.n_channels))
 
     def get_freq_select(self):
