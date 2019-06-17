@@ -4,7 +4,7 @@
 # GNU Radio Python Flow Graph
 # Title: RX Narrowband Receiver
 # Description: Observe wide spectrum. Select frequency. Record narrow channel
-# Generated: Tue Jun 11 21:31:13 2019
+# Generated: Mon Jun 17 14:14:21 2019
 ##################################################
 
 from gnuradio import eng_notation
@@ -22,7 +22,7 @@ import time
 
 class rx_narrow_e3(gr.top_block):
 
-    def __init__(self, freq=407.2e6, rx_gain=50):
+    def __init__(self, freq=400e6, rx_gain=50):
         gr.top_block.__init__(self, "RX Narrowband Receiver")
 
         ##################################################
@@ -34,10 +34,10 @@ class rx_narrow_e3(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.tuning_lo_offset = tuning_lo_offset = 2e6
+        self.tuning_lo_offset = tuning_lo_offset = 0
         self.server_port = server_port = 30000
         self.server_address = server_address = "192.168.10.184"
-        self.samp_rate = samp_rate = 2e6
+        self.samp_rate = samp_rate = 1e6
 
         ##################################################
         # Blocks
@@ -118,7 +118,7 @@ def argument_parser():
     description = 'Observe wide spectrum. Select frequency. Record narrow channel'
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option, description=description)
     parser.add_option(
-        "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(407.2e6),
+        "", "--freq", dest="freq", type="eng_float", default=eng_notation.num_to_str(400e6),
         help="Set freq [default=%default]")
     parser.add_option(
         "", "--rx-gain", dest="rx_gain", type="eng_float", default=eng_notation.num_to_str(50),
