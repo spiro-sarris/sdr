@@ -5,7 +5,7 @@
 # Title: RX Narrowband Receiver
 # Author: Spiro Sarris
 # Description: Observe wide spectrum. Select frequency. Record narrow channel
-# Generated: Mon Jun 17 14:57:36 2019
+# Generated: Tue Jun 18 19:47:44 2019
 ##################################################
 
 if __name__ == '__main__':
@@ -25,7 +25,6 @@ from gnuradio import eng_notation
 from gnuradio import filter
 from gnuradio import gr
 from gnuradio import qtgui
-from gnuradio import zeromq
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from gnuradio.qtgui import Range, RangeWidget
@@ -71,8 +70,11 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.filename = filename = "./data/"+datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S")+"_UTC.iq"
+        self.checkbox_record = checkbox_record = False
         self.vec_length = vec_length = 1
         self.variable_qtgui_label_1 = variable_qtgui_label_1 = filename
+        self.variable_qtgui_label_0 = variable_qtgui_label_0 = checkbox_record
+        self.sim_amplitude = sim_amplitude = 1e-1
         self.samp_rate = samp_rate = 1e6
         self.rx_gain = rx_gain = 50
         self.n_channels = n_channels = 100
@@ -97,13 +99,23 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
         for c in range(0, 2):
             self.top_grid_layout.setColumnStretch(c, 1)
         self._freq_select_range = Range(-1*(samp_rate/2), 1*(samp_rate/2), 1, 0, 100)
-        self._freq_select_win = RangeWidget(self._freq_select_range, self.set_freq_select, 'Narrowband Select', "counter_slider", float)
+        self._freq_select_win = RangeWidget(self._freq_select_range, self.set_freq_select, 'Narrowband Select (Hz)', "counter_slider", float)
         self.tabs_grid_layout_0.addWidget(self._freq_select_win, 2, 0, 1, 1)
         for r in range(2, 3):
             self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
-        self.zeromq_pull_source_1 = zeromq.pull_source(gr.sizeof_gr_complex, vec_length, 'tcp://192.168.10.184:9998', 100, False, -1)
+        _checkbox_record_check_box = Qt.QCheckBox('Write Data')
+        self._checkbox_record_choices = {True: True, False: False}
+        self._checkbox_record_choices_inv = dict((v,k) for k,v in self._checkbox_record_choices.iteritems())
+        self._checkbox_record_callback = lambda i: Qt.QMetaObject.invokeMethod(_checkbox_record_check_box, "setChecked", Qt.Q_ARG("bool", self._checkbox_record_choices_inv[i]))
+        self._checkbox_record_callback(self.checkbox_record)
+        _checkbox_record_check_box.stateChanged.connect(lambda i: self.set_checkbox_record(self._checkbox_record_choices[bool(i)]))
+        self.tabs_grid_layout_0.addWidget(_checkbox_record_check_box, 4, 0, 1, 1)
+        for r in range(4, 5):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.xmlrpc_client0_0 = xmlrpclib.Server('http://192.168.10.184:30000')
         self.xmlrpc_client0 = xmlrpclib.Server('http://192.168.10.184:30000')
         self._variable_qtgui_label_1_tool_bar = Qt.QToolBar(self)
@@ -120,6 +132,21 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
         for r in range(3, 4):
             self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
+            self.tabs_grid_layout_0.setColumnStretch(c, 1)
+        self._variable_qtgui_label_0_tool_bar = Qt.QToolBar(self)
+
+        if None:
+          self._variable_qtgui_label_0_formatter = None
+        else:
+          self._variable_qtgui_label_0_formatter = lambda x: eng_notation.num_to_str(x)
+
+        self._variable_qtgui_label_0_tool_bar.addWidget(Qt.QLabel('Recording?'+": "))
+        self._variable_qtgui_label_0_label = Qt.QLabel(str(self._variable_qtgui_label_0_formatter(self.variable_qtgui_label_0)))
+        self._variable_qtgui_label_0_tool_bar.addWidget(self._variable_qtgui_label_0_label)
+        self.tabs_grid_layout_0.addWidget(self._variable_qtgui_label_0_tool_bar, 4, 1, 1, 1)
+        for r in range(4, 5):
+            self.tabs_grid_layout_0.setRowStretch(r, 1)
+        for c in range(1, 2):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self._rx_gain_range = Range(0, 80, 1, 50, 100)
         self._rx_gain_win = RangeWidget(self._rx_gain_range, self.set_rx_gain, 'RX Gain', "counter_slider", float)
@@ -183,7 +210,7 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
         	1 #number of inputs
         )
         self.qtgui_freq_sink_x_0_0.set_update_time(0.1)
-        self.qtgui_freq_sink_x_0_0.set_y_axis(-100, -20)
+        self.qtgui_freq_sink_x_0_0.set_y_axis(-120, -20)
         self.qtgui_freq_sink_x_0_0.set_y_label('Magnitude', 'dB')
         self.qtgui_freq_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
         self.qtgui_freq_sink_x_0_0.enable_autoscale(False)
@@ -230,7 +257,7 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
         	1 #number of inputs
         )
         self.qtgui_freq_sink_x_0.set_update_time(0.1)
-        self.qtgui_freq_sink_x_0.set_y_axis(-100, -20)
+        self.qtgui_freq_sink_x_0.set_y_axis(-120, -20)
         self.qtgui_freq_sink_x_0.set_y_label('Magnitude', 'dB')
         self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
         self.qtgui_freq_sink_x_0.enable_autoscale(False)
@@ -314,34 +341,45 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
         for c in range(2, 3):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self._freq_range = Range(100e6, 6000e6, 1e6, 400e6, 100)
-        self._freq_win = RangeWidget(self._freq_range, self.set_freq, 'RF Freq', "counter_slider", float)
+        self._freq_win = RangeWidget(self._freq_range, self.set_freq, 'RF Freq (Hz)', "counter_slider", float)
         self.tabs_grid_layout_0.addWidget(self._freq_win, 0, 0, 1, 1)
         for r in range(0, 1):
             self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
+        self.blocks_tagged_file_sink_0 = blocks.tagged_file_sink(gr.sizeof_gr_complex*1, int(samp_rate))
         self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
-        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, int(data_seconds*samp_rate/n_channels))
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, filename, False)
-        self.blocks_file_sink_0.set_unbuffered(False)
+        self.blocks_float_to_short_0 = blocks.float_to_short(1, 1)
+        self.blocks_burst_tagger_0 = blocks.burst_tagger(gr.sizeof_gr_complex)
+        self.blocks_burst_tagger_0.set_true_tag('burst',True)
+        self.blocks_burst_tagger_0.set_false_tag('burst',False)
+
+        self.blocks_add_xx_0 = blocks.add_vcc(1)
+        self.analog_sig_source_x_1 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1000, sim_amplitude, 0)
         self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, -1*freq_select, 1, 0)
+        self.analog_noise_source_x_0 = analog.noise_source_c(analog.GR_GAUSSIAN, sim_amplitude*1e-1, 0)
+        self.analog_const_source_x_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, checkbox_record)
 
 
 
         ##################################################
         # Connections
         ##################################################
+        self.connect((self.analog_const_source_x_0, 0), (self.blocks_float_to_short_0, 0))
+        self.connect((self.analog_noise_source_x_0, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_xx_0, 1))
-        self.connect((self.blocks_head_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.analog_sig_source_x_1, 0), (self.blocks_add_xx_0, 0))
+        self.connect((self.blocks_add_xx_0, 0), (self.blocks_throttle_0, 0))
+        self.connect((self.blocks_burst_tagger_0, 0), (self.blocks_tagged_file_sink_0, 0))
+        self.connect((self.blocks_float_to_short_0, 0), (self.blocks_burst_tagger_0, 1))
         self.connect((self.blocks_multiply_xx_0, 0), (self.rational_resampler_xxx_0, 0))
         self.connect((self.blocks_throttle_0, 0), (self.blocks_multiply_xx_0, 0))
         self.connect((self.blocks_throttle_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.blocks_throttle_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
-        self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_head_0, 0))
+        self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_burst_tagger_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_const_sink_x_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
-        self.connect((self.zeromq_pull_source_1, 0), (self.blocks_throttle_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "rx_narrow_host")
@@ -354,7 +392,15 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
     def set_filename(self, filename):
         self.filename = filename
         self.set_variable_qtgui_label_1(self._variable_qtgui_label_1_formatter(self.filename))
-        self.blocks_file_sink_0.open(self.filename)
+
+    def get_checkbox_record(self):
+        return self.checkbox_record
+
+    def set_checkbox_record(self, checkbox_record):
+        self.checkbox_record = checkbox_record
+        self._checkbox_record_callback(self.checkbox_record)
+        self.set_variable_qtgui_label_0(self._variable_qtgui_label_0_formatter(self.checkbox_record))
+        self.analog_const_source_x_0.set_offset(self.checkbox_record)
 
     def get_vec_length(self):
         return self.vec_length
@@ -369,6 +415,21 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
         self.variable_qtgui_label_1 = variable_qtgui_label_1
         Qt.QMetaObject.invokeMethod(self._variable_qtgui_label_1_label, "setText", Qt.Q_ARG("QString", self.variable_qtgui_label_1))
 
+    def get_variable_qtgui_label_0(self):
+        return self.variable_qtgui_label_0
+
+    def set_variable_qtgui_label_0(self, variable_qtgui_label_0):
+        self.variable_qtgui_label_0 = variable_qtgui_label_0
+        Qt.QMetaObject.invokeMethod(self._variable_qtgui_label_0_label, "setText", Qt.Q_ARG("QString", self.variable_qtgui_label_0))
+
+    def get_sim_amplitude(self):
+        return self.sim_amplitude
+
+    def set_sim_amplitude(self, sim_amplitude):
+        self.sim_amplitude = sim_amplitude
+        self.analog_sig_source_x_1.set_amplitude(self.sim_amplitude)
+        self.analog_noise_source_x_0.set_amplitude(self.sim_amplitude*1e-1)
+
     def get_samp_rate(self):
         return self.samp_rate
 
@@ -378,7 +439,7 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_x_0_0.set_frequency_range(0, self.samp_rate/self.n_channels)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
         self.blocks_throttle_0.set_sample_rate(self.samp_rate)
-        self.blocks_head_0.set_length(int(self.data_seconds*self.samp_rate/self.n_channels))
+        self.analog_sig_source_x_1.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
 
     def get_rx_gain(self):
@@ -394,7 +455,6 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
     def set_n_channels(self, n_channels):
         self.n_channels = n_channels
         self.qtgui_freq_sink_x_0_0.set_frequency_range(0, self.samp_rate/self.n_channels)
-        self.blocks_head_0.set_length(int(self.data_seconds*self.samp_rate/self.n_channels))
 
     def get_freq_select(self):
         return self.freq_select
@@ -421,7 +481,6 @@ class rx_narrow_host(gr.top_block, Qt.QWidget):
 
     def set_data_seconds(self, data_seconds):
         self.data_seconds = data_seconds
-        self.blocks_head_0.set_length(int(self.data_seconds*self.samp_rate/self.n_channels))
 
     def get_client_address(self):
         return self.client_address
