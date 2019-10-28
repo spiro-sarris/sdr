@@ -144,3 +144,55 @@ root@ettus-e3xx-sg3:/usr/share/uhd/images# uhd_usrp_probe --args="fpga=usrp_e310
 [INFO] [0/Radio_0] Initializing block control (NOC ID: 0x12AD100000000000)
 [ERROR] [0/Radio_0] Major compat number mismatch for noc_shell: Expecting 3, got 2.
 Error: RuntimeError: FPGA component `noc_shell' is revision 2 and UHD supports revision 3. Please either upgrade the FPGA image (recommended) or downgrade UHD.
+===========================
+20191028
+============================
+Setup the host software on Dell NARIT computer
+
+$ sudo apt install git swig cmake doxygen build-essential libboost-all-dev libtool libusb-dev libusb-1.0-0 libusb-1.0-0-dev libudev-dev libncurses5 libncurses5-dev libncurses5-dbg libfftw3-bin libfftw3-dev libfftw3-doc libcppunit-1.14-0 libcppunit-dev libcppunit-doc ncurses-bin cpufrequtils qt4-bin-dbg qt4-default qt4-doc libqt4-dev libqt4-dev-bin qt4-dev-tools  libqwt6abi1 ncurses-bin libfontconfig1-dev libxrender-dev libpulse-dev g++ automake autoconf libtool fort77 libsdl1.2-dev ccache libgsl-dev libqwtplot3d-qt5-dev  libqwt-dev libxi-dev gtk2-engines-pixbuf r-base-dev liborc-0.4-0 liborc-0.4-dev libasound2-dev libzmq3-dev libzmq5 libcomedi-dev libgps-dev libgps23 gpsd gpsd-clients python python-dev python-pip python-numpy python-numpy-doc python-numpy-dbg python-scipy python-docutils python-qt4 python-qt4-dbg python-qt4-dev python-qt4-doc python-wxgtk3.0 python-opengl python-cheetah python-mako python-lxml python-qwt5-qt4 python-tk python-gtk2 libcanberra-gtk-module python-requests python-sphinx python-zmq python-six python-gps python-setuptools pyqt4-dev-tools sshfs sublime-text screen net-tools libgmp-dev
+
+# New from GNURadio 3.8 install notes 
+https://wiki.gnuradio.org/index.php/UbuntuInstall#Bionic_Beaver_.2818.04.29
+
+sudo apt install git cmake g++ libboost-all-dev libgmp-dev swig python3-numpy python3-mako python3-sphinx python3-lxml doxygen libfftw3-dev libcomedi-dev libsdl1.2-dev libgsl-dev libqwt-qt5-dev libqt5opengl5-dev python3-pyqt5 liblog4cpp5-dev libzmq3-dev python3-yaml python3-click python3-click-plugins python3-zmq
+
+
+
+# Download source repositories
+cd ~/src/
+git clone --recursive https://github.com/EttusResearch/uhd.git
+git clone --recursive https://github.com/EttusResearch/gr-ettus.git
+git clone --recursive https://github.com/gnuradio/gnuradio.git
+
+## checkout current release branches of UHD and GNURadio.
+$ cd ~/src/uhd/
+$ git checkout v3.14.1.1
+
+$ cd ~/src/gnuradio
+$ git checkout v3.8.0.0
+
+
+==== Building and installing for host system
+-- UHD --
+$ mkdir ~/src/uhd/host/build_x86_3.14.1.1
+$ cd ~/src/uhd/host/build_x86_3.14.1.1/
+$ cmake -DENABLE_GPSD=OFF -DENABLE_B100=OFF -DENABLE_B200=ON -DENABLE_E300=ON -DENABLE_USRP1=OFF -DENABLE_USRP2=ON -DENABLE_X300=ON -DENABLE_N230=ON -DENABLE_N300=ON -DENABLE_OCTOCLOCK=ON -DENABLE_E320=ON -DENABLE_RFNOC=ON -DENABLE_PYTHON_API=ON .. | tee log-cmake.txt
+$ make -j6
+$ sudo make install
+$ sudo ldconfig
+
+-- GNURadio --
+$ mkdir ~/src/gnuradio/build_x86_3.8.0.0
+$ cd ~/src/gnuradio/build_x86_3.8.0.0
+$ cmake .. | tee log-cmake.txt
+$ make -j6
+$ sudo make install
+$ sudo ldconfig
+
+-- gr-ettus (RFNoC blocks for GNURadio)
+$ mkdir ~/src/gr-ettus/build_x86_master
+$ cd ~/src/gr-ettus/build_x86_master
+$ cmake .. | tee log-cmake.txt
+$ make -j6
+$ sudo make install
+$ sudo ldconfig
