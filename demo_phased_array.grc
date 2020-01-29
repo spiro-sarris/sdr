@@ -134,6 +134,18 @@ blocks:
     coordinate: [396, 11]
     rotation: 0
     state: true
+- name: freq_rf
+  id: variable
+  parameters:
+    comment: ''
+    value: 433e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [197, 86]
+    rotation: 0
+    state: true
 - name: gui_update_sec
   id: variable
   parameters:
@@ -210,7 +222,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 100e3
+    value: 125e3
   states:
     bus_sink: false
     bus_source: false
@@ -259,110 +271,6 @@ blocks:
     coordinate: [1546, 1015]
     rotation: 0
     state: true
-- name: analog_noise_source_x_1
-  id: analog_noise_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: '0.1'
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    noise_type: analog.GR_GAUSSIAN
-    seed: '0'
-    type: complex
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [179, 297]
-    rotation: 0
-    state: true
-- name: analog_noise_source_x_1_0
-  id: analog_noise_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: '0.1'
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    noise_type: analog.GR_GAUSSIAN
-    seed: '0'
-    type: complex
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [186, 579]
-    rotation: 0
-    state: true
-- name: analog_sig_source_x_0
-  id: analog_sig_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: '1'
-    comment: ''
-    freq: freq
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    offset: '0'
-    phase: '0'
-    samp_rate: samp_rate
-    type: complex
-    waveform: analog.GR_COS_WAVE
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [154, 153]
-    rotation: 0
-    state: true
-- name: analog_sig_source_x_1
-  id: analog_sig_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: '1'
-    comment: ''
-    freq: freq
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    offset: '0'
-    phase: '0'
-    samp_rate: samp_rate
-    type: complex
-    waveform: analog.GR_COS_WAVE
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [160, 436]
-    rotation: 0
-    state: true
-- name: analog_sig_source_x_2
-  id: analog_sig_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: '0.8'
-    comment: ''
-    freq: '0'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    offset: '0'
-    phase: phase_shift_rad
-    samp_rate: samp_rate
-    type: complex
-    waveform: analog.GR_COS_WAVE
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [92, 670]
-    rotation: 0
-    state: true
 - name: analog_sig_source_x_2_0
   id: analog_sig_source_x
   parameters:
@@ -383,42 +291,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [443, 707]
-    rotation: 0
-    state: true
-- name: blocks_add_xx_0
-  id: blocks_add_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '2'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [431, 233]
-    rotation: 0
-    state: true
-- name: blocks_add_xx_1
-  id: blocks_add_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '2'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [420, 523]
     rotation: 0
     state: true
 - name: blocks_add_xx_2
@@ -557,24 +429,6 @@ blocks:
     coordinate: [1705, 804]
     rotation: 0
     state: true
-- name: blocks_multiply_xx_0
-  id: blocks_multiply_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '2'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [558, 537]
-    rotation: 0
-    state: true
 - name: blocks_multiply_xx_0_0
   id: blocks_multiply_xx
   parameters:
@@ -591,61 +445,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [775, 640]
-    rotation: 0
-    state: true
-- name: blocks_null_sink_0
-  id: blocks_null_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    bus_structure_sink: '[[0,],]'
-    comment: ''
-    num_inputs: '1'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [373, 903]
-    rotation: 0
-    state: true
-- name: blocks_null_source_0
-  id: blocks_null_source
-  parameters:
-    affinity: ''
-    alias: ''
-    bus_structure_source: '[[0,],]'
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_outputs: '1'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [21, 903]
-    rotation: 0
-    state: true
-- name: blocks_throttle_0
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [182, 899]
     rotation: 0
     state: true
 - name: fft_bin_select_0
@@ -693,20 +492,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [4, 102]
-    rotation: 0
-    state: true
-- name: note_0
-  id: note
-  parameters:
-    alias: ''
-    comment: ''
-    note: For simulation, use Throttle block to enforse realtime sample rate.  Comment
-      the Throttle when USRP source is enabled.
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [17, 956]
     rotation: 0
     state: true
 - name: qtgui_const_sink_x_0
@@ -873,7 +658,7 @@ blocks:
     width9: '1'
     wintype: firdes.WIN_BLACKMAN_hARRIS
     ymax: '0'
-    ymin: '-50'
+    ymin: '-120'
   states:
     bus_sink: false
     bus_source: false
@@ -1094,8 +879,8 @@ blocks:
     width8: '1'
     width9: '1'
     ylabel: Amplitude
-    ymax: '1'
-    ymin: '-1'
+    ymax: '0.1'
+    ymin: '-0.1'
     yunit: '""'
   states:
     bus_sink: false
@@ -1149,7 +934,7 @@ blocks:
     coordinate: [1511, 538]
     rotation: 0
     state: true
-- name: uhd_usrp_source_0
+- name: uhd_usrp_source_0_0
   id: uhd_usrp_source
   parameters:
     affinity: ''
@@ -1218,8 +1003,8 @@ blocks:
     bw7: '0'
     bw8: '0'
     bw9: '0'
-    center_freq0: '0'
-    center_freq1: '0'
+    center_freq0: freq_rf
+    center_freq1: freq_rf
     center_freq10: '0'
     center_freq11: '0'
     center_freq12: '0'
@@ -1251,7 +1036,7 @@ blocks:
     center_freq8: '0'
     center_freq9: '0'
     clock_rate: 0e0
-    clock_source0: ''
+    clock_source0: gpsdo
     clock_source1: ''
     clock_source2: ''
     clock_source3: ''
@@ -1292,10 +1077,10 @@ blocks:
     dc_offs_enb7: '""'
     dc_offs_enb8: '""'
     dc_offs_enb9: '""'
-    dev_addr: '""'
-    dev_args: '""'
-    gain0: '0'
-    gain1: '0'
+    dev_addr: '"addr=192.168.10.2"'
+    dev_args: '"master_clock_rate=125e6"'
+    gain0: '70'
+    gain1: '70'
     gain10: '0'
     gain11: '0'
     gain12: '0'
@@ -1459,8 +1244,8 @@ blocks:
     norm_gain9: 'False'
     num_mboards: '1'
     otw: ''
-    rx_agc0: Default
-    rx_agc1: Default
+    rx_agc0: Disabled
+    rx_agc1: Disabled
     rx_agc10: Default
     rx_agc11: Default
     rx_agc12: Default
@@ -1502,7 +1287,7 @@ blocks:
     sd_spec7: ''
     show_lo_controls: 'False'
     stream_args: ''
-    stream_chans: '[]'
+    stream_chans: '[0,1]'
     sync: sync
     time_source0: ''
     time_source1: ''
@@ -1517,23 +1302,13 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [184, 955]
+    coordinate: [184, 183]
     rotation: 0
-    state: disabled
+    state: true
 
 connections:
 - [analog_const_source_x_0_0, '0', blocks_float_to_complex_0, '1']
-- [analog_noise_source_x_1, '0', blocks_add_xx_0, '1']
-- [analog_noise_source_x_1_0, '0', blocks_add_xx_1, '1']
-- [analog_sig_source_x_0, '0', blocks_add_xx_0, '0']
-- [analog_sig_source_x_1, '0', blocks_add_xx_1, '0']
-- [analog_sig_source_x_2, '0', blocks_multiply_xx_0, '1']
 - [analog_sig_source_x_2_0, '0', blocks_multiply_xx_0_0, '1']
-- [blocks_add_xx_0, '0', blocks_add_xx_2, '0']
-- [blocks_add_xx_0, '0', blocks_complex_to_real_0, '0']
-- [blocks_add_xx_0, '0', fft_bin_select_0, '0']
-- [blocks_add_xx_0, '0', qtgui_freq_sink_x_0, '0']
-- [blocks_add_xx_1, '0', blocks_multiply_xx_0, '0']
 - [blocks_add_xx_2, '0', qtgui_freq_sink_x_0, '2']
 - [blocks_complex_to_arg_0, '0', blocks_multiply_const_vxx_0, '0']
 - [blocks_complex_to_arg_0, '0', blocks_multiply_const_vxx_1, '0']
@@ -1544,13 +1319,7 @@ connections:
 - [blocks_float_to_complex_0, '0', qtgui_const_sink_x_0, '0']
 - [blocks_multiply_const_vxx_0, '0', qtgui_number_sink_0_0_0, '1']
 - [blocks_multiply_const_vxx_1, '0', blocks_float_to_complex_0, '0']
-- [blocks_multiply_xx_0, '0', blocks_complex_to_real_1, '0']
-- [blocks_multiply_xx_0, '0', blocks_multiply_xx_0_0, '0']
-- [blocks_multiply_xx_0, '0', fft_bin_select_0_0, '0']
-- [blocks_multiply_xx_0, '0', qtgui_freq_sink_x_0, '1']
 - [blocks_multiply_xx_0_0, '0', blocks_add_xx_2, '1']
-- [blocks_null_source_0, '0', blocks_throttle_0, '0']
-- [blocks_throttle_0, '0', blocks_null_sink_0, '0']
 - [fft_bin_select_0, '0', blocks_divide_xx_0, '0']
 - [fft_bin_select_0, '0', to_mag_db_0_0, '0']
 - [fft_bin_select_0_0, '0', blocks_divide_xx_0, '1']
@@ -1558,6 +1327,14 @@ connections:
 - [to_mag_db_0, '0', qtgui_number_sink_0_0_0, '0']
 - [to_mag_db_0_0, '0', qtgui_number_sink_0_0, '0']
 - [to_mag_db_0_0_0, '0', qtgui_number_sink_0_0, '1']
+- [uhd_usrp_source_0_0, '0', blocks_add_xx_2, '0']
+- [uhd_usrp_source_0_0, '0', blocks_complex_to_real_0, '0']
+- [uhd_usrp_source_0_0, '0', fft_bin_select_0, '0']
+- [uhd_usrp_source_0_0, '0', qtgui_freq_sink_x_0, '0']
+- [uhd_usrp_source_0_0, '1', blocks_complex_to_real_1, '0']
+- [uhd_usrp_source_0_0, '1', blocks_multiply_xx_0_0, '0']
+- [uhd_usrp_source_0_0, '1', fft_bin_select_0_0, '0']
+- [uhd_usrp_source_0_0, '1', qtgui_freq_sink_x_0, '1']
 
 metadata:
   file_format: 1

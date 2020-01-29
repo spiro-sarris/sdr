@@ -1,2 +1,13 @@
 Looks like e312 has UHD 3.14.  So cool.  No need to update file system too.  just use sample program:
-/usr/lib/uhd/examples/tx_waveforms --rate=125000 --freq=433010000
+/usr/lib/uhd/examples/tx_waveforms --rate 1e6 --freq 433010000 --gain 20
+
+On N310, try to run ascii art command with remote IP.
+rx_ascii_art_dft --args "master_clock_rate=125e6,addr=192.168.10.2" --freq 433.010e6 --rate 125e3 --gain 50 --ref-lvl="-50" --dyn-rng 90 --ant "RX2" --subdev "A:0"
+
+confirmed that I can run it with both channels!
+
+Now, try from GNURadio.
+
+Without setting subdev spec, it chooses the 2 correct channels already.  Yay!
+
+Login to e312 and use the tx_waveform function to generate some signal.
