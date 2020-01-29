@@ -1,0 +1,2 @@
+Looks like e312 has UHD 3.14.  So cool.  No need to update file system too.  just use sample program:
+/usr/lib/uhd/examples/tx_waveforms --rate=125000 --freq=433010000
