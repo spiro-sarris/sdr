@@ -14,7 +14,7 @@ options:
     max_nouts: '0'
     output_language: python
     placement: (0,0)
-    qt_qss_theme: ''
+    qt_qss_theme: /home/ssarris/src/sdr/dark.qss
     realtime_scheduling: ''
     run: 'True'
     run_command: '{python} -u {filename}'
@@ -90,7 +90,7 @@ blocks:
     fc: freq_rf
     fftsize: '1024'
     freqhalf: 'True'
-    grid: 'False'
+    grid: 'True'
     gui_hint: ''
     label: Relative Gain
     label1: ''
@@ -107,7 +107,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     name: '""'
-    nconnections: '1'
+    nconnections: '2'
     showports: 'False'
     tr_chan: '0'
     tr_level: '0.0'
@@ -127,13 +127,13 @@ blocks:
     width8: '1'
     width9: '1'
     wintype: firdes.WIN_BLACKMAN_hARRIS
-    ymax: '10'
-    ymin: '-140'
+    ymax: '0'
+    ymin: '-120'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [778, 270]
+    coordinate: [760, 288]
     rotation: 0
     state: true
 - name: uhd_usrp_source_0
@@ -206,7 +206,7 @@ blocks:
     bw8: '0'
     bw9: '0'
     center_freq0: freq_rf
-    center_freq1: '0'
+    center_freq1: freq_rf
     center_freq10: '0'
     center_freq11: '0'
     center_freq12: '0'
@@ -282,7 +282,7 @@ blocks:
     dev_addr: '"addr=192.168.10.2"'
     dev_args: '"master_clock_rate=125e6"'
     gain0: '50'
-    gain1: '0'
+    gain1: '50'
     gain10: '0'
     gain11: '0'
     gain12: '0'
@@ -411,7 +411,7 @@ blocks:
     lo_source9: internal
     maxoutbuf: '0'
     minoutbuf: '0'
-    nchan: '1'
+    nchan: '2'
     norm_gain0: 'False'
     norm_gain1: 'False'
     norm_gain10: 'False'
@@ -447,7 +447,7 @@ blocks:
     num_mboards: '1'
     otw: ''
     rx_agc0: Disabled
-    rx_agc1: Default
+    rx_agc1: Disabled
     rx_agc10: Default
     rx_agc11: Default
     rx_agc12: Default
@@ -479,7 +479,7 @@ blocks:
     rx_agc8: Default
     rx_agc9: Default
     samp_rate: samp_rate
-    sd_spec0: A:1
+    sd_spec0: ''
     sd_spec1: ''
     sd_spec2: ''
     sd_spec3: ''
@@ -489,7 +489,7 @@ blocks:
     sd_spec7: ''
     show_lo_controls: 'False'
     stream_args: ''
-    stream_chans: '[]'
+    stream_chans: '[0,1]'
     sync: sync
     time_source0: ''
     time_source1: ''
@@ -504,12 +504,13 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [349, 188]
+    coordinate: [359, 177]
     rotation: 0
     state: true
 
 connections:
 - [uhd_usrp_source_0, '0', qtgui_freq_sink_x_0, '0']
+- [uhd_usrp_source_0, '1', qtgui_freq_sink_x_0, '1']
 
 metadata:
   file_format: 1
