@@ -1,0 +1,52 @@
+id: howto_angle_of_arrival_ff
+label: angle_of_arrival_ff
+category: '[howto]'
+
+templates:
+  imports: import howto
+  make: howto.angle_of_arrival_ff(${k}, ${D}, ${A1}, ${A0})
+
+#  Make one 'parameters' list entry for every Parameter you want settable from the GUI.
+#     Sub-entries of dictionary:
+#     * id (makes the value accessible as \$keyname, e.g. in the make entry)
+#     * label
+#     * dtype 
+parameters:
+- id: k
+  label: Spatial Frequency [m]
+  dtype: float
+- id: D
+  label: Element Separation [m]
+  dtype: float
+- id: A1
+  label: Multiply Constant
+  dtype: float
+- id: A0
+  label: Add Constant
+  dtype: float
+
+#  Make one 'inputs' list entry per input. Sub-entries of dictionary:
+#      * label (an identifier for the GUI)
+#      * domain
+#      * dtype
+#      * vlen
+#      * optional (set to 1 for optional inputs) 
+inputs:
+- domain: stream
+  label: delta_phase
+  dtype: float
+  vlen: 1
+
+#  Make one 'outputs' list entry per output. Sub-entries of dictionary:
+#      * label (an identifier for the GUI)
+#      * dtype
+#      * vlen
+#      * optional (set to 1 for optional inputs) 
+outputs:
+- domain: stream
+  label: angle
+  dtype: float 
+
+  #!-- e.g. int, float, complex, byte, short, xxx_vector, ...--
+
+file_format: 1
