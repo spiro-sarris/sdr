@@ -11,3 +11,9 @@ Now, try from GNURadio.
 Without setting subdev spec, it chooses the 2 correct channels already.  Yay!
 
 Login to e312 and use the tx_waveform function to generate some signal.
+
+Times out after a minute or so. 
+same story.  Off after about 2 minutes.  Perhaps it's because the SSH connection dies from pulling the plug.  Setup the program to run automatically on boot.  Then it will probably keep going.
+
+gain 50 --> power out = -15 dBm
+gain 55 --> power out = -9 to -10 dBm
