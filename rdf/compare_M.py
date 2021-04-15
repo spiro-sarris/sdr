@@ -2,6 +2,8 @@ import numpy as np
 from scipy.constants import speed_of_light
 
 import matplotlib
+from matplotlib.lines import Line2D
+
 # Set Matplotlib to use Qt5 for graphics (not default TKinter)
 matplotlib.use("QT5agg")
 import matplotlib.pyplot as plt
@@ -197,6 +199,8 @@ class CorrelativeInterferometer:
 		self.ax2.grid(True, which="both")
 		self.ax2.set_xlabel('Angle')
 		self.ax2.set_ylabel('Cost Function Result')
+		self.ax2.set_xlim((0,360))
+		self.ax2.set_ylim((0, 12))
 
 	def work(self, phase_m_measured):
 		'''
@@ -250,16 +254,16 @@ class CorrelativeInterferometer:
 		AoA_radian = np.radians(AoA)
 
 		# Simulate measured data for the current ange AoA and all configuratinos of M antennas.
-		mesaured_data_simulator = MeasuredDataSimulator(self.wavelength, self.diameter, self.M_antennas_list, AoA_radian)
+		measured_data_simulator = MeasuredDataSimulator(self.wavelength, self.diameter, self.M_antennas_list, AoA_radian)
 		
 		# Send measured data through the Correlator. Return values are all dictionaries
 		# of results indexed by primary key antenna configuration M_antennas.
-		(cost_k, max_value, max_angle) = self.work(mesaured_data_simulator.phase_difference_m_ant0)
-		
-		# Make some pretty pictures
+		(cost_k, max_value, max_angle) = self.work(measured_data_simulator.phase_difference_m_ant0)
+
+		# Make some graphs
 		for M_antennas in self.M_antennas_list:
-			self.ax1.plot(AoA_radian, 1, marker='o', color='yellow', markersize=20, label='M={}'.format(M_antennas))
-			self.ax1.plot(max_angle[M_antennas], 1, marker='+', color='blue', markersize=20, mew=4, label='M={}'.format(M_antennas))
+			self.ax1.plot(AoA_radian, 1, marker='+', color='yellow', markersize=24, mew=6, label='M={}'.format(M_antennas))
+			self.ax1.plot(max_angle[M_antennas], 1, marker='+', color='blue', markersize=20, mew=3, label='M={}'.format(M_antennas))
 			self.ax2.plot(np.degrees(self.reference_data_simulator.theta_k), cost_k[M_antennas], '-+', label='M={}'.format(M_antennas))
 			
 		# After all lines are added to the graph in a loop, show the plot window once.
@@ -269,11 +273,91 @@ class CorrelativeInterferometer:
 		self.ax2.legend()
 		plt.show()
 
-	def process_animation():
+	def process_animation(self):
 		'''
 		TODO
 		'''
-		pass
+		# Choose colors for the lines in the cost function graphs
+		colors = {3 : 'yellow',
+				5 : 'cyan',
+				7 : 'magenta',
+				9 : 'blue',
+				11 : 'white'}
+
+		# Create this dictionary to keep Line2D objects and index by number of
+		# antennas in the array configuration
+		self.AoA_polar_sim_line_dict = {}
+		self.AoA_polar_result_line_dict = {}
+		self.cost_function_line_dict = {}
+
+		for M_antennas in self.M_antennas_list:
+			# Create Line2D object for AoA polar plot
+			line_AoA_polar_sim = Line2D([0],[0], marker='+', color='yellow', markersize=24, mew=6)
+			line_AoA_polar_result = Line2D([0],[0], marker='+', color='blue', markersize=20, mew=3)
+
+			# Add the new Line2D object to the dictionary that we can access later for update
+			self.AoA_polar_sim_line_dict[M_antennas] = line_AoA_polar_sim
+			# Add the new Line2D object to the axis of the figure window.
+			self.ax1.add_line(line_AoA_polar_sim)
+
+			# Add the new Line2D object to the dictionary that we can access later for update
+			self.AoA_polar_result_line_dict[M_antennas] = line_AoA_polar_result
+			# Add the new Line2D object to the axis of the figure window.
+			self.ax1.add_line(line_AoA_polar_result)
+
+			# Create Line2D objects for cost function results
+			line_cost_function = Line2D([0],[0], color=colors[M_antennas])
+			# Add the new Line2D object to the dictionary that we can access later for update
+			self.cost_function_line_dict[M_antennas] = line_cost_function
+			# Add the new Line2D object to the axis of the figure window.
+			self.ax2.add_line(line_cost_function)
+
+		# Frame update rate
+		frame_rate = 30
+		update_interval_ms = 1000*(1/frame_rate)
+
+		print('Start animation rate = {:.1f} frames per second'.format(frame_rate))
+		print('Close GUI window to exit ...')
+		self.ani_cost_function = matplotlib.animation.FuncAnimation(self.fig, self.update_plot_cost_function, frames=self.angle_generator, interval=update_interval_ms, blit=True)
+		plt.show()
+
+	def update_plot_cost_function(self, AoA_radian):
+		'''
+		Reference for how to do efficient real-time graph updates.  Combine the technique from these two:
+		
+		https://matplotlib.org/gallery/animation/strip_chart.html
+		Oscilloscope example.  Use this method of constructing lines, append data, update lines.
+		This example updates the graphics using matplotlib FuncAnimation
+		
+		https://stackoverflow.com/questions/11874767/how-do-i-plot-in-real-time-in-a-while-loop-using-matplotlib
+		Another example of how to use blit() manually without FuncAnimation class.
+
+		AoA_radian is the value yielded by the angle_generator function. Matplotlib FuncAnimation
+		calls this generator function at the frame rate and passes the yield value to
+		update_plot.
+		'''
+		
+		# Update graph1 spectrum with a new line from the current data available.
+		print(AoA_radian)
+
+		# Simulate measured data for the current ange AoA and all configuratinos of M antennas.
+		measured_data_simulator = MeasuredDataSimulator(self.wavelength, self.diameter, self.M_antennas_list, AoA_radian)
+		
+		# Send measured data through the Correlator. Return values are all dictionaries
+		# of results indexed by primary key antenna configuration M_antennas.
+		(cost_k, max_value, max_angle) = self.work(measured_data_simulator.phase_difference_m_ant0)
+		for M_antennas in self.M_antennas_list:
+			self.cost_function_line_dict[M_antennas].set_data(np.degrees(self.reference_data_simulator.theta_k), cost_k[M_antennas])
+			self.AoA_polar_sim_line_dict[M_antennas].set_data(AoA_radian, 1)
+			self.AoA_polar_result_line_dict[M_antennas].set_data(max_angle[M_antennas], 1)
+
+		return(list(self.cost_function_line_dict.values()) + list(self.AoA_polar_sim_line_dict.values()) + list(self.AoA_polar_result_line_dict.values()))
+
+	def angle_generator(self):
+		AoA_all_radian = np.radians(np.arange(360))
+		for AoA_radian in AoA_all_radian:
+			yield AoA_radian
+
 
 if __name__ == '__main__':
 
@@ -310,5 +394,7 @@ if __name__ == '__main__':
 	
 	# Process one angle of arrival and generate a plot that shows the result
 	# from a list of antenna configurations.
-	ci.process_one(AoA_deg)
+	#ci.process_one(AoA_deg)
+
+	ci.process_animation()
 
