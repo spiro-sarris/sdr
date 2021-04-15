@@ -1,136 +1,314 @@
 import numpy as np
-import matplotlib
+from scipy.constants import speed_of_light
 
+import matplotlib
 # Set Matplotlib to use Qt5 for graphics (not default TKinter)
 matplotlib.use("QT5agg")
-
 import matplotlib.pyplot as plt
-#plt.style.use('dark_background')
+plt.style.use('dark_background')
 
-# Import for low level control of animation objects
-from matplotlib.lines import Line2D
-from matplotlib.backends.backend_qt5agg import (
-			FigureCanvasQTAgg as FigureCanvas,
-			NavigationToolbar2QT as NavigationToolbar)
-import matplotlib.animation as animation
+class MeasuredDataSimulator:
+	def __init__(self, wavelength, diameter, M_antennas_list, angle_of_arrival):
+		'''
+		Class to simulate measured phase data from all antennas in the array for 1
+		angle of arrival.  Phase data is relative to antenna element 0.  
+		For simulation, we must choose this angle.  For actual measurement, 
+		we calcualte the phase difference using complex divide operator .
 
-# Speed of light. unit = [m/s]
-speed_of_light = 299792458
+		Parameters
+		----------
+		wavelength : wavelength of rf signal to simulate
 
-# RF Frequency to measure and design the system unit = '[Hz == 1/s]
-freq = 900e6
+		diameter ; diamter of circle antenna array. unit = [m]
 
-# Wavelength  Don't use variable name "lambda". reserved in Python language
-wavelength = speed_of_light / freq
+		M_antennas_list : list of number of antennas in the array.  Must be odd number >= 3
 
-# Wave number (spatial frequency) unit = [rad / m]
-spatial_frequency = 2 * np.pi * freq / speed_of_light
+		angle_of_arrival : angle of arrival to simulate received phase. unit = [deg]
+		'''
 
-# Diamater of circle.  Design to be less than 1 wavelength so we don't
-# have to deal with integer multiples of 2	*pi (for now)
-D = 0.90 * wavelength
+		radius = diameter / 2
 
-# Radius of circle
-R = D/2
+		# Create an empty dictionary to append "measured" data
+		self.phase_difference_m_ant0 = {}
 
-print('RF Frequency (f) [Hz]: {}'.format(freq))
-print('Wavelength (lambda) [m]: {}'.format(wavelength))
-print('Spatial Frequency (k) [rad / m]: {}'.format(spatial_frequency))
-print('Diameter of circle (D) [m]: {}'.format(D))
-print('Radius of circle (R) [m]: {}'.format(R))
+		# Loop through the antenna configurations in M_antennas_list and
+		# append to the dictionary of measured data sets.
+		# the first key of the dictionary is the integer number of antenna elements M
+		for M_antennas in M_antennas_list:
+			# Indices of antenna elements. from 0 to M-1
+			m = np.arange(M_antennas)
 
-# Number of angle steps to record in reference data set
-K = 360
+			# Angles at which we find the M antenna elements
+			theta_m = (m / M_antennas) * 2 * np.pi
 
-# Number of antenna elements
-M_list = [3, 5, 7, 9, 11]
+			# Create a new variable named theta_k to make code look consistent with
+			# ReferenceDataSimulator
+			self.theta_k = angle_of_arrival
 
-# Configure graphs
-figure_id = 'Angle of Arrival Simulation'
-fig = plt.figure(figure_id, figsize=(8,6))
-ax1a = fig.add_subplot(1, 1, 1)
-ax1a.set_title("Correlative Interferometry Angle of Arrival")
-ax1a.grid(True, which="both")
-ax1a.set_xlabel('Angle')
-ax1a.set_ylabel('Cost Function Result')
+			# relative angles betwen Angle of Arrival theta_k
+			# and all antennas theta_m.  Result is a 1D array of size (1,M).  I want
+			# the last dimension to be M because that is the dimension on which we
+			# perform the correlation / cost function.
 
-# Loop through the number of antenna elements and plot results as we go.
-for M in M_list:
-	# Indices of antenna elements. from 0 to M-1
-	m = np.arange(M)
+			# Broadcast the single value of theta_k to a numpy array with
+			# dimensions (1, M).  Use for numpy vectorized operations.
+			theta_k_broadcast1D = np.tile(self.theta_k, M_antennas) 
 
-	# Angles at which we find the M antenna elements
-	theta_m = (m / M) * 2 * np.pi
+			# Distance from center of circle to wavefront perpendicular to angle of arrival.
+			# Depending on the relative angles theta_k and theta_m, some lenghts appear negative
+			# a negative length doesn't have physical meaning, but the math is still valid because
+			# these negative lengths result in valid phase difference values between -pi and 0.
+			# Also remember that cos(-x) == cos(x).  So we will find the same result if we
+			# subtrat (theta_m - theta_k) or (theta_k - theta_m).
+			path_length_m_center = radius * np.cos(theta_k_broadcast1D - theta_m)
 
-	# Angle of arrival of test signal [unit = rad]
-	theta_k = np.linspace(0, 2 * np.pi, K, endpoint=False)
+			# Relative distance between each antenna m and antenna 0 in the direction of
+			# the traveling wave from angle of arrival theta_k
+			path_length_m_ant0 = path_length_m_center - path_length_m_center[0]
 
-	# relative angles betwen all combinations of  Angle of Arrival theta_k 
-	# and all antennas theta_m.  Result is a 2D array of size (K,M).  I want
-	# the last dimension to be M because that is the dimension on which we
-	# perform the correlation.
+			# Relative phase between antenna m and antenna 0.  From fraction of wavelength
+			# Save this result to the dictionary of reference data sets indexed by key
+			# M_antennas.
+			self.phase_difference_m_ant0[M_antennas] = 2 * np.pi * (path_length_m_ant0 / wavelength)
 
-	# First, tile the arrays and broadcast to a 2D array so we can subract 
-	# using 1 vector operation and not for loop
-	theta_m_broadcast2D = np.tile(theta_m, (K,1))
+			print('----------------------')
+			print('MeasuredDataSimulator')
+			print('----------------------')
+			print('Number of antenna elements (M_antennas) [integer]: {}'.format(M_antennas))
+			print('Indices of antennas: {}'.format(m))
+			print('Angle location of each antenna [deg]: {}'.format(np.degrees(theta_m)))
+			print('Angle of Arrival theta_k [deg]: {}'.format(np.degrees(self.theta_k)))
+			print('Path length from antenna_m to center of circle [m]: {}'.format(path_length_m_center))
+			print('Path length from antenna_m to antenna_0 [m]: {}'.format(path_length_m_ant0))
+			print('Phase difference from antenna_m to antenna_0 [rad]: {}'.format(self.phase_difference_m_ant0[M_antennas]))
 
-	# Note the .T is transpose to prepare the dimensions to be (K, M)
-	theta_k_broadcast2D = np.tile(theta_k, (M,1)).T 
+class ReferenceDataSimulator:
+	def __init__(self, wavelength, diameter, M_antennas_list, K_angles):
+		''''
+		Class to simulate the reference data set.  Includes phase differences
+		from all antennas relative to antenna 0.  Angle range is always 360 degrees. 
+		n_angles data points are linearly spaced between 0 and 360(1-1/n_angles).
+		The last angle in the data set is 1 angle resulution point less than 360 
+		degrees to avoid ambiguity with 0.
 
-	# Distance from center of circle to wavefront perpendicular to angle of arrival.
-	# Depending on the relative angles theta_k and theta_m, some lenghts appear negative
-	# a negative length doesn't have physical meaning, but the math is still valid because
-	# these negative lengths result in valid phase difference values between -pi and 0.
-	# Also remember that cos(-x) == cos(x).  So we will find the same result if we
-	# subtrat (theta_m - theta_k) or (theta_k - theta_m).
-	path_length_k_m_center = R * np.cos(theta_k_broadcast2D - theta_m_broadcast2D)
+		Parameters
+		----------
+		wavelength : wavelength of rf signal to simulate
 
-	# broadcast the path length of antenna 0 for all angles k into a 2D array
-	# of size (K, M) to use vector operation and not for loop.
-	path_length_0_k_broadcast2D = np.tile(path_length_k_m_center[:,0], (M, 1)).T
+		diameter ; diamter of circle antenna array. unit = [m]
 
-	# Relative distance between each antenna m and antenna 0 in the direction of
-	# the traveling wave from angle of arrival theta_k
-	path_length_k_m_ant0 = path_length_k_m_center - path_length_0_k_broadcast2D
+		M_antennas : number of antennas in the array.  Must be odd number >= 3
 
-	# Relative phase between antenna m and antenna 0.  From fraction of wavelength
-	phase_difference_k_m_ant0 = 2 * np.pi * (path_length_k_m_ant0 / wavelength)
+		K_angles : number of AoA angles to simulate in the reference data set.
+		'''
+		
+		radius = diameter / 2
 
-	# Numpy convolve and correlate functions only allow 1D input arrays.  Therefore
-	# We must use a loop where we correlate the measurement phase data with the reference
-	# phase data for each angle of arrival k.  Plot the result.
+		# Angles of arrival to simulate in reference data set [unit = rad]
+		# endpoint= False to avoid ambiguous angles 0 and 360.
+		self.theta_k = np.linspace(0, 2 * np.pi, K_angles, endpoint=False)
 
-	# For now, take a slice of the simulated reference data and call this "measured data" 
-	# Then we should have no problem to find a strong correlation peak at the correct
-	# location in the reference data set.
-	phase_m_measured = phase_difference_k_m_ant0[100,:]
-	phase_m_measured_broadcast2D = np.tile(phase_m_measured,(K,1))
+		# Create an empty dictionary to append reference data sets
+		self.phase_difference_k_m_ant0 = {}
 
-	# Cost function from the paper.
-	# At first I tried using np.correlate as a cost function instead of np.sum(np.cos()).
-	# It works most of the time, but sometimes the result is off by 1 or 2 angle indices.
-	cost_function_result_k = np.sum(np.cos(phase_m_measured_broadcast2D - phase_difference_k_m_ant0), axis=1)
+		# Loop through the antenna configurations in M_antennas_list and
+		# append to the dictionary of reference data sets.
+		# the first key of the dictionary is the integer number of antenna elements M
+		for M_antennas in M_antennas_list:
+			# Indices of antenna elements. from 0 to M-1
+			m = np.arange(M_antennas)
 
-	maxpeak = np.max(cost_function_result_k)
-	maxindex = np.where(cost_function_result_k == maxpeak)[0]
-	maxangle = theta_k[maxindex]
+			# Angles at which we find the M antenna elements
+			theta_m = (m / M_antennas) * 2 * np.pi
 
-	print('Number of antenna elements (M) [integer]: {}'.format(M))
-	print('Indices of antennas: {}'.format(m))
-	print('Angle location of each antenna [deg]: {}'.format(theta_m * 180 / np.pi))
-	#print('Angles in reference data set theta_k [deg]: {}'.format(theta_k * 180 / np.pi))
-	#print('Path length from antenna_m to center of circle [m]: {}'.format(path_length_k_m_center))
-	#print('Path length from antenna_0 to center broadcast2D: {}'.format(path_length_0_k_broadcast2D))
-	#print('Path length from antenna_m to antenna_0 [m]: {}'.format(path_length_k_m_ant0))
-	#print('Phase difference from antenna_m to antenna_0 [rad]: {}'.format(phase_difference_k_m_ant0))
-	#print('Measured phase data at each antenna relative to ant0 [rad] {}'.format(phase_m_measured))
-	print('(Cost Function Value, Index, Angle) of highest correlation peak ({}, {}, {})'.format(maxpeak, maxindex, maxangle * 180 / np.pi))
+			# relative angles betwen all combinations of  Angle of Arrival theta_k 
+			# and all antennas theta_m.  Result is a 2D array of size (K,M).  I want
+			# the last dimension to be M because that is the dimension on which we
+			# perform the correlation / cost function.
 
-	ax1a.plot(theta_k * 180 / np.pi, cost_function_result_k, '-+', label='M={}'.format(M))
-	#ax1a.plot(theta_k * 180 / np.pi, cost_function_result_k, '+')
+			# First, tile the arrays and broadcast to a 2D array so we can subract 
+			# using 1 vector operation and iterate loops
+			theta_m_broadcast2D = np.tile(theta_m, (K,1))
 
-# After all lines are added to the graph in a loop, show the plot window once.
-# If we show the plot window in the loop, it will block program execution
-# until the user closes the window.
-plt.legend()
-plt.show()
+			# Note the .T is transpose to prepare the dimensions to be (K, M)
+			theta_k_broadcast2D = np.tile(self.theta_k, (M_antennas,1)).T 
+
+			# Distance from center of circle to wavefront perpendicular to angle of arrival.
+			# Depending on the relative angles theta_k and theta_m, some lenghts appear negative
+			# a negative length doesn't have physical meaning, but the math is still valid because
+			# these negative lengths result in valid phase difference values between -pi and 0.
+			# Also remember that cos(-x) == cos(x).  So we will find the same result if we
+			# subtrat (theta_m - theta_k) or (theta_k - theta_m).
+			path_length_k_m_center = radius * np.cos(theta_k_broadcast2D - theta_m_broadcast2D)
+
+			# broadcast the path length of antenna 0 for all angles k into a 2D array
+			# of size (K, M) to use vector operation and not loop.
+			path_length_0_k_broadcast2D = np.tile(path_length_k_m_center[:,0], (M_antennas, 1)).T
+
+			# Relative distance between each antenna m and antenna 0 in the direction of
+			# the traveling wave from angle of arrival theta_k
+			path_length_k_m_ant0 = path_length_k_m_center - path_length_0_k_broadcast2D
+
+			# Relative phase between antenna m and antenna 0.  From fraction of wavelength
+			# Save this result to the dictionary of reference data sets indexed by key
+			# M_antennas.
+			self.phase_difference_k_m_ant0[M_antennas] = 2 * np.pi * (path_length_k_m_ant0 / wavelength)
+
+			print('----------------------')
+			print('ReferenceDataSimulator')
+			print('----------------------')
+			print('Number of antenna elements (M_antennas) [integer]: {}'.format(M_antennas))
+			print('Indices of antennas: {}'.format(m))
+			print('Angle location of each antenna [deg]: {}'.format(np.degrees(theta_m)))
+			print('Angles in reference data set theta_k [deg]: {}'.format(np.degrees(self.theta_k)))
+			print('Path length from antenna_m to center of circle [m]: {}'.format(path_length_k_m_center))
+			print('Path length from antenna_0 to center broadcast2D: {}'.format(path_length_0_k_broadcast2D))
+			print('Path length from antenna_m to antenna_0 [m]: {}'.format(path_length_k_m_ant0))
+			print('Phase difference from antenna_m to antenna_0 [rad]: {}'.format(self.phase_difference_k_m_ant0[M_antennas]))
+
+class CorrelativeInterferometer:
+	def __init__(self, wavelength, diameter, M_antennas_list, K):
+		'''
+		TODO: Docstring
+		'''
+		# Save the parameters to instance member variables for future use
+		self.wavelength = wavelength
+		self.diameter = diameter
+		self.M_antennas_list = M_list
+		self.K = K
+
+		# Simulate reference phase data for all configurations of M antennas.
+		self.reference_data_simulator = ReferenceDataSimulator(wavelength, diameter, M_list, K)
+
+		# Configure graphs
+		self.figure_id = 'Correlative Interferometry Simulation'
+		self.fig = plt.figure(self.figure_id, figsize=(8,10))
+		
+		self.ax1 = self.fig.add_subplot(2, 1, 1, projection='polar')
+		self.ax1.set_title('Angle of Arrival')
+		self.ax1.set_theta_zero_location('N')
+		self.ax1.set_theta_direction(-1)
+		self.ax1.grid(True, which="both")
+		self.ax1.set_rticks([])
+		self.ax1.set_rlim((0,1.1))
+
+		self.ax2 = self.fig.add_subplot(2, 1, 2)
+		self.ax2.set_title("Correlation Cost Function")
+		self.ax2.grid(True, which="both")
+		self.ax2.set_xlabel('Angle')
+		self.ax2.set_ylabel('Cost Function Result')
+
+	def work(self, phase_m_measured):
+		'''
+		Cost function from the paper.
+		Use the function name "work()" to more easily translate this python prototype into
+		a GNURadio block which requires a work() function.
+		At first I tried using np.correlate as a cost function instead of np.sum(np.cos()).
+		It works most of the time, but sometimes the result is off by 1 or 2 angle indices.
+		'''
+		# Create empty dictionaries to append cost function results data sets
+		cost_k = {}
+		max_value = {}
+		max_index = {}
+		max_angle = {}
+
+		# Loop through the antenna configurations in M_antennas_list and
+		# append to the dictionary of cost function result sets.
+		# the first key of the dictionary is the integer number of antenna elements M
+		for M_antennas in self.M_antennas_list:
+			phase_m_measured_broadcast2D = np.tile(phase_m_measured[M_antennas],(self.K,1))
+
+			# Use the cost function to correlate measured data with reference data sets
+			# Append resuts to dictionary according to key M_antennas configuration.
+			cost_k[M_antennas] = np.sum(np.cos(phase_m_measured_broadcast2D - self.reference_data_simulator.phase_difference_k_m_ant0[M_antennas]), axis=1)
+
+			# Find the maximum value of the cost function
+			max_value[M_antennas] = np.max(cost_k[M_antennas])
+			
+			# Find the index of the maximum value  value of the cost function
+			max_index[M_antennas] = np.where(cost_k[M_antennas] == max_value[M_antennas])[0]
+			
+			# Find the angle of arrival at this array index.
+			max_angle[M_antennas] = self.reference_data_simulator.theta_k[max_index[M_antennas]]
+			print('-------------------------')
+			print('CorrelativeInterferometer')
+			print('-------------------------')
+			print('(Cost Function Value, Index, Angle) of highest correlation peak ({}, {}, {})'.format(max_value[M_antennas], max_index[M_antennas], np.degrees(max_angle[M_antennas])))
+
+		# Return the complete dictionaries of results
+		return(cost_k, max_value, max_angle)
+
+	def process_one(self, AoA):
+		'''
+		Process one angle of arrival for all antenna configurations M_antennas_list.
+
+		Parameters
+		----------
+		AoA : Angle of Arrival [deg]
+		'''
+
+		AoA_radian = np.radians(AoA)
+
+		# Simulate measured data for the current ange AoA and all configuratinos of M antennas.
+		mesaured_data_simulator = MeasuredDataSimulator(self.wavelength, self.diameter, self.M_antennas_list, AoA_radian)
+		
+		# Send measured data through the Correlator. Return values are all dictionaries
+		# of results indexed by primary key antenna configuration M_antennas.
+		(cost_k, max_value, max_angle) = self.work(mesaured_data_simulator.phase_difference_m_ant0)
+		
+		# Make some pretty pictures
+		for M_antennas in self.M_antennas_list:
+			self.ax1.plot(AoA_radian, 1, marker='o', color='yellow', markersize=20, label='M={}'.format(M_antennas))
+			self.ax1.plot(max_angle[M_antennas], 1, marker='+', color='blue', markersize=20, mew=4, label='M={}'.format(M_antennas))
+			self.ax2.plot(np.degrees(self.reference_data_simulator.theta_k), cost_k[M_antennas], '-+', label='M={}'.format(M_antennas))
+			
+		# After all lines are added to the graph in a loop, show the plot window once.
+		# If we show the plot window in the loop, it will block program execution
+		# until the user closes the window.
+		#self.ax1.legend()
+		self.ax2.legend()
+		plt.show()
+
+	def process_animation():
+		'''
+		TODO
+		'''
+		pass
+
+if __name__ == '__main__':
+
+	# RF Frequency to measure and design the system unit = '[Hz == 1/s]
+	rf_frequency = 900e6
+
+	# Wavelength  Don't use variable name "lambda". reserved in Python language
+	wavelength = speed_of_light / rf_frequency
+
+	# Diamater of circle.  Design to be less than 1 wavelength so we don't
+	# have to deal with integer multiples of 2	*pi (for now)
+	diameter = 0.90 * wavelength
+
+	# Number of angle steps to prepare in reference data set
+	K = 360
+
+	# List of number of antenna elements to process and compare results
+	M_list = [3, 5, 7, 9, 11]
+
+	# Print some debug before we start the simulation
+	print('RF Frequency (f) [Hz]: {}'.format(rf_frequency))
+	print('Wavelength (lambda) [m]: {}'.format(wavelength))
+	print('Diameter of circle (diameter) [m]: {}'.format(diameter))
+	print('Number of angles of arrival to simulate ref data set: {}'.format(K))
+	print('Number of antenna elements to simulate {}'.format(M_list))
+
+	# Create a correlative interferometer object
+	ci =  CorrelativeInterferometer(wavelength, diameter, M_list, K)
+
+	# Choose an angle to simulate an "unknown" arrival signal. unit = [degree]
+	# It does not need to exactly match an angle in the reference data set.
+	# the cost function algorithm finds the nearest match.
+	AoA_deg = 120.6
+	
+	# Process one angle of arrival and generate a plot that shows the result
+	# from a list of antenna configurations.
+	ci.process_one(AoA_deg)
+
