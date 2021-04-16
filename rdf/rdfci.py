@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 plt.style.use('dark_background')
 
 class MeasuredDataSimulator:
-	def __init__(self, wavelength, diameter, M_antennas_list, angle_of_arrival):
+	def __init__(self, wavelength, diameter, M_antennas_list, angle_of_arrival, verbose=True):
 		'''
 		Class to simulate measured phase data from all antennas in the array for 1
 		angle of arrival.  Phase data is relative to antenna element 0.  
@@ -73,19 +73,20 @@ class MeasuredDataSimulator:
 			# M_antennas.
 			self.phase_difference_m_ant0[M_antennas] = 2 * np.pi * (path_length_m_ant0 / wavelength)
 
-			print('----------------------')
-			print('MeasuredDataSimulator')
-			print('----------------------')
-			print('Number of antenna elements (M_antennas) [integer]: {}'.format(M_antennas))
-			print('Indices of antennas: {}'.format(m))
-			print('Angle location of each antenna [deg]: {}'.format(np.degrees(theta_m)))
-			print('Angle of Arrival theta_k [deg]: {}'.format(np.degrees(self.theta_k)))
-			print('Path length from antenna_m to center of circle [m]: {}'.format(path_length_m_center))
-			print('Path length from antenna_m to antenna_0 [m]: {}'.format(path_length_m_ant0))
-			print('Phase difference from antenna_m to antenna_0 [rad]: {}'.format(self.phase_difference_m_ant0[M_antennas]))
+			if(verbose is True):
+				print('----------------------')
+				print('MeasuredDataSimulator')
+				print('----------------------')
+				print('Number of antenna elements (M_antennas) [integer]: {}'.format(M_antennas))
+				print('Indices of antennas: {}'.format(m))
+				print('Angle location of each antenna [deg]: {}'.format(np.degrees(theta_m)))
+				print('Angle of Arrival theta_k [deg]: {}'.format(np.degrees(self.theta_k)))
+				print('Path length from antenna_m to center of circle [m]: {}'.format(path_length_m_center))
+				print('Path length from antenna_m to antenna_0 [m]: {}'.format(path_length_m_ant0))
+				print('Phase difference from antenna_m to antenna_0 [rad]: {}'.format(self.phase_difference_m_ant0[M_antennas]))
 
 class ReferenceDataSimulator:
-	def __init__(self, wavelength, diameter, M_antennas_list, K_angles):
+	def __init__(self, wavelength, diameter, M_antennas_list, K_angles, verbose=True):
 		''''
 		Class to simulate the reference data set.  Includes phase differences
 		from all antennas relative to antenna 0.  Angle range is always 360 degrees. 
@@ -130,7 +131,7 @@ class ReferenceDataSimulator:
 
 			# First, tile the arrays and broadcast to a 2D array so we can subract 
 			# using 1 vector operation and iterate loops
-			theta_m_broadcast2D = np.tile(theta_m, (K,1))
+			theta_m_broadcast2D = np.tile(theta_m, (K_angles,1))
 
 			# Note the .T is transpose to prepare the dimensions to be (K, M)
 			theta_k_broadcast2D = np.tile(self.theta_k, (M_antennas,1)).T 
@@ -156,31 +157,33 @@ class ReferenceDataSimulator:
 			# M_antennas.
 			self.phase_difference_k_m_ant0[M_antennas] = 2 * np.pi * (path_length_k_m_ant0 / wavelength)
 
-			print('----------------------')
-			print('ReferenceDataSimulator')
-			print('----------------------')
-			print('Number of antenna elements (M_antennas) [integer]: {}'.format(M_antennas))
-			print('Indices of antennas: {}'.format(m))
-			print('Angle location of each antenna [deg]: {}'.format(np.degrees(theta_m)))
-			print('Angles in reference data set theta_k [deg]: {}'.format(np.degrees(self.theta_k)))
-			print('Path length from antenna_m to center of circle [m]: {}'.format(path_length_k_m_center))
-			print('Path length from antenna_0 to center broadcast2D: {}'.format(path_length_0_k_broadcast2D))
-			print('Path length from antenna_m to antenna_0 [m]: {}'.format(path_length_k_m_ant0))
-			print('Phase difference from antenna_m to antenna_0 [rad]: {}'.format(self.phase_difference_k_m_ant0[M_antennas]))
+			if(verbose is True):
+				print('----------------------')
+				print('ReferenceDataSimulator')
+				print('----------------------')
+				print('Number of antenna elements (M_antennas) [integer]: {}'.format(M_antennas))
+				print('Indices of antennas: {}'.format(m))
+				print('Angle location of each antenna [deg]: {}'.format(np.degrees(theta_m)))
+				print('Angles in reference data set theta_k [deg]: {}'.format(np.degrees(self.theta_k)))
+				print('Path length from antenna_m to center of circle [m]: {}'.format(path_length_k_m_center))
+				print('Path length from antenna_0 to center broadcast2D: {}'.format(path_length_0_k_broadcast2D))
+				print('Path length from antenna_m to antenna_0 [m]: {}'.format(path_length_k_m_ant0))
+				print('Phase difference from antenna_m to antenna_0 [rad]: {}'.format(self.phase_difference_k_m_ant0[M_antennas]))
 
 class CorrelativeInterferometer:
-	def __init__(self, wavelength, diameter, M_antennas_list, K):
+	def __init__(self, wavelength, diameter, M_antennas_list, K, verbose=True):
 		'''
 		TODO: Docstring
 		'''
 		# Save the parameters to instance member variables for future use
 		self.wavelength = wavelength
 		self.diameter = diameter
-		self.M_antennas_list = M_list
+		self.M_antennas_list = M_antennas_list
 		self.K = K
+		self.verbose = verbose
 
 		# Simulate reference phase data for all configurations of M antennas.
-		self.reference_data_simulator = ReferenceDataSimulator(wavelength, diameter, M_list, K)
+		self.reference_data_simulator = ReferenceDataSimulator(wavelength, diameter, M_antennas_list, K, verbose)
 
 		# Configure graphs
 		self.figure_id = 'Correlative Interferometry Simulation'
@@ -234,10 +237,11 @@ class CorrelativeInterferometer:
 			
 			# Find the angle of arrival at this array index.
 			max_angle[M_antennas] = self.reference_data_simulator.theta_k[max_index[M_antennas]]
-			print('-------------------------')
-			print('CorrelativeInterferometer')
-			print('-------------------------')
-			print('(Cost Function Value, Index, Angle) of highest correlation peak ({}, {}, {})'.format(max_value[M_antennas], max_index[M_antennas], np.degrees(max_angle[M_antennas])))
+			if(self.verbose is True):
+				print('-------------------------')
+				print('CorrelativeInterferometer')
+				print('-------------------------')
+				print('(Cost Function Value, Index, Angle) of highest correlation peak ({}, {}, {})'.format(max_value[M_antennas], max_index[M_antennas], np.degrees(max_angle[M_antennas])))
 
 		# Return the complete dictionaries of results
 		return(cost_k, max_value, max_angle)
@@ -254,7 +258,7 @@ class CorrelativeInterferometer:
 		AoA_radian = np.radians(AoA)
 
 		# Simulate measured data for the current ange AoA and all configuratinos of M antennas.
-		measured_data_simulator = MeasuredDataSimulator(self.wavelength, self.diameter, self.M_antennas_list, AoA_radian)
+		measured_data_simulator = MeasuredDataSimulator(self.wavelength, self.diameter, self.M_antennas_list, AoA_radian, self.verbose)
 		
 		# Send measured data through the Correlator. Return values are all dictionaries
 		# of results indexed by primary key antenna configuration M_antennas.
@@ -262,14 +266,15 @@ class CorrelativeInterferometer:
 
 		# Make some graphs
 		for M_antennas in self.M_antennas_list:
-			self.ax1.plot(AoA_radian, 1, marker='+', color='yellow', markersize=24, mew=6, label='M={}'.format(M_antennas))
-			self.ax1.plot(max_angle[M_antennas], 1, marker='+', color='blue', markersize=20, mew=3, label='M={}'.format(M_antennas))
+			self.ax1.plot(AoA_radian, 1, marker='+', color='yellow', markersize=24, mew=6, label='M={}, input'.format(M_antennas))
+			self.ax1.plot(max_angle[M_antennas], 1, marker='+', color='blue', markersize=20, mew=3, label='M={}, output'.format(M_antennas))
+			
 			self.ax2.plot(np.degrees(self.reference_data_simulator.theta_k), cost_k[M_antennas], '-+', label='M={}'.format(M_antennas))
 			
 		# After all lines are added to the graph in a loop, show the plot window once.
 		# If we show the plot window in the loop, it will block program execution
 		# until the user closes the window.
-		#self.ax1.legend()
+		self.ax1.legend(bbox_to_anchor=(1.1,1.0), loc="upper left")
 		self.ax2.legend()
 		plt.show()
 
@@ -292,8 +297,8 @@ class CorrelativeInterferometer:
 
 		for M_antennas in self.M_antennas_list:
 			# Create Line2D object for AoA polar plot
-			line_AoA_polar_sim = Line2D([0],[0], marker='+', color='yellow', markersize=24, mew=6)
-			line_AoA_polar_result = Line2D([0],[0], marker='+', color='blue', markersize=20, mew=3)
+			line_AoA_polar_sim = Line2D([0],[0], marker='+', color='yellow', markersize=24, mew=6, label='M={}, input'.format(M_antennas))
+			line_AoA_polar_result = Line2D([0],[0], marker='+', color='blue', markersize=20, mew=3, label='M={}, output'.format(M_antennas))
 
 			# Add the new Line2D object to the dictionary that we can access later for update
 			self.AoA_polar_sim_line_dict[M_antennas] = line_AoA_polar_sim
@@ -306,7 +311,7 @@ class CorrelativeInterferometer:
 			self.ax1.add_line(line_AoA_polar_result)
 
 			# Create Line2D objects for cost function results
-			line_cost_function = Line2D([0],[0], color=colors[M_antennas])
+			line_cost_function = Line2D([0],[0], color=colors[M_antennas], label='M={}'.format(M_antennas))
 			# Add the new Line2D object to the dictionary that we can access later for update
 			self.cost_function_line_dict[M_antennas] = line_cost_function
 			# Add the new Line2D object to the axis of the figure window.
@@ -319,6 +324,9 @@ class CorrelativeInterferometer:
 		print('Start animation rate = {:.1f} frames per second'.format(frame_rate))
 		print('Close GUI window to exit ...')
 		self.ani_cost_function = matplotlib.animation.FuncAnimation(self.fig, self.update_plot_cost_function, frames=self.angle_generator, interval=update_interval_ms, blit=True)
+		
+		self.ax1.legend(bbox_to_anchor=(1.1,1.0), loc="upper left")
+		self.ax2.legend()
 		plt.show()
 
 	def update_plot_cost_function(self, AoA_radian):
@@ -336,12 +344,9 @@ class CorrelativeInterferometer:
 		calls this generator function at the frame rate and passes the yield value to
 		update_plot.
 		'''
-		
-		# Update graph1 spectrum with a new line from the current data available.
-		print(AoA_radian)
 
 		# Simulate measured data for the current ange AoA and all configuratinos of M antennas.
-		measured_data_simulator = MeasuredDataSimulator(self.wavelength, self.diameter, self.M_antennas_list, AoA_radian)
+		measured_data_simulator = MeasuredDataSimulator(self.wavelength, self.diameter, self.M_antennas_list, AoA_radian, self.verbose)
 		
 		# Send measured data through the Correlator. Return values are all dictionaries
 		# of results indexed by primary key antenna configuration M_antennas.
@@ -357,44 +362,3 @@ class CorrelativeInterferometer:
 		AoA_all_radian = np.radians(np.arange(360))
 		for AoA_radian in AoA_all_radian:
 			yield AoA_radian
-
-
-if __name__ == '__main__':
-
-	# RF Frequency to measure and design the system unit = '[Hz == 1/s]
-	rf_frequency = 900e6
-
-	# Wavelength  Don't use variable name "lambda". reserved in Python language
-	wavelength = speed_of_light / rf_frequency
-
-	# Diamater of circle.  Design to be less than 1 wavelength so we don't
-	# have to deal with integer multiples of 2	*pi (for now)
-	diameter = 0.90 * wavelength
-
-	# Number of angle steps to prepare in reference data set
-	K = 360
-
-	# List of number of antenna elements to process and compare results
-	M_list = [3, 5, 7, 9, 11]
-
-	# Print some debug before we start the simulation
-	print('RF Frequency (f) [Hz]: {}'.format(rf_frequency))
-	print('Wavelength (lambda) [m]: {}'.format(wavelength))
-	print('Diameter of circle (diameter) [m]: {}'.format(diameter))
-	print('Number of angles of arrival to simulate ref data set: {}'.format(K))
-	print('Number of antenna elements to simulate {}'.format(M_list))
-
-	# Create a correlative interferometer object
-	ci =  CorrelativeInterferometer(wavelength, diameter, M_list, K)
-
-	# Choose an angle to simulate an "unknown" arrival signal. unit = [degree]
-	# It does not need to exactly match an angle in the reference data set.
-	# the cost function algorithm finds the nearest match.
-	AoA_deg = 120.6
-	
-	# Process one angle of arrival and generate a plot that shows the result
-	# from a list of antenna configurations.
-	#ci.process_one(AoA_deg)
-
-	ci.process_animation()
-
