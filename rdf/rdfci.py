@@ -222,6 +222,13 @@ class CorrelativeInterferometer:
 		self.ax2.set_xlim((0,360))
 		self.ax2.set_ylim((-5, 15))
 
+		# Choose colors for the lines in the cost function graphs
+		self.colors = {3 : 'yellow',
+				5 : 'cyan',
+				7 : 'magenta',
+				9 : 'blue',
+				11 : 'white'}
+
 	def work(self, phase_m_measured):
 		'''
 		Cost function from the paper.
@@ -283,11 +290,11 @@ class CorrelativeInterferometer:
 
 		# Make some graphs
 		for M_antennas in self.M_antennas_list:
-			self.AoA_polar_axis_dict[M_antennas].plot(self.reference_data_simulator.theta_m_dict[M_antennas], np.ones(M_antennas), marker='.', linestyle='none', color='magenta', markersize=8, label='antenna loc')
+			self.AoA_polar_axis_dict[M_antennas].plot(self.reference_data_simulator.theta_m_dict[M_antennas], np.ones(M_antennas), marker='.', linestyle='none', color=self.colors[M_antennas], markersize=8, label='antenna loc')
 			self.AoA_polar_axis_dict[M_antennas].plot(AoA_radian, 1, marker='+', color='yellow', markersize=14, mew=2, label='input'.format(M_antennas))
 			self.AoA_polar_axis_dict[M_antennas].plot(max_angle[M_antennas], 1, marker='+', color='blue', markersize=10, mew=1, label='output'.format(M_antennas))
 			
-			self.ax2.plot(np.degrees(self.reference_data_simulator.theta_k), cost_k[M_antennas], '-+', label='M={}'.format(M_antennas))
+			self.ax2.plot(np.degrees(self.reference_data_simulator.theta_k), cost_k[M_antennas], '-+', color=self.colors[M_antennas], label='M={}'.format(M_antennas))
 			
 		# After all lines are added to the graph in a loop, show the plot window once.
 		# If we show the plot window in the loop, it will block program execution
@@ -300,12 +307,6 @@ class CorrelativeInterferometer:
 		'''
 		TODO
 		'''
-		# Choose colors for the lines in the cost function graphs
-		colors = {3 : 'yellow',
-				5 : 'cyan',
-				7 : 'magenta',
-				9 : 'blue',
-				11 : 'white'}
 
 		# Create this dictionary to keep Line2D objects and index by number of
 		# antennas in the array configuration
@@ -318,7 +319,7 @@ class CorrelativeInterferometer:
 			# Create Line2D object for AoA polar plot
 			line_AoA_polar_sim = Line2D([0],[0], marker='+', color='yellow', markersize=24, mew=6, label='input'.format(M_antennas))
 			line_AoA_polar_result = Line2D([0],[0], marker='+', color='blue', markersize=20, mew=3, label='output'.format(M_antennas))
-			line_AoA_polar_antenna_loc = Line2D(self.reference_data_simulator.theta_m_dict[M_antennas], np.ones(M_antennas), marker='.', linestyle='none', color=colors[M_antennas], markersize=8, label='antenna loc')
+			line_AoA_polar_antenna_loc = Line2D(self.reference_data_simulator.theta_m_dict[M_antennas], np.ones(M_antennas), marker='.', linestyle='none', color=self.colors[M_antennas], markersize=8, label='antenna loc')
 			
 			# Add the new Line2D object to the dictionary that we can access later for update
 			self.AoA_polar_antenna_loc_line_dict[M_antennas] = line_AoA_polar_antenna_loc
@@ -336,7 +337,7 @@ class CorrelativeInterferometer:
 			self.AoA_polar_axis_dict[M_antennas].add_line(line_AoA_polar_result)
 
 			# Create Line2D objects for cost function results
-			line_cost_function = Line2D([0],[0], color=colors[M_antennas], label='M={}'.format(M_antennas))
+			line_cost_function = Line2D([0],[0], color=self.colors[M_antennas], label='M={}'.format(M_antennas))
 			# Add the new Line2D object to the dictionary that we can access later for update
 			self.cost_function_line_dict[M_antennas] = line_cost_function
 			# Add the new Line2D object to the axis of the figure window.
