@@ -31,6 +31,7 @@ class MeasuredDataSimulator:
 		radius = diameter / 2
 
 		# Create an empty dictionary to append "measured" data
+		# Keep in member variables and use again outside
 		self.phase_difference_m_ant0 = {}
 
 		# Loop through the antenna configurations in M_antennas_list and
@@ -112,7 +113,9 @@ class ReferenceDataSimulator:
 		self.theta_k = np.linspace(0, 2 * np.pi, K_angles, endpoint=False)
 
 		# Create an empty dictionary to append reference data sets
+		# Keep these as member variables so we can use from outside after.
 		self.phase_difference_k_m_ant0 = {}
+		self.theta_m_dict = {}
 
 		# Loop through the antenna configurations in M_antennas_list and
 		# append to the dictionary of reference data sets.
@@ -122,7 +125,7 @@ class ReferenceDataSimulator:
 			m = np.arange(M_antennas)
 
 			# Angles at which we find the M antenna elements
-			theta_m = (m / M_antennas) * 2 * np.pi
+			self.theta_m_dict[M_antennas] = (m / M_antennas) * 2 * np.pi
 
 			# relative angles betwen all combinations of  Angle of Arrival theta_k 
 			# and all antennas theta_m.  Result is a 2D array of size (K,M).  I want
@@ -131,7 +134,7 @@ class ReferenceDataSimulator:
 
 			# First, tile the arrays and broadcast to a 2D array so we can subract 
 			# using 1 vector operation and iterate loops
-			theta_m_broadcast2D = np.tile(theta_m, (K_angles,1))
+			theta_m_broadcast2D = np.tile(self.theta_m_dict[M_antennas], (K_angles,1))
 
 			# Note the .T is transpose to prepare the dimensions to be (K, M)
 			theta_k_broadcast2D = np.tile(self.theta_k, (M_antennas,1)).T 
@@ -163,7 +166,7 @@ class ReferenceDataSimulator:
 				print('----------------------')
 				print('Number of antenna elements (M_antennas) [integer]: {}'.format(M_antennas))
 				print('Indices of antennas: {}'.format(m))
-				print('Angle location of each antenna [deg]: {}'.format(np.degrees(theta_m)))
+				print('Angle location of each antenna [deg]: {}'.format(np.degrees(self.theta_m_dict[M_antennas])))
 				print('Angles in reference data set theta_k [deg]: {}'.format(np.degrees(self.theta_k)))
 				print('Path length from antenna_m to center of circle [m]: {}'.format(path_length_k_m_center))
 				print('Path length from antenna_0 to center broadcast2D: {}'.format(path_length_0_k_broadcast2D))
@@ -187,19 +190,33 @@ class CorrelativeInterferometer:
 
 		# Configure graphs
 		self.figure_id = 'Correlative Interferometry Simulation'
-		self.fig = plt.figure(self.figure_id, figsize=(8,10))
-		
-		self.ax1 = self.fig.add_subplot(2, 1, 1, projection='polar')
-		self.ax1.set_title('Angle of Arrival (Azimuth)')
-		self.ax1.set_theta_zero_location('N')
-		self.ax1.set_theta_direction(-1)
-		self.ax1.grid(True, which="both")
-		self.ax1.set_rticks([])
-		self.ax1.set_rlim((0,1.1))
+		self.fig = plt.figure(self.figure_id, figsize=(12,8))
+		self.gridspec = self.fig.add_gridspec(2, len(self.M_antennas_list))
 
-		self.ax2 = self.fig.add_subplot(2, 1, 2)
+		# Create this dictionary to keep Line2D objects and index by number of
+		# antennas in the array configuration
+		self.AoA_polar_axis_dict = {}
+
+		# Loop through the antenna configurations in M_antennas_list and
+		# Create a matplotlib axis object
+		# the first key of the dictionary is the integer number of antenna elements M
+		# Iterate through array indices rather than values of M_antennas_list 
+		# because we need this index for the subplot function
+		for M_antennas_list_index in np.arange(len(self.M_antennas_list)):
+			# Add a new axis obaxisject to the dictionary
+			M_antennas = self.M_antennas_list[M_antennas_list_index]
+			self.AoA_polar_axis_dict[M_antennas] = self.fig.add_subplot(self.gridspec[0, M_antennas_list_index], projection='polar')
+			#self.AoA_polar_axis_dict[M_antennas] = self.fig.add_subplot(2, len(self.M_antennas_list), M_antennas_list_index+1, projection='polar')
+			self.AoA_polar_axis_dict[M_antennas].set_title('M={}'.format(M_antennas))
+			self.AoA_polar_axis_dict[M_antennas].set_theta_zero_location('N')
+			self.AoA_polar_axis_dict[M_antennas].set_theta_direction(-1)
+			self.AoA_polar_axis_dict[M_antennas].grid(True, which="both", alpha=0.4)
+			self.AoA_polar_axis_dict[M_antennas].set_rticks([])
+			self.AoA_polar_axis_dict[M_antennas].set_rlim((0,1.1))
+
+		self.ax2 = self.fig.add_subplot(self.gridspec[1, :])
 		self.ax2.set_title("Correlation Cost Function")
-		self.ax2.grid(True, which="both")
+		self.ax2.grid(True, which="both", alpha=0.4)
 		self.ax2.set_xlabel('Azimuth Angle')
 		self.ax2.set_ylabel('Cost Function Result')
 		self.ax2.set_xlim((0,360))
@@ -266,16 +283,17 @@ class CorrelativeInterferometer:
 
 		# Make some graphs
 		for M_antennas in self.M_antennas_list:
-			self.ax1.plot(AoA_radian, 1, marker='+', color='yellow', markersize=24, mew=6, label='M={}, input'.format(M_antennas))
-			self.ax1.plot(max_angle[M_antennas], 1, marker='+', color='blue', markersize=20, mew=3, label='M={}, output'.format(M_antennas))
+			self.AoA_polar_axis_dict[M_antennas].plot(self.reference_data_simulator.theta_m_dict[M_antennas], np.ones(M_antennas), marker='.', linestyle='none', color='magenta', markersize=8, label='antenna loc')
+			self.AoA_polar_axis_dict[M_antennas].plot(AoA_radian, 1, marker='+', color='yellow', markersize=14, mew=2, label='input'.format(M_antennas))
+			self.AoA_polar_axis_dict[M_antennas].plot(max_angle[M_antennas], 1, marker='+', color='blue', markersize=10, mew=1, label='output'.format(M_antennas))
 			
 			self.ax2.plot(np.degrees(self.reference_data_simulator.theta_k), cost_k[M_antennas], '-+', label='M={}'.format(M_antennas))
 			
 		# After all lines are added to the graph in a loop, show the plot window once.
 		# If we show the plot window in the loop, it will block program execution
 		# until the user closes the window.
-		self.ax1.legend(bbox_to_anchor=(1.1,1.0), loc="upper left")
-		self.ax2.legend()
+		self.AoA_polar_axis_dict[M_antennas].legend(bbox_to_anchor=(1.1,1.0), loc='upper left')
+		self.ax2.legend(loc='upper right')
 		plt.show()
 
 	def process_animation(self):
@@ -293,22 +311,29 @@ class CorrelativeInterferometer:
 		# antennas in the array configuration
 		self.AoA_polar_sim_line_dict = {}
 		self.AoA_polar_result_line_dict = {}
+		self.AoA_polar_antenna_loc_line_dict = {}
 		self.cost_function_line_dict = {}
 
 		for M_antennas in self.M_antennas_list:
 			# Create Line2D object for AoA polar plot
-			line_AoA_polar_sim = Line2D([0],[0], marker='+', color='yellow', markersize=24, mew=6, label='M={}, input'.format(M_antennas))
-			line_AoA_polar_result = Line2D([0],[0], marker='+', color='blue', markersize=20, mew=3, label='M={}, output'.format(M_antennas))
+			line_AoA_polar_sim = Line2D([0],[0], marker='+', color='yellow', markersize=24, mew=6, label='input'.format(M_antennas))
+			line_AoA_polar_result = Line2D([0],[0], marker='+', color='blue', markersize=20, mew=3, label='output'.format(M_antennas))
+			line_AoA_polar_antenna_loc = Line2D(self.reference_data_simulator.theta_m_dict[M_antennas], np.ones(M_antennas), marker='.', linestyle='none', color=colors[M_antennas], markersize=8, label='antenna loc')
+			
+			# Add the new Line2D object to the dictionary that we can access later for update
+			self.AoA_polar_antenna_loc_line_dict[M_antennas] = line_AoA_polar_antenna_loc
+			# Add the new Line2D object to the axis of the figure window.
+			self.AoA_polar_axis_dict[M_antennas].add_line(line_AoA_polar_antenna_loc)
 
 			# Add the new Line2D object to the dictionary that we can access later for update
 			self.AoA_polar_sim_line_dict[M_antennas] = line_AoA_polar_sim
 			# Add the new Line2D object to the axis of the figure window.
-			self.ax1.add_line(line_AoA_polar_sim)
+			self.AoA_polar_axis_dict[M_antennas].add_line(line_AoA_polar_sim)
 
 			# Add the new Line2D object to the dictionary that we can access later for update
 			self.AoA_polar_result_line_dict[M_antennas] = line_AoA_polar_result
 			# Add the new Line2D object to the axis of the figure window.
-			self.ax1.add_line(line_AoA_polar_result)
+			self.AoA_polar_axis_dict[M_antennas].add_line(line_AoA_polar_result)
 
 			# Create Line2D objects for cost function results
 			line_cost_function = Line2D([0],[0], color=colors[M_antennas], label='M={}'.format(M_antennas))
@@ -325,8 +350,8 @@ class CorrelativeInterferometer:
 		print('Close GUI window to exit ...')
 		self.ani_cost_function = matplotlib.animation.FuncAnimation(self.fig, self.update_plot_cost_function, frames=self.angle_generator, interval=update_interval_ms, blit=True)
 		
-		self.ax1.legend(bbox_to_anchor=(1.1,1.0), loc="upper left")
-		self.ax2.legend()
+		self.AoA_polar_axis_dict[M_antennas].legend(bbox_to_anchor=(1.1,1.0), loc="upper left")
+		self.ax2.legend(loc='upper right')
 		plt.show()
 
 	def update_plot_cost_function(self, AoA_radian):
