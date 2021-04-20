@@ -190,7 +190,7 @@ class CorrelativeInterferometer:
 		self.fig = plt.figure(self.figure_id, figsize=(8,10))
 		
 		self.ax1 = self.fig.add_subplot(2, 1, 1, projection='polar')
-		self.ax1.set_title('Angle of Arrival')
+		self.ax1.set_title('Angle of Arrival (Azimuth)')
 		self.ax1.set_theta_zero_location('N')
 		self.ax1.set_theta_direction(-1)
 		self.ax1.grid(True, which="both")
@@ -200,10 +200,10 @@ class CorrelativeInterferometer:
 		self.ax2 = self.fig.add_subplot(2, 1, 2)
 		self.ax2.set_title("Correlation Cost Function")
 		self.ax2.grid(True, which="both")
-		self.ax2.set_xlabel('Angle')
+		self.ax2.set_xlabel('Azimuth Angle')
 		self.ax2.set_ylabel('Cost Function Result')
 		self.ax2.set_xlim((0,360))
-		self.ax2.set_ylim((0, 12))
+		self.ax2.set_ylim((-5, 15))
 
 	def work(self, phase_m_measured):
 		'''
