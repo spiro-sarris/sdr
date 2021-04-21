@@ -348,12 +348,26 @@ class CorrelativeInterferometer:
 		update_interval_ms = 1000*(1/frame_rate)
 
 		print('Start animation rate = {:.1f} frames per second'.format(frame_rate))
-		print('Close GUI window to exit ...')
-		self.ani_cost_function = matplotlib.animation.FuncAnimation(self.fig, self.update_plot_cost_function, frames=self.angle_generator, interval=update_interval_ms, blit=True)
-		
+		self.ani_cost_function = matplotlib.animation.FuncAnimation(self.fig, self.update_plot_cost_function, frames=self.angle_generator, interval=update_interval_ms, blit=True, save_count=360)
+
 		self.AoA_polar_axis_dict[M_antennas].legend(bbox_to_anchor=(1.1,1.0), loc="upper left")
 		self.ax2.legend(loc='upper right')
+
+		# ----------- Write animation to video file output -------------------------
+		# Save an mp4 video of 360 frames (one full round) before we show the graph.
+		# Create an object of that writer class.
+		# Note ** This function appears "slow" because it takes a long time to convert
+		# the matplotlib graphics into mp4.
+		
+		# --- uncomment these lines to write a .mp4 file ---------
+		# filename = 'rdfci_simulation.mp4'
+		# print('Saving the first 360 frames to {} ...'.format(filename))
+		# writer = matplotlib.animation.FFMpegWriter(fps=frame_rate)
+		# self.ani_cost_function.save(filename, writer)
+
+		print('Close GUI window to exit ...')
 		plt.show()
+
 
 	def update_plot_cost_function(self, AoA_radian):
 		'''
